@@ -55,4 +55,4 @@ jobs:
             docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
             docker stop mi-servicio || true
             docker rm mi-servicio || true
-            docker run -d --name mi-servicio --restart unless-stopped -p 80:80 ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
+            docker run -d --name mi-servicio --restart unless-stopped -p 80:8080 ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
