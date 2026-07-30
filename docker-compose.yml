@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   db:
     image: postgres:16-alpine
@@ -8,20 +6,20 @@ services:
     environment:
       POSTGRES_DB: 3dprintinghub_db
       POSTGRES_USER: admin
-      POSTGRES_PASSWORD: ${DB_PASSWORD} # <--- Se lee de un archivo .env
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
     ports:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
   webapi:
-    image: ghcr.io/tu-usuario/tu-repositorio:latest
+    image: ghcr.io/alandelac/3d_printing_hub:latest
     container_name: mi-servicio
     restart: unless-stopped
     ports:
       - "80:8080"
     environment:
-      - ConnectionStrings__DefaultConnection=Host=db;Database=3dprintinghub_db;Username=admin;Password=${DB_PASSWORD} # <--- Se inyecta aquí también
+      - ConnectionStrings__DefaultConnection=Host=db;Database=3dprintinghub_db;Username=admin;Password=${DB_PASSWORD}
     depends_on:
       - db
 
