@@ -39,7 +39,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-	# 1. Conectar el runner de GitHub a Tailscale para alcanzar la Raspberry Pi
+      # 1. Conectar el runner de GitHub a Tailscale para alcanzar la Raspberry Pi
       - name: Setup Tailscale
         uses: tailscale/github-action@v2
         with:
