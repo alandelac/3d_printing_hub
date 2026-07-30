@@ -1,4 +1,4 @@
-name: Deploy to Raspberry Pi via Tailscale
+name: Build and Deploy
 
 on:
   push:
@@ -9,50 +9,66 @@ env:
   IMAGE_NAME: ${{ github.repository }}
 
 jobs:
-  build-and-deploy:
+  build-and-push-image:
     runs-on: ubuntu-latest
     permissions:
       contents: read
       packages: write
-
     steps:
-      - name: Checkout del código
+      - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Conectar a Tailscale VPN
-        uses: tailscale/github-action@v2
-        with:
-          oauth-client-id: ${{ secrets.TS_OAUTH_CLIENT_ID }}
-          oauth-secret: ${{ secrets.TS_OAUTH_SECRET }}
-          tags: tag:ci
-
-      - name: Iniciar sesión en GitHub Container Registry
+      - name: Log in to the Container registry
         uses: docker/login-action@v3
         with:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Configurar Docker Buildx (Soporte ARM64 para Raspberry)
-        uses: docker/setup-buildx-action@v3
-
-      - name: Compilar y Subir Imagen Docker
+      - name: Build and push Docker image
         uses: docker/build-push-action@v5
         with:
           context: .
-          platforms: linux/arm64
           push: true
           tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
+
+  deploy:
+    needs: build-and-push-image
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Copiar docker-compose al servidor
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.PI_HOST }}
+          username: ${{ secrets.PI_USERNAME }}
+          password: ${{ secrets.PI_PASSWORD }}
+          source: "docker-compose.yml"
+          target: "/home/${{ secrets.PI_USERNAME }}/3dprintinghub"
 
       - name: Desplegar en Raspberry Pi via SSH
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.PI_HOST }}
           username: ${{ secrets.PI_USERNAME }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          password: ${{ secrets.PI_PASSWORD }}
           script: |
+            # Moverse a la carpeta donde SCP dejó el archivo
+            cd /home/${{ secrets.PI_USERNAME }}/3dprintinghub
+            
+            # 1. Crear el archivo .env inyectando el secreto de GitHub de forma segura
+            echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" > .env
+            
+            # 2. Iniciar sesión en GitHub Container Registry
             echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin
-            docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
-            docker stop mi-servicio || true
-            docker rm mi-servicio || true
-            docker run -d --name mi-servicio --restart unless-stopped -p 80:8080 ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
+            
+            # 3. Descargar la imagen más reciente de tu API (.NET 10)
+            docker compose pull webapi
+            
+            # 4. Levantar ambos contenedores (PostgreSQL y API)
+            docker compose up -d
+            
+            # 5. Opcional: Limpiar imágenes viejas de Docker para no llenar la SD de la Raspberry
+            docker image prune -af
