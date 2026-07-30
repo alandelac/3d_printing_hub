@@ -39,6 +39,14 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+	# 1. Conectar el runner de GitHub a Tailscale para alcanzar la Raspberry Pi
+      - name: Setup Tailscale
+        uses: tailscale/github-action@v2
+        with:
+          oauth-client-id: ${{ secrets.TS_OAUTH_CLIENT_ID }}
+          oauth-secret: ${{ secrets.TS_OAUTH_SECRET }}
+          tags: tag:ci # Requisito de Tailscale al usar OAuth para identificar el runner temporal
+
       - name: Copiar docker-compose al servidor
         uses: appleboy/scp-action@v0.1.7
         with:
