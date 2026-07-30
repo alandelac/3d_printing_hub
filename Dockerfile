@@ -2,14 +2,14 @@
 FROM mcr.microsoft.com/dotnet/sdk:10.0-preview AS build
 WORKDIR /app
 
-# Copiar archivos de proyecto (.csproj) y restaurar dependencias
-COPY src/3DPrintingHub.sln src/
+# Copiar archivo de solución (.slnx) y proyectos (.csproj) para restaurar dependencias
+COPY src/3DPrintingHub.slnx src/
 COPY src/3DPrintingHub.Domain/*.csproj src/3DPrintingHub.Domain/
 COPY src/3DPrintingHub.Application/*.csproj src/3DPrintingHub.Application/
 COPY src/3DPrintingHub.Infrastructure/*.csproj src/3DPrintingHub.Infrastructure/
 COPY src/3DPrintingHub.Api/*.csproj src/3DPrintingHub.Api/
 
-RUN dotnet restore src/3DPrintingHub.sln
+RUN dotnet restore src/3DPrintingHub.slnx
 
 # Copiar todo el código fuente y compilar
 COPY src/ src/
