@@ -1,0 +1,6 @@
+<Solution>
+  <Project Path="3DPrintingHub.Api/3DPrintingHub.Api.csproj" />
+  <Project Path="3DPrintingHub.Application/3DPrintingHub.Application.csproj" />
+  <Project Path="3DPrintingHub.Domain/3DPrintingHub.Domain.csproj" />
+  <Project Path="3DPrintingHub.Infrastructure/3DPrintingHub.Infrastructure.csproj" />
+</Solution>
