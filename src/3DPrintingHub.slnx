@@ -3,4 +3,5 @@
   <Project Path="3DPrintingHub.Application/3DPrintingHub.Application.csproj" />
   <Project Path="3DPrintingHub.Domain/3DPrintingHub.Domain.csproj" />
   <Project Path="3DPrintingHub.Infrastructure/3DPrintingHub.Infrastructure.csproj" />
+  <Project Path="3DPrintingHub.Client\3DPrintingHub.Client.csproj" />
 </Solution>

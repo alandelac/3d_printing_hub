@@ -8,6 +8,7 @@ COPY src/3DPrintingHub.Domain/*.csproj src/3DPrintingHub.Domain/
 COPY src/3DPrintingHub.Application/*.csproj src/3DPrintingHub.Application/
 COPY src/3DPrintingHub.Infrastructure/*.csproj src/3DPrintingHub.Infrastructure/
 COPY src/3DPrintingHub.Api/*.csproj src/3DPrintingHub.Api/
+COPY src/3DPrintingHub.Client/*.csproj src/3DPrintingHub.Client/
 
 RUN dotnet restore src/3DPrintingHub.slnx
 
