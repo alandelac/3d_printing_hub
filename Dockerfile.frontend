@@ -1,17 +1,26 @@
-# Etapa 1: Compilar Blazor WebAssembly
-FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
-WORKDIR /src
-COPY src/3DPrintingHub.Client/3DPrintingHub.Client.csproj ./3DPrintingHub.Client/
-RUN dotnet restore ./3DPrintingHub.Client/3DPrintingHub.Client.csproj
+# --- Etapa 1: Construir Angular con Node.js ---
+FROM node:24-slim AS build
+WORKDIR /app
 
-COPY src/ ./
-WORKDIR /src/3DPrintingHub.Client
-RUN dotnet publish ./3DPrintingHub.Client.csproj -c Release -o /app/publish
+# Copiar configuración de dependencias y descargarlas
+COPY src/3DPrintingHub.Client/package*.json ./
+RUN npm install
 
-# Etapa 2: Servir con Nginx
+# Copiar el resto del código de Angular y compilar
+COPY src/3DPrintingHub.Client/ ./
+RUN npm run build --configuration=production
+
+# --- Etapa 2: Servir con Nginx ---
 FROM nginx:alpine AS final
 WORKDIR /usr/share/nginx/html
-COPY --from=build /app/publish/wwwroot .
+
+# Limpiar los archivos HTML por defecto de Nginx
+RUN rm -rf ./*
+
+# Angular 17+ genera el build en una subcarpeta 'browser'. La copiamos a Nginx
+COPY --from=build /app/dist/frontend-app/browser .
+
+# Copiar tu configuración de Nginx (proxy y rutas)
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 
 EXPOSE 80
