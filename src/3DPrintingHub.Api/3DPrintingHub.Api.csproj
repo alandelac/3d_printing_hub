@@ -19,7 +19,6 @@
   <ItemGroup>
     <ProjectReference Include="..\3DPrintingHub.Application\3DPrintingHub.Application.csproj" />
     <ProjectReference Include="..\3DPrintingHub.Infrastructure\3DPrintingHub.Infrastructure.csproj" />
-    <ProjectReference Include="..\3DPrintingHub.Client\3DPrintingHub.Client.csproj" />
   </ItemGroup>
 
 </Project>

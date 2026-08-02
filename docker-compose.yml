@@ -2,26 +2,39 @@ services:
   db:
     image: postgres:16-alpine
     container_name: 3dprintinghub-db
-    restart: unless-stopped
+    restart: always
     environment:
-      POSTGRES_DB: 3dprintinghub_db
-      POSTGRES_USER: admin
+      POSTGRES_DB: printinghub
+      POSTGRES_USER: postgres
       POSTGRES_PASSWORD: ${DB_PASSWORD}
-    ports:
-      - "5432:5432"
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      :/var/lib/postgresql/data
+    networks:
+      - app-net
 
   webapi:
-    image: ghcr.io/alandelac/3d_printing_hub:latest
-    container_name: mi-servicio
-    restart: unless-stopped
-    ports:
-      - "80:8080"
+    image: ghcr.io/alandelac/3d_printing_hub_api:latest
+    container_name: 3dprintinghub-api
+    restart: always
     environment:
-      - ConnectionStrings__DefaultConnection=Host=db;Database=3dprintinghub_db;Username=admin;Password=${DB_PASSWORD}
+      - ConnectionStrings__DefaultConnection=Host=db;Database=printinghub;Username=postgres;Password=${DB_PASSWORD}
+      - ASPNETCORE_ENVIRONMENT=Production
     depends_on:
       - db
+    networks:
+      - app-net
 
-volumes:
-  postgres_data:
+  frontend:
+    image: ghcr.io/alandelac/3d_printing_hub_frontend:latest
+    container_name: 3dprintinghub-frontend
+    restart: always
+    ports:
+      - "80:80"
+    depends_on:
+      - webapi
+    networks:
+      - app-net
+
+networks:
+  app-net:
+    driver: bridge
