@@ -30,19 +30,15 @@ using (var scope = app.Services.CreateScope())
 }
 
 // Permite que la API reconozca los archivos del cliente de Blazor
-app.UseBlazorFrameworkFiles(); 
+app.UseHttpsRedirection();
+app.UseBlazorFrameworkFiles();
 app.UseStaticFiles();
 
 app.UseRouting();
-
 app.UseAuthorization();
 
 app.MapControllers();
 // Si alguien entra a una ruta que no es de la API, cárgale el index.html de Blazor
 app.MapFallbackToFile("index.html");
-
-app.UseHttpsRedirection();
-app.UseAuthorization();
-app.MapControllers();
 
 app.Run();
