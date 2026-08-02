@@ -23,10 +23,10 @@ jobs:
         with:
           dotnet-version: '10.0.x' # Asegura usar la misma versión
 
-      # 1. Compilación nativa ultrarrápida optimizada para Raspberry Pi (linux-arm64)
-      - name: Publish App for ARM64
+      # 1. # Compilación limpia y portable (empaqueta automáticamente la API y Blazor juntos)
+      - name: Publish App
         run: |
-          dotnet publish src/3DPrintingHub.Api/3DPrintingHub.Api.csproj -c Release -r linux-arm64 --self-contained false -o ./publish
+          dotnet publish src/3DPrintingHub.Api/3DPrintingHub.Api.csproj -c Release -o ./publish
 
       # 2. Configurar Buildx (Ya no necesitamos QEMU pesado porque los binarios ya van listos)
       - name: Set up Docker Buildx
