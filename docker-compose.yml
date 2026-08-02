@@ -14,11 +14,15 @@ services:
 
   webapi:
     image: ghcr.io/alandelac/3d_printing_hub_api:latest
+    build:
+      context: .
+      dockerfile: Dockerfile.api
     container_name: 3dprintinghub-api
     restart: always
     environment:
       - ConnectionStrings__DefaultConnection=Host=db;Database=printinghub;Username=postgres;Password=${DB_PASSWORD}
       - ASPNETCORE_ENVIRONMENT=Production
+      - ASPNETCORE_URLS=http://+:8080
     depends_on:
       - db
     networks:
@@ -26,6 +30,9 @@ services:
 
   frontend:
     image: ghcr.io/alandelac/3d_printing_hub_frontend:latest
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
     container_name: 3dprintinghub-frontend
     restart: always
     ports:

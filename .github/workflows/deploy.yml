@@ -6,6 +6,7 @@ on:
 
 env:
   REGISTRY: ghcr.io
+  IMAGE_REPOSITORY: ${{ github.repository_owner }}/3d_printing_hub
 
 jobs:
   build-and-push:
@@ -51,7 +52,7 @@ jobs:
           context: .
           file: ./Dockerfile.api
           push: true
-          tags: ${{ env.REGISTRY }}/${{ github.repository }}_api:latest
+          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_REPOSITORY }}_api:latest
           platforms: linux/arm64
 
       # 5. Construir y subir imagen del FRONTEND
@@ -61,7 +62,7 @@ jobs:
           context: .
           file: ./Dockerfile.frontend
           push: true
-          tags: ${{ env.REGISTRY }}/${{ github.repository }}_frontend:latest
+          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_REPOSITORY }}_frontend:latest
           platforms: linux/arm64
 
   deploy:

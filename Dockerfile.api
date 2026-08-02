@@ -1,8 +1,20 @@
+# Etapa 1: Compilar la API
+FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
+WORKDIR /src
+COPY src/3DPrintingHub.Api/3DPrintingHub.Api.csproj ./3DPrintingHub.Api/
+COPY src/3DPrintingHub.Application/3DPrintingHub.Application.csproj ./3DPrintingHub.Application/
+COPY src/3DPrintingHub.Infrastructure/3DPrintingHub.Infrastructure.csproj ./3DPrintingHub.Infrastructure/
+RUN dotnet restore ./3DPrintingHub.Api/3DPrintingHub.Api.csproj
+
+COPY src/ ./
+WORKDIR /src/3DPrintingHub.Api
+RUN dotnet publish ./3DPrintingHub.Api.csproj -c Release -o /app/publish
+
+# Etapa 2: Runtime ligero
 FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS final
 WORKDIR /app
-COPY publish-api/ .
+COPY --from=build /app/publish .
 
 EXPOSE 8080
 ENV ASPNETCORE_HTTP_PORTS=8080
-
 ENTRYPOINT ["dotnet", "3DPrintingHub.Api.dll"]
