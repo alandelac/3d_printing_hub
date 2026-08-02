@@ -1,5 +1,5 @@
-# Stage único: Runtime ligero de .NET 10 para ARM64
-FROM mcr.microsoft.com/dotnet/aspnet:10.0-preview AS final
+# Stage: Runtime ligero de .NET 10 (Versión estable)
+FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS final
 WORKDIR /app
 COPY publish/ .
 
