@@ -6,25 +6,22 @@ public class Filament
 
     // Clave Foránea hacia el Perfil Técnico
     public Guid FilamentProfileId { get; set; }
-    public FilamentProfile? Profile { get; set; }
-
-    // Datos Propios de este Rollo Específico
-    public string Color { get; set; } = string.Empty;
+    public FilamentProfile Profile { get; set; } = new FilamentProfile();
+    public Guid FilamentColorId { get; set; }
+    public FilamentColor Color { get; set; } = new FilamentColor();
 
     // Inventario y Pesaje
-    public int TotalWeightGrams { get; set; } = 1000;
     public int RemainingWeightGrams { get; set; } = 1000;
-    public int SpoolEmptyWeightGrams { get; set; } // Tarado del carrete plástico vacío
-    public decimal minCost { get; set; }                   // Precio pagado por este paquete
-    public decimal maxCost { get; set; }
-    public decimal lastCost { get; set; }
+    public decimal MinCost { get; set; }                   // Precio pagado por este paquete
+    public decimal MaxCost { get; set; }
+    public decimal LastCost { get; set; }
 
-
-    // Opcional: Permite sobrescribir la temperatura si un color específico (ej. Blanco o Seda) requiere ajustes
-    public int? CustomNozzleTemp { get; set; }
-
-    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+    public DateTime LastPurchaseDate { get; set; } = DateTime.UtcNow;
+    public string? BuyLink { get; set; }
+    public bool? BuyAgain { get; set; }
 
     // Propiedad calculada
-    public decimal CostPerGram => TotalWeightGrams > 0 ? lastCost / TotalWeightGrams : 0m;
+    public decimal CostPerGram => MaxCost / 1000; // asumiendo que el peso total es de un Kg
+
+    public ICollection<ProductStock> ProductStocks { get; set; } = [];
 }

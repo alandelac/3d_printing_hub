@@ -12,7 +12,7 @@ using _3DPrintingHub.Infrastructure.Data;
 namespace _3DPrintingHub.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20260730033823_InitialCreate")]
+    [Migration("20260803034332_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />

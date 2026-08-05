@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using _3DPrintingHub.Infrastructure.Data;
@@ -11,9 +12,11 @@ using _3DPrintingHub.Infrastructure.Data;
 namespace _3DPrintingHub.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260804230036_EntidadesDeModelosYProductos")]
+    partial class EntidadesDeModelosYProductos
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -147,7 +150,7 @@ namespace _3DPrintingHub.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Marketplaces");
+                    b.ToTable("Marketplace");
                 });
 
             modelBuilder.Entity("_3DPrintingHub.Domain.Entities.MaterialType", b =>
@@ -162,7 +165,7 @@ namespace _3DPrintingHub.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("MaterialTypes");
+                    b.ToTable("MaterialType");
                 });
 
             modelBuilder.Entity("_3DPrintingHub.Domain.Entities.ModelPrint", b =>
@@ -189,6 +192,9 @@ namespace _3DPrintingHub.Infrastructure.Migrations
                     b.Property<int>("EstimatedWeightGrams")
                         .HasColumnType("integer");
 
+                    b.Property<Guid?>("FilamentId")
+                        .HasColumnType("uuid");
+
                     b.Property<string>("FileLocationOrUrl")
                         .HasColumnType("text");
 
@@ -202,6 +208,8 @@ namespace _3DPrintingHub.Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("CategoryId");
+
+                    b.HasIndex("FilamentId");
 
                     b.ToTable("ModelPrints");
                 });
@@ -218,7 +226,7 @@ namespace _3DPrintingHub.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("ModelPrintCategories");
+                    b.ToTable("ModelPrintCategory");
                 });
 
             modelBuilder.Entity("_3DPrintingHub.Domain.Entities.PrintJob", b =>
@@ -228,8 +236,7 @@ namespace _3DPrintingHub.Infrastructure.Migrations
                         .HasColumnType("uuid");
 
                     b.Property<decimal>("CalculatedMaterialCost")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("numeric(18,2)");
+                        .HasColumnType("numeric");
 
                     b.Property<Guid>("FilamentId")
                         .HasColumnType("uuid");
@@ -262,8 +269,7 @@ namespace _3DPrintingHub.Infrastructure.Migrations
                         .HasColumnType("uuid");
 
                     b.Property<decimal>("CostToProduce")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("numeric(18,2)");
+                        .HasColumnType("numeric");
 
                     b.Property<Guid>("FilamentId")
                         .HasColumnType("uuid");
@@ -278,8 +284,7 @@ namespace _3DPrintingHub.Infrastructure.Migrations
                         .HasColumnType("integer");
 
                     b.Property<decimal>("SalePrice")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("numeric(18,2)");
+                        .HasColumnType("numeric");
 
                     b.HasKey("Id");
 
@@ -314,24 +319,6 @@ namespace _3DPrintingHub.Infrastructure.Migrations
                     b.ToTable("PublishedModels");
                 });
 
-            modelBuilder.Entity("_3DPrintingHub.Domain.Entities.Settings", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("parameter")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<decimal>("value")
-                        .HasColumnType("numeric");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Settings");
-                });
-
             modelBuilder.Entity("_3DPrintingHub.Domain.Entities.Filament", b =>
                 {
                     b.HasOne("_3DPrintingHub.Domain.Entities.FilamentColor", "Color")
@@ -356,13 +343,13 @@ namespace _3DPrintingHub.Infrastructure.Migrations
                     b.HasOne("_3DPrintingHub.Domain.Entities.Brand", "BrandName")
                         .WithMany()
                         .HasForeignKey("BrandId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("_3DPrintingHub.Domain.Entities.MaterialType", "MaterialType")
                         .WithMany()
                         .HasForeignKey("MaterialTypeId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("BrandName");
@@ -375,8 +362,12 @@ namespace _3DPrintingHub.Infrastructure.Migrations
                     b.HasOne("_3DPrintingHub.Domain.Entities.ModelPrintCategory", "Category")
                         .WithMany("ModelPrints")
                         .HasForeignKey("CategoryId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.HasOne("_3DPrintingHub.Domain.Entities.Filament", null)
+                        .WithMany("ModelPrints")
+                        .HasForeignKey("FilamentId");
 
                     b.Navigation("Category");
                 });
@@ -386,13 +377,13 @@ namespace _3DPrintingHub.Infrastructure.Migrations
                     b.HasOne("_3DPrintingHub.Domain.Entities.Filament", "Filament")
                         .WithMany()
                         .HasForeignKey("FilamentId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("_3DPrintingHub.Domain.Entities.ModelPrint", "ModelPrint")
                         .WithMany()
                         .HasForeignKey("ModelPrintId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Filament");
@@ -403,15 +394,15 @@ namespace _3DPrintingHub.Infrastructure.Migrations
             modelBuilder.Entity("_3DPrintingHub.Domain.Entities.ProductStock", b =>
                 {
                     b.HasOne("_3DPrintingHub.Domain.Entities.Filament", "Filament")
-                        .WithMany("ProductStocks")
+                        .WithMany()
                         .HasForeignKey("FilamentId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("_3DPrintingHub.Domain.Entities.ModelPrint", "ModelPrint")
                         .WithMany("ProductStocks")
                         .HasForeignKey("ModelPrintId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Filament");
@@ -424,13 +415,13 @@ namespace _3DPrintingHub.Infrastructure.Migrations
                     b.HasOne("_3DPrintingHub.Domain.Entities.Marketplace", "Marketplace")
                         .WithMany("PublishedModels")
                         .HasForeignKey("MarketplaceId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("_3DPrintingHub.Domain.Entities.ProductStock", "ProductStock")
                         .WithMany("PublishedModels")
                         .HasForeignKey("ProductStockId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Marketplace");
@@ -440,7 +431,7 @@ namespace _3DPrintingHub.Infrastructure.Migrations
 
             modelBuilder.Entity("_3DPrintingHub.Domain.Entities.Filament", b =>
                 {
-                    b.Navigation("ProductStocks");
+                    b.Navigation("ModelPrints");
                 });
 
             modelBuilder.Entity("_3DPrintingHub.Domain.Entities.FilamentColor", b =>

@@ -20,7 +20,7 @@ public class FilamentService : IFilamentService
     {
         var filament = new Filament
         {
-            FilamentProfileId = dto.FilamentProfileId,
+           /* FilamentProfileId = dto.FilamentProfileId,
             Color = dto.Color,
             TotalWeightGrams = dto.TotalWeightGrams,
             RemainingWeightGrams = dto.RemainingWeightGrams,
@@ -30,6 +30,7 @@ public class FilamentService : IFilamentService
             lastCost = dto.LastCost,
             CustomNozzleTemp = dto.CustomNozzleTemp,
             CreatedAt = DateTime.UtcNow
+            */
         };
 
         await _dbContext.Filaments.AddAsync(filament, cancellationToken);

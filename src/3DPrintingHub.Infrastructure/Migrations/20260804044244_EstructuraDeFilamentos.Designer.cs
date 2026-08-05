@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using _3DPrintingHub.Infrastructure.Data;
@@ -11,9 +12,11 @@ using _3DPrintingHub.Infrastructure.Data;
 namespace _3DPrintingHub.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260804044244_EstructuraDeFilamentos")]
+    partial class EstructuraDeFilamentos
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -135,21 +138,6 @@ namespace _3DPrintingHub.Infrastructure.Migrations
                     b.ToTable("FilamentProfiles");
                 });
 
-            modelBuilder.Entity("_3DPrintingHub.Domain.Entities.Marketplace", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Marketplaces");
-                });
-
             modelBuilder.Entity("_3DPrintingHub.Domain.Entities.MaterialType", b =>
                 {
                     b.Property<Guid>("Id")
@@ -162,7 +150,7 @@ namespace _3DPrintingHub.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("MaterialTypes");
+                    b.ToTable("MaterialType");
                 });
 
             modelBuilder.Entity("_3DPrintingHub.Domain.Entities.ModelPrint", b =>
@@ -171,14 +159,8 @@ namespace _3DPrintingHub.Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<Guid>("CategoryId")
-                        .HasColumnType("uuid");
-
-                    b.Property<bool>("CommercialLicense")
-                        .HasColumnType("boolean");
-
-                    b.Property<decimal>("DefaultCost")
-                        .HasColumnType("numeric");
+                    b.Property<string>("Category")
+                        .HasColumnType("text");
 
                     b.Property<decimal>("DefaultSalePrice")
                         .HasColumnType("numeric");
@@ -199,26 +181,15 @@ namespace _3DPrintingHub.Infrastructure.Migrations
                     b.Property<string>("Notes")
                         .HasColumnType("text");
 
-                    b.HasKey("Id");
+                    b.Property<bool>("RequiresIroning")
+                        .HasColumnType("boolean");
 
-                    b.HasIndex("CategoryId");
+                    b.Property<bool>("RequiresSupports")
+                        .HasColumnType("boolean");
+
+                    b.HasKey("Id");
 
                     b.ToTable("ModelPrints");
-                });
-
-            modelBuilder.Entity("_3DPrintingHub.Domain.Entities.ModelPrintCategory", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("ModelPrintCategories");
                 });
 
             modelBuilder.Entity("_3DPrintingHub.Domain.Entities.PrintJob", b =>
@@ -228,8 +199,7 @@ namespace _3DPrintingHub.Infrastructure.Migrations
                         .HasColumnType("uuid");
 
                     b.Property<decimal>("CalculatedMaterialCost")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("numeric(18,2)");
+                        .HasColumnType("numeric");
 
                     b.Property<Guid>("FilamentId")
                         .HasColumnType("uuid");
@@ -261,12 +231,12 @@ namespace _3DPrintingHub.Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<decimal>("CostToProduce")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("numeric(18,2)");
+                    b.Property<string>("Color")
+                        .IsRequired()
+                        .HasColumnType("text");
 
-                    b.Property<Guid>("FilamentId")
-                        .HasColumnType("uuid");
+                    b.Property<decimal>("CostToProduce")
+                        .HasColumnType("numeric");
 
                     b.Property<DateTime>("LastUpdated")
                         .HasColumnType("timestamp with time zone");
@@ -278,58 +248,13 @@ namespace _3DPrintingHub.Infrastructure.Migrations
                         .HasColumnType("integer");
 
                     b.Property<decimal>("SalePrice")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("numeric(18,2)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("FilamentId");
-
-                    b.HasIndex("ModelPrintId");
-
-                    b.ToTable("ProductStocks");
-                });
-
-            modelBuilder.Entity("_3DPrintingHub.Domain.Entities.PublishedModels", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid>("MarketplaceId")
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid>("ProductStockId")
-                        .HasColumnType("uuid");
-
-                    b.Property<int>("Published")
-                        .HasColumnType("integer");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("MarketplaceId");
-
-                    b.HasIndex("ProductStockId");
-
-                    b.ToTable("PublishedModels");
-                });
-
-            modelBuilder.Entity("_3DPrintingHub.Domain.Entities.Settings", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("parameter")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<decimal>("value")
                         .HasColumnType("numeric");
 
                     b.HasKey("Id");
 
-                    b.ToTable("Settings");
+                    b.HasIndex("ModelPrintId");
+
+                    b.ToTable("ProductStocks");
                 });
 
             modelBuilder.Entity("_3DPrintingHub.Domain.Entities.Filament", b =>
@@ -356,13 +281,13 @@ namespace _3DPrintingHub.Infrastructure.Migrations
                     b.HasOne("_3DPrintingHub.Domain.Entities.Brand", "BrandName")
                         .WithMany()
                         .HasForeignKey("BrandId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("_3DPrintingHub.Domain.Entities.MaterialType", "MaterialType")
                         .WithMany()
                         .HasForeignKey("MaterialTypeId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("BrandName");
@@ -370,29 +295,18 @@ namespace _3DPrintingHub.Infrastructure.Migrations
                     b.Navigation("MaterialType");
                 });
 
-            modelBuilder.Entity("_3DPrintingHub.Domain.Entities.ModelPrint", b =>
-                {
-                    b.HasOne("_3DPrintingHub.Domain.Entities.ModelPrintCategory", "Category")
-                        .WithMany("ModelPrints")
-                        .HasForeignKey("CategoryId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("Category");
-                });
-
             modelBuilder.Entity("_3DPrintingHub.Domain.Entities.PrintJob", b =>
                 {
                     b.HasOne("_3DPrintingHub.Domain.Entities.Filament", "Filament")
                         .WithMany()
                         .HasForeignKey("FilamentId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("_3DPrintingHub.Domain.Entities.ModelPrint", "ModelPrint")
                         .WithMany()
                         .HasForeignKey("ModelPrintId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Filament");
@@ -402,45 +316,13 @@ namespace _3DPrintingHub.Infrastructure.Migrations
 
             modelBuilder.Entity("_3DPrintingHub.Domain.Entities.ProductStock", b =>
                 {
-                    b.HasOne("_3DPrintingHub.Domain.Entities.Filament", "Filament")
-                        .WithMany("ProductStocks")
-                        .HasForeignKey("FilamentId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
                     b.HasOne("_3DPrintingHub.Domain.Entities.ModelPrint", "ModelPrint")
-                        .WithMany("ProductStocks")
+                        .WithMany()
                         .HasForeignKey("ModelPrintId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.Navigation("Filament");
 
                     b.Navigation("ModelPrint");
-                });
-
-            modelBuilder.Entity("_3DPrintingHub.Domain.Entities.PublishedModels", b =>
-                {
-                    b.HasOne("_3DPrintingHub.Domain.Entities.Marketplace", "Marketplace")
-                        .WithMany("PublishedModels")
-                        .HasForeignKey("MarketplaceId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("_3DPrintingHub.Domain.Entities.ProductStock", "ProductStock")
-                        .WithMany("PublishedModels")
-                        .HasForeignKey("ProductStockId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("Marketplace");
-
-                    b.Navigation("ProductStock");
-                });
-
-            modelBuilder.Entity("_3DPrintingHub.Domain.Entities.Filament", b =>
-                {
-                    b.Navigation("ProductStocks");
                 });
 
             modelBuilder.Entity("_3DPrintingHub.Domain.Entities.FilamentColor", b =>
@@ -451,26 +333,6 @@ namespace _3DPrintingHub.Infrastructure.Migrations
             modelBuilder.Entity("_3DPrintingHub.Domain.Entities.FilamentProfile", b =>
                 {
                     b.Navigation("Filaments");
-                });
-
-            modelBuilder.Entity("_3DPrintingHub.Domain.Entities.Marketplace", b =>
-                {
-                    b.Navigation("PublishedModels");
-                });
-
-            modelBuilder.Entity("_3DPrintingHub.Domain.Entities.ModelPrint", b =>
-                {
-                    b.Navigation("ProductStocks");
-                });
-
-            modelBuilder.Entity("_3DPrintingHub.Domain.Entities.ModelPrintCategory", b =>
-                {
-                    b.Navigation("ModelPrints");
-                });
-
-            modelBuilder.Entity("_3DPrintingHub.Domain.Entities.ProductStock", b =>
-                {
-                    b.Navigation("PublishedModels");
                 });
 #pragma warning restore 612, 618
         }
