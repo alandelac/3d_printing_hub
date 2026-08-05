@@ -1,0 +1,39 @@
+using System.Threading;
+using System.Threading.Tasks;
+using _3DPrintingHub.Application.Dtos;
+using _3DPrintingHub.Application.Services;
+using _3DPrintingHub.Domain.Entities;
+using _3DPrintingHub.Infrastructure.Data;
+
+namespace _3DPrintingHub.Infrastructure.Services;
+
+public class FilamentColorService : IFilamentColorService
+{
+    private readonly ApplicationDbContext _dbContext;
+
+    public FilamentColorService(ApplicationDbContext dbContext)
+    {
+        _dbContext = dbContext;
+    }
+
+    public Task<Guid> CreateFilamentColorAsync(FilamentColorCreateDto dto, CancellationToken cancellationToken = default)
+    {
+        FilamentColor filamentColor = new()
+        {
+            Name = dto.Color,
+            ColorCode = dto.ColorCode // Assuming the color code is the same as the name for now
+        };
+
+        // Verify that the color code is unique before adding it to the database
+        var existingColor = _dbContext.FilamentColors.FirstOrDefault(fc => fc.Name == filamentColor.Name);
+        if (existingColor != null)
+        {
+            throw new InvalidOperationException("A filament color with the same name already exists.");
+        }
+
+        _dbContext.FilamentColors.Add(filamentColor);
+        _dbContext.SaveChanges();
+
+        return Task.FromResult(filamentColor.Id);
+    }
+}
