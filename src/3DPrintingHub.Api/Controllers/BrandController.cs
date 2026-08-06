@@ -18,9 +18,6 @@ public class BrandController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] BrandCreateDto dto, CancellationToken cancellationToken)
     {
-        if (!ModelState.IsValid)
-            return BadRequest(ModelState);
-
         var id = await _brandService.CreateBrandAsync(dto, cancellationToken);
         var location = $"/api/brands/{id}";
         return Created(location, new { id });

@@ -18,9 +18,6 @@ public class FilamentsController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] FilamentCreateDto dto, CancellationToken cancellationToken)
     {
-        if (!ModelState.IsValid)
-            return BadRequest(ModelState);
-
         var id = await _filamentService.CreateFilamentAsync(dto, cancellationToken);
 
         var location = $"/api/filaments/{id}";

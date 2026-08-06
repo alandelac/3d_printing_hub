@@ -1,7 +1,6 @@
 using _3DPrintingHub.Infrastructure.Data;
-using _3DPrintingHub.Application.Services;
-using _3DPrintingHub.Infrastructure.Services;
 using Microsoft.EntityFrameworkCore;
+using _3DPrintingHub.Application;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -17,10 +16,8 @@ builder.Services.AddControllers()
         options.JsonSerializerOptions.Converters.Add(new System.Text.Json.Serialization.JsonStringEnumConverter());
     });
 
-// Register application services implemented in Infrastructure
-builder.Services.AddScoped<IFilamentService, FilamentService>();
-builder.Services.AddScoped<IFilamentColorService, FilamentColorService>();
-builder.Services.AddScoped<IBrandService, BrandService>();
+// Register application and validation services
+builder.Services.AddApplicationServices();
 
 var app = builder.Build();
 

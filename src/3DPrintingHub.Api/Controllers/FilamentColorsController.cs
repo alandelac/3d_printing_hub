@@ -18,9 +18,6 @@ public class FilamentColorsController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] FilamentColorCreateDto dto, CancellationToken cancellationToken)
     {
-        if (!ModelState.IsValid)
-            return BadRequest(ModelState);
-
         var id = await _filamentColorService.CreateFilamentColorAsync(dto, cancellationToken);
         var location = $"/api/filamentcolors/{id}";
         return Created(location, new { id });
