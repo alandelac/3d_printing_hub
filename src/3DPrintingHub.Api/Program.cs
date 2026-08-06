@@ -20,6 +20,7 @@ builder.Services.AddControllers()
 // Register application services implemented in Infrastructure
 builder.Services.AddScoped<IFilamentService, FilamentService>();
 builder.Services.AddScoped<IFilamentColorService, FilamentColorService>();
+builder.Services.AddScoped<IBrandService, BrandService>();
 
 var app = builder.Build();
 
