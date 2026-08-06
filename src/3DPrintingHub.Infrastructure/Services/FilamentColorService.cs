@@ -36,4 +36,18 @@ public class FilamentColorService : IFilamentColorService
 
         return Task.FromResult(filamentColor.Id);
     }
+
+    public Task<IEnumerable<FilamentColorDto>> GetAllFilamentColorsAsync(CancellationToken cancellationToken = default)
+    {
+        var filamentColors = _dbContext.FilamentColors
+            .Select(fc => new FilamentColorDto
+            {
+                Id = fc.Id,
+                Color = fc.Name,
+                ColorCode = fc.ColorCode
+            })
+            .ToList();
+
+        return Task.FromResult<IEnumerable<FilamentColorDto>>(filamentColors);
+    }
 }

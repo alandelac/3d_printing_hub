@@ -25,4 +25,11 @@ public class FilamentColorsController : ControllerBase
         var location = $"/api/filamentcolors/{id}";
         return Created(location, new { id });
     }
+
+    [HttpGet]
+    public async Task<IActionResult> GetAll(CancellationToken cancellationToken)
+    {
+        var filamentColors = await _filamentColorService.GetAllFilamentColorsAsync(cancellationToken);
+        return Ok(filamentColors);
+    }
 }

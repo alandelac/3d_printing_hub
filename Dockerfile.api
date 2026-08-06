@@ -13,6 +13,14 @@ RUN dotnet publish ./3DPrintingHub.Api.csproj -c Release -o /app/publish
 # Etapa 2: Runtime ligero
 FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS final
 WORKDIR /app
+
+# Instalar dependencias necesarias para Npgsql y autenticación de red (libgssapi_krb5.so.2)
+USER root
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    libgssapi-krb5-2 \
+    && rm -rf /var/lib/apt/lists/*
+USER app
+
 COPY --from=build /app/publish .
 
 EXPOSE 8080
