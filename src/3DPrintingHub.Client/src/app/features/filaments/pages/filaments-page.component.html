@@ -1,0 +1,35 @@
+<section class="filaments-page">
+  <h2>{{ title() }}</h2>
+  <button class="primary" (click)="toggleOpen()">Colors</button>
+
+  <div *ngIf="open()" class="modal">
+    <div class="modal-backdrop" (click)="closeModal()"></div>
+    <div class="modal-content">
+      <header>
+        <h3>Filament Colors</h3>
+        <button class="close" (click)="closeModal()">✕</button>
+      </header>
+
+      <div class="body">
+        <div class="add-form">
+          <input placeholder="Color name" [value]="nameInput()" (input)="nameInput.set($any($event.target).value)" />
+          <input placeholder="#RRGGBB" [value]="codeInput()" (input)="codeInput.set($any($event.target).value)" />
+          <button class="primary" (click)="addColor()">Add</button>
+        </div>
+        <div *ngIf="loading()">Loading...</div>
+        <table *ngIf="!loading() && colors().length">
+          <thead>
+            <tr><th>Name</th><th>Code</th></tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let c of colors()">
+              <td>{{ c.color }}</td>
+              <td><span class="swatch" [style.background]="c.colorCode"></span>{{ c.colorCode }}</td>
+            </tr>
+          </tbody>
+        </table>
+        <div *ngIf="!loading() && !colors().length">No colors found.</div>
+      </div>
+    </div>
+  </div>
+</section>

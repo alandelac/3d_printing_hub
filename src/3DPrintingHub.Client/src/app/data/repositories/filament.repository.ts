@@ -1,0 +1,16 @@
+import { Injectable } from '@angular/core';
+import { ApiClient } from '../../core/http/api-client';
+import { FilamentColor } from '../../domain/models/filament-color.model';
+
+@Injectable({ providedIn: 'root' })
+export class FilamentRepository {
+  constructor(private api: ApiClient) {}
+
+  getColors() {
+    return this.api.get<FilamentColor[]>('/filamentcolors');
+  }
+
+  createColor(payload: { color: string; colorCode: string }) {
+    return this.api.post('/filamentcolors', payload);
+  }
+}
