@@ -1,6 +1,8 @@
 import { Injectable } from '@angular/core';
 import { ApiClient } from '../../core/http/api-client';
 import { FilamentColor } from '../../domain/models/filament-color.model';
+import { FilamentBrand } from '../../domain/models/filament-brand.model';
+import { FilamentMaterialType } from '../../domain/models/filament-material-type.model';
 
 @Injectable({ providedIn: 'root' })
 export class FilamentRepository {
@@ -12,5 +14,21 @@ export class FilamentRepository {
 
   createColor(payload: { color: string; colorCode: string }) {
     return this.api.post('/filamentcolors', payload);
+  }
+
+  getBrands() {
+    return this.api.get<FilamentBrand[]>('/brand');
+  }
+
+  createBrand(payload: { name: string }) {
+    return this.api.post('/brand', payload);
+  }
+
+  getMaterialTypes() {
+    return this.api.get<FilamentMaterialType[]>('/materialtype');
+  }
+
+  createMaterialType(payload: { name: string }) {
+    return this.api.post('/materialtype', payload);
   }
 }

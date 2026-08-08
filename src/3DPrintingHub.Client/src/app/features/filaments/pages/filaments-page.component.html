@@ -1,7 +1,12 @@
 <section class="filaments-page">
   <h2>{{ title() }}</h2>
-  <button class="primary" (click)="toggleOpen()">Colors</button>
+  <div class="actions">
+    <button class="primary" (click)="toggleOpen()">Colors</button>
+    <button class="primary" (click)="toggleBrandOpen()">Brands</button>
+    <button class="primary" (click)="toggleMaterialTypeOpen()">Material Types</button>
+  </div>
 
+  <!-- Colors Modal -->
   <div *ngIf="open()" class="modal">
     <div class="modal-backdrop" (click)="closeModal()"></div>
     <div class="modal-content">
@@ -29,6 +34,66 @@
           </tbody>
         </table>
         <div *ngIf="!loading() && !colors().length">No colors found.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Brands Modal -->
+  <div *ngIf="brandOpen()" class="modal">
+    <div class="modal-backdrop" (click)="closeBrandModal()"></div>
+    <div class="modal-content">
+      <header>
+        <h3>Filament Brands</h3>
+        <button class="close" (click)="closeBrandModal()">✕</button>
+      </header>
+
+      <div class="body">
+        <div class="add-form">
+          <input placeholder="Brand name" [value]="brandNameInput()" (input)="brandNameInput.set($any($event.target).value)" />
+          <button class="primary" (click)="addBrand()">Add</button>
+        </div>
+        <div *ngIf="brandLoading()">Loading...</div>
+        <table *ngIf="!brandLoading() && brands().length">
+          <thead>
+            <tr><th>Name</th></tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let b of brands()">
+              <td>{{ b.name }}</td>
+            </tr>
+          </tbody>
+        </table>
+        <div *ngIf="!brandLoading() && !brands().length">No brands found.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Material Types Modal -->
+  <div *ngIf="materialTypeOpen()" class="modal">
+    <div class="modal-backdrop" (click)="closeMaterialTypeModal()"></div>
+    <div class="modal-content">
+      <header>
+        <h3>Filament Material Types</h3>
+        <button class="close" (click)="closeMaterialTypeModal()">✕</button>
+      </header>
+
+      <div class="body">
+        <div class="add-form">
+          <input placeholder="Material Type name" [value]="materialNameInput()" (input)="materialNameInput.set($any($event.target).value)" />
+          <button class="primary" (click)="addMaterialType()">Add</button>
+        </div>
+        <div *ngIf="materialTypeLoading()">Loading...</div>
+        <table *ngIf="!materialTypeLoading() && materialTypes().length">
+          <thead>
+            <tr><th>Name</th></tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let mt of materialTypes()">
+              <td>{{ mt.name }}</td>
+            </tr>
+          </tbody>
+        </table>
+        <div *ngIf="!materialTypeLoading() && !materialTypes().length">No material types found.</div>
       </div>
     </div>
   </div>

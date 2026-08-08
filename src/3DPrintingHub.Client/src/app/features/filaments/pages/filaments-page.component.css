@@ -1,4 +1,5 @@
 .filaments-page { padding: 1rem; }
+.actions { display: flex; gap: 0.5rem; margin-bottom: 1rem; }
 .primary { background: linear-gradient(90deg,#6b46c1,#ff4da6); color: white; border: none; padding: 0.5rem 0.75rem; border-radius: 6px; cursor: pointer; }
 .modal { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; z-index: 60; }
 .modal-backdrop { position: absolute; inset: 0; background: rgba(0,0,0,0.4); }
@@ -10,3 +11,4 @@ th, td { text-align: left; padding: 0.5rem; border-bottom: 1px solid #eee; }
 .swatch { display: inline-block; width: 16px; height: 16px; margin-right: 8px; vertical-align: middle; border-radius: 3px; border: 1px solid rgba(0,0,0,0.06); }
 .add-form { display: flex; gap: 0.5rem; align-items: center; margin-bottom: 0.5rem; }
 .add-form input { padding: 0.4rem; border: 1px solid #ddd; border-radius: 4px; }
+.close { background: none; border: none; font-size: 1.2rem; cursor: pointer; color: #666; }
