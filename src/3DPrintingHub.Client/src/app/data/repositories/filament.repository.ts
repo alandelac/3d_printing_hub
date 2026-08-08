@@ -3,6 +3,7 @@ import { ApiClient } from '../../core/http/api-client';
 import { FilamentColor } from '../../domain/models/filament-color.model';
 import { FilamentBrand } from '../../domain/models/filament-brand.model';
 import { FilamentMaterialType } from '../../domain/models/filament-material-type.model';
+import { FilamentProfile, FilamentProfileCreate } from '../../domain/models/filament-profile.model';
 
 @Injectable({ providedIn: 'root' })
 export class FilamentRepository {
@@ -30,5 +31,13 @@ export class FilamentRepository {
 
   createMaterialType(payload: { name: string }) {
     return this.api.post('/materialtype', payload);
+  }
+
+  getFilamentProfiles() {
+    return this.api.get<FilamentProfile[]>('/filamentprofiles');
+  }
+
+  createFilamentProfile(payload: FilamentProfileCreate) {
+    return this.api.post<{ id: string }>('/filamentprofiles', payload);
   }
 }

@@ -5,6 +5,7 @@ import { FilamentRepository } from '../../../data/repositories/filament.reposito
 import { FilamentColor } from '../../../domain/models/filament-color.model';
 import { FilamentBrand } from '../../../domain/models/filament-brand.model';
 import { FilamentMaterialType } from '../../../domain/models/filament-material-type.model';
+import { FilamentProfile, FilamentProfileCreate } from '../../../domain/models/filament-profile.model';
 
 @Component({
   selector: 'app-filaments-page',
@@ -33,6 +34,17 @@ export class FilamentsPageComponent implements OnInit {
   protected materialTypes = signal<FilamentMaterialType[]>([]);
   protected materialTypeLoading = signal(false);
   protected materialNameInput = signal('');
+
+  // Filament Profile functionality
+  protected profileOpen = signal(false);
+  protected profiles = signal<FilamentProfile[]>([]);
+  protected profileLoading = signal(false);
+  protected profileBrandId = signal('');
+  protected profileMaterialTypeId = signal('');
+  protected profileIroningFlow = signal<number | null>(null);
+  protected profileIroningSpeed = signal<number | null>(null);
+  protected profileSlopeAngle = signal<number | null>(null);
+  protected profileZSeparation = signal<number | null>(null);
 
   ngOnInit(): void {
     void this.loadColors();
@@ -130,5 +142,87 @@ export class FilamentsPageComponent implements OnInit {
     await firstValueFrom(this.filamentRepository.createMaterialType({ name: this.materialNameInput() }));
     await this.loadMaterialTypes();
     this.materialNameInput.set('');
+  }
+
+  // Filament Profile methods
+  protected async toggleProfileOpen(): Promise<void> {
+    const newState = !this.profileOpen();
+    this.profileOpen.set(newState);
+    if (newState) {
+      console.log('Opening profile modal. Brands:', this.brands().length, 'MaterialTypes:', this.materialTypes().length);
+      console.log('Brands:', this.brands());
+      console.log('MaterialTypes:', this.materialTypes());
+      await this.loadProfiles();
+    } else {
+      this.resetProfileForm();
+    }
+  }
+
+  protected closeProfileModal(): void {
+    this.profileOpen.set(false);
+  }
+
+  protected async loadProfiles(): Promise<void> {
+    this.profileLoading.set(true);
+    try {
+      const data = await firstValueFrom(this.filamentRepository.getFilamentProfiles());
+      this.profiles.set(data ?? []);
+    } catch (error) {
+      console.error(error);
+      this.profiles.set([]);
+    } finally {
+      this.profileLoading.set(false);
+    }
+  }
+
+  protected async addProfile(): Promise<void> {
+    console.log('Adding profile with:', {
+      brandId: this.profileBrandId(),
+      materialTypeId: this.profileMaterialTypeId(),
+      ironingFlowPercentage: this.profileIroningFlow(),
+      ironingSpeedMmS: this.profileIroningSpeed(),
+      slopeAngleForSupports: this.profileSlopeAngle(),
+      zSeparationForSupports: this.profileZSeparation()
+    });
+
+    // Validate that brand and material type are selected
+    if (!this.profileBrandId() || this.profileBrandId() === '') {
+      alert('Please select a brand');
+      return;
+    }
+
+    if (!this.profileMaterialTypeId() || this.profileMaterialTypeId() === '') {
+      alert('Please select a material type');
+      return;
+    }
+
+    const payload: FilamentProfileCreate = {
+      brandId: this.profileBrandId(),
+      materialTypeId: this.profileMaterialTypeId(),
+      ironingFlowPercentage: this.profileIroningFlow() ?? undefined,
+      ironingSpeedMmS: this.profileIroningSpeed() ?? undefined,
+      slopeAngleForSupports: this.profileSlopeAngle() ?? undefined,
+      zSeparationForSupports: this.profileZSeparation() ?? undefined,
+    };
+
+    console.log('Payload being sent:', payload);
+
+    try {
+      await firstValueFrom(this.filamentRepository.createFilamentProfile(payload));
+      await this.loadProfiles();
+      this.resetProfileForm();
+    } catch (error) {
+      console.error('Error creating profile:', error);
+      alert(`Error: ${error}`);
+    }
+  }
+
+  private resetProfileForm(): void {
+    this.profileBrandId.set('');
+    this.profileMaterialTypeId.set('');
+    this.profileIroningFlow.set(null);
+    this.profileIroningSpeed.set(null);
+    this.profileSlopeAngle.set(null);
+    this.profileZSeparation.set(null);
   }
 }

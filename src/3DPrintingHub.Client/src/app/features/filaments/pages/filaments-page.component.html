@@ -4,6 +4,7 @@
     <button class="primary" (click)="toggleOpen()">Colors</button>
     <button class="primary" (click)="toggleBrandOpen()">Brands</button>
     <button class="primary" (click)="toggleMaterialTypeOpen()">Material Types</button>
+    <button class="primary" (click)="toggleProfileOpen()">Filament Profiles</button>
   </div>
 
   <!-- Colors Modal -->
@@ -94,6 +95,72 @@
           </tbody>
         </table>
         <div *ngIf="!materialTypeLoading() && !materialTypes().length">No material types found.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filament Profiles Modal -->
+  <div *ngIf="profileOpen()" class="modal">
+    <div class="modal-backdrop" (click)="closeProfileModal()"></div>
+    <div class="modal-content">
+      <header>
+        <h3>Filament Profiles</h3>
+        <button class="close" (click)="closeProfileModal()">✕</button>
+      </header>
+
+      <div class="body">
+        <div class="add-form">
+          <label>Brand:</label>
+          <select [value]="profileBrandId()" (change)="profileBrandId.set($any($event.target).value)">
+            <option value="">Select Brand</option>
+            <option *ngFor="let b of brands()" [value]="b.id">{{ b.name }}</option>
+          </select>
+
+          <label>Material Type:</label>
+          <select [value]="profileMaterialTypeId()" (change)="profileMaterialTypeId.set($any($event.target).value)">
+            <option value="">Select Material Type</option>
+            <option *ngFor="let mt of materialTypes()" [value]="mt.id">{{ mt.name }}</option>
+          </select>
+
+          <label>Ironing Flow % (optional):</label>
+          <input type="number" placeholder="Ironing Flow %" [value]="profileIroningFlow()" (input)="profileIroningFlow.set($any($event.target).value ? +$any($event.target).value : null)" />
+
+          <label>Ironing Speed mm/s (optional):</label>
+          <input type="number" placeholder="Ironing Speed" [value]="profileIroningSpeed()" (input)="profileIroningSpeed.set($any($event.target).value ? +$any($event.target).value : null)" />
+
+          <label>Slope Angle (optional):</label>
+          <input type="number" placeholder="Slope Angle" [value]="profileSlopeAngle()" (input)="profileSlopeAngle.set($any($event.target).value ? +$any($event.target).value : null)" />
+
+          <label>Z Separation (optional):</label>
+          <input type="number" placeholder="Z Separation" [value]="profileZSeparation()" (input)="profileZSeparation.set($any($event.target).value ? +$any($event.target).value : null)" />
+
+          <button class="primary" (click)="addProfile()">Add Filament Profile</button>
+        </div>
+
+        <div *ngIf="profileLoading()">Loading...</div>
+        <table *ngIf="!profileLoading() && profiles().length">
+          <thead>
+            <tr>
+              <th>Brand</th>
+              <th>Material Type</th>
+              <th>Ironing Flow %</th>
+              <th>Ironing Speed</th>
+              <th>Slope Angle</th>
+              <th>Z Separation</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let p of profiles()">
+              <td>{{ p.brandName }}</td>
+              <td>{{ p.materialTypeName }}</td>
+              <td>{{ p.ironingFlowPercentage }}</td>
+              <td>{{ p.ironingSpeedMmS }}</td>
+              <td>{{ p.slopeAngleForSupports }}</td>
+              <td>{{ p.zSeparationForSupports }}</td>
+            </tr>
+          </tbody>
+        </table>
+        <div *ngIf="!profileLoading() && !profiles().length">No filament profiles found.</div>
       </div>
     </div>
   </div>

@@ -4,9 +4,9 @@ public class FilamentProfile
 {
     public Guid Id { get; set; } = Guid.NewGuid();
     public Guid BrandId { get; set; }
-    public Brand BrandName { get; set; } = new Brand();
+    public Brand? BrandName { get; set; }
     public Guid MaterialTypeId { get; set; }
-    public MaterialType MaterialType { get; set; } = new MaterialType();  // ej. PETG, PLASilkPlus
+    public MaterialType? MaterialType { get; set; }  // ej. PETG, PLASilkPlus
 
     // Parámetros de Planchado (Ironing)
     public decimal? IroningFlowPercentage { get; set; } // ej. 10%

@@ -13,6 +13,7 @@ namespace Microsoft.Extensions.DependencyInjection
             services.AddScoped<IFilamentService, FilamentService>();
             services.AddScoped<IFilamentColorService, FilamentColorService>();
             services.AddScoped<IBrandService, BrandService>();
+            services.AddScoped<IFilamentProfileService, FilamentProfileService>();
             services.AddScoped<IMaterialTypeService, MaterialTypeService>();
             services.AddScoped<IMarketplaceService, MarketplaceService>();
 
