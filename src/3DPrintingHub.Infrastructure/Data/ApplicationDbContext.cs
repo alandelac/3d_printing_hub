@@ -38,6 +38,9 @@ public class ApplicationDbContext : DbContext
                 .WithMany()
                 .HasForeignKey(p => p.MaterialTypeId)
                 .OnDelete(DeleteBehavior.Restrict);
+
+            // Ensure only one profile per Brand + Material Type combination
+            entity.HasIndex(p => new { p.BrandId, p.MaterialTypeId }).IsUnique();
         });
 
         modelBuilder.Entity<Filament>(entity =>

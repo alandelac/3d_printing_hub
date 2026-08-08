@@ -37,6 +37,17 @@ public class FilamentProfileService : IFilamentProfileService
         }
         Console.WriteLine($"Found material type: {materialType.Name}");
 
+        // Check if a profile with this Brand + Material Type combination already exists
+        var existingProfile = await _dbContext.FilamentProfiles
+            .FirstOrDefaultAsync(fp => fp.BrandId == dto.BrandId && fp.MaterialTypeId == dto.MaterialTypeId, cancellationToken);
+
+        if (existingProfile != null)
+        {
+            throw new InvalidOperationException(
+                $"A filament profile for brand '{brand.Name}' and material type '{materialType.Name}' already exists. " +
+                $"Please edit the existing profile instead of creating a new one.");
+        }
+
         var filamentProfile = new FilamentProfile
         {
             BrandId = dto.BrandId,
