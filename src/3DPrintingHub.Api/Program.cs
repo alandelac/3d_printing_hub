@@ -20,12 +20,14 @@ builder.Services.AddControllers()
 builder.Services.AddApplicationServices();
 
 // Configure CORS to allow the Angular dev server during development
+var allowedOrigins = builder.Configuration["AllowedOrigin"] ?? "http://localhost:4200";
+
 builder.Services.AddCors(options =>
 {
     options.AddPolicy(name: "AllowFrontend",
-        policy =>
+        policy =>   
         {
-            policy.WithOrigins("http://localhost:4200")
+            policy.WithOrigins(allowedOrigins)
                   .AllowAnyHeader()
                   .AllowAnyMethod();
         });
