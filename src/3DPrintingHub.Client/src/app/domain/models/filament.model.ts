@@ -37,3 +37,14 @@ export interface FilamentCreate {
   lastPurchaseDate?: string;
   remainingWeightGrams?: number;
 }
+
+export interface FilamentUpdate {
+  id: string;
+  remainingWeightGrams?: number;
+  minCost?: number;
+  maxCost?: number;
+  lastCost?: number;
+  lastPurchaseDate?: string;
+  buyLink?: string;
+  buyAgain?: boolean;
+}

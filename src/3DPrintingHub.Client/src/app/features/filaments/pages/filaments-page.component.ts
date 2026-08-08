@@ -6,7 +6,7 @@ import { FilamentColor } from '../../../domain/models/filament-color.model';
 import { FilamentBrand } from '../../../domain/models/filament-brand.model';
 import { FilamentMaterialType } from '../../../domain/models/filament-material-type.model';
 import { FilamentProfile, FilamentProfileCreate } from '../../../domain/models/filament-profile.model';
-import { Filament, FilamentCreate } from '../../../domain/models/filament.model';
+import { Filament, FilamentCreate, FilamentUpdate } from '../../../domain/models/filament.model';
 
 @Component({
   selector: 'app-filaments-page',
@@ -62,6 +62,24 @@ export class FilamentsPageComponent implements OnInit {
   protected filamentBuyLink = signal('');
   protected filamentLastPurchaseDate = signal('');
   protected filamentRemainingWeight = signal<number | null>(null);
+
+  // Edit Filament modal state
+  protected editOpen = signal(false);
+  protected editLoading = signal(false);
+  protected editFilamentId = signal('');
+  protected editMinCost = signal<number | null>(null);
+  protected editMaxCost = signal<number | null>(null);
+  protected editLastCost = signal<number | null>(null);
+  protected editBuyAgain = signal(false);
+  protected editBuyLink = signal('');
+  protected editLastPurchaseDate = signal('');
+  protected editRemainingWeight = signal<number | null>(null);
+
+  // Delete Filament confirmation state
+  protected deleteOpen = signal(false);
+  protected deleteLoading = signal(false);
+  protected deleteFilamentId = signal('');
+  protected deleteFilamentName = signal('');
 
   ngOnInit(): void {
     void this.loadColors();
@@ -310,5 +328,84 @@ export class FilamentsPageComponent implements OnInit {
     this.filamentBuyLink.set('');
     this.filamentLastPurchaseDate.set('');
     this.filamentRemainingWeight.set(null);
+  }
+
+  protected openEditModal(filament: Filament): void {
+    this.editFilamentId.set(filament.id);
+    this.editMinCost.set(filament.minCost);
+    this.editMaxCost.set(filament.maxCost);
+    this.editLastCost.set(filament.lastCost);
+    this.editBuyAgain.set(filament.buyAgain ?? false);
+    this.editBuyLink.set(filament.buyLink ?? '');
+    this.editLastPurchaseDate.set(filament.lastPurchaseDate ? filament.lastPurchaseDate.substring(0, 10) : '');
+    this.editRemainingWeight.set(filament.remainingWeightGrams);
+    this.editOpen.set(true);
+  }
+
+  protected closeEditModal(): void {
+    this.editOpen.set(false);
+    this.resetEditForm();
+  }
+
+  protected async updateFilament(): Promise<void> {
+    const payload: FilamentUpdate = {
+      id: this.editFilamentId(),
+      remainingWeightGrams: this.editRemainingWeight() ?? undefined,
+      minCost: this.editMinCost() ?? undefined,
+      maxCost: this.editMaxCost() ?? undefined,
+      lastCost: this.editLastCost() ?? undefined,
+      lastPurchaseDate: this.editLastPurchaseDate() || undefined,
+      buyLink: this.editBuyLink() || undefined,
+      buyAgain: this.editBuyAgain(),
+    };
+
+    this.editLoading.set(true);
+    try {
+      await firstValueFrom(this.filamentRepository.updateFilament(payload));
+      await this.loadFilaments();
+      this.closeEditModal();
+    } catch (error) {
+      console.error('Error updating filament:', error);
+      alert(`Error: ${error}`);
+    } finally {
+      this.editLoading.set(false);
+    }
+  }
+
+  private resetEditForm(): void {
+    this.editFilamentId.set('');
+    this.editMinCost.set(null);
+    this.editMaxCost.set(null);
+    this.editLastCost.set(null);
+    this.editBuyAgain.set(false);
+    this.editBuyLink.set('');
+    this.editLastPurchaseDate.set('');
+    this.editRemainingWeight.set(null);
+  }
+
+  protected openDeleteModal(filament: Filament): void {
+    this.deleteFilamentId.set(filament.id);
+    this.deleteFilamentName.set(`${filament.filamentProfile.brandName} - ${filament.filamentProfile.materialTypeName}`);
+    this.deleteOpen.set(true);
+  }
+
+  protected closeDeleteModal(): void {
+    this.deleteOpen.set(false);
+    this.deleteFilamentId.set('');
+    this.deleteFilamentName.set('');
+  }
+
+  protected async confirmDelete(): Promise<void> {
+    this.deleteLoading.set(true);
+    try {
+      await firstValueFrom(this.filamentRepository.deleteFilament(this.deleteFilamentId()));
+      await this.loadFilaments();
+      this.closeDeleteModal();
+    } catch (error) {
+      console.error('Error deleting filament:', error);
+      alert(`Error: ${error}`);
+    } finally {
+      this.deleteLoading.set(false);
+    }
   }
 }
