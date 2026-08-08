@@ -88,4 +88,55 @@ public class FilamentService(ApplicationDbContext dbContext) : IFilamentService
 
         return result;
     }
+
+    public async Task<FilamentDto> DeleteFilamentAsync(Guid id, CancellationToken cancellationToken = default)
+    {
+        var filament = await dbContext.Filaments
+            .Include(f => f.Profile)
+                .ThenInclude(p => p!.BrandName)
+            .Include(f => f.Profile)
+                .ThenInclude(p => p!.MaterialType)
+            .Include(f => f.Color)
+            .FirstOrDefaultAsync(f => f.Id == id, cancellationToken)
+            ?? throw new InvalidOperationException($"Filament with ID {id} does not exist.");
+
+        var allBrands = await dbContext.Brands.ToListAsync(cancellationToken);
+        var allMaterialTypes = await dbContext.MaterialTypes.ToListAsync(cancellationToken);
+
+        var brandLookup = allBrands.ToDictionary(b => b.Id, b => b.Name);
+        var materialTypeLookup = allMaterialTypes.ToDictionary(mt => mt.Id, mt => mt.Name);
+
+        var deletedDto = new FilamentDto
+        {
+            Id = filament.Id,
+            FilamentProfileId = filament.FilamentProfileId,
+            FilamentProfile = new FilamentProfileDto
+            {
+                Id = filament.Profile!.Id,
+                BrandId = filament.Profile.BrandId,
+                BrandName = brandLookup.TryGetValue(filament.Profile.BrandId, out var brandName) ? brandName : $"Unknown Brand ({filament.Profile.BrandId})",
+                MaterialTypeId = filament.Profile.MaterialTypeId,
+                MaterialTypeName = materialTypeLookup.TryGetValue(filament.Profile.MaterialTypeId, out var mtName) ? mtName : $"Unknown Material ({filament.Profile.MaterialTypeId})",
+                IroningFlowPercentage = filament.Profile.IroningFlowPercentage,
+                IroningSpeedMmS = filament.Profile.IroningSpeedMmS,
+                SlopeAngleForSupports = filament.Profile.SlopeAngleForSupports,
+                ZSeparationForSupports = filament.Profile.ZSeparationForSupports
+            },
+            FilamentColorId = filament.FilamentColorId,
+            ColorName = filament.Color != null ? filament.Color.Name : $"Unknown Color ({filament.FilamentColorId})",
+            ColorCode = filament.Color != null ? filament.Color.ColorCode : string.Empty,
+            RemainingWeightGrams = filament.RemainingWeightGrams,
+            MinCost = filament.MinCost,
+            MaxCost = filament.MaxCost,
+            LastCost = filament.LastCost,
+            LastPurchaseDate = filament.LastPurchaseDate,
+            BuyLink = filament.BuyLink,
+            BuyAgain = filament.BuyAgain
+        };
+
+        dbContext.Filaments.Remove(filament);
+        await dbContext.SaveChangesAsync(cancellationToken);
+
+        return deletedDto;
+    }
 }

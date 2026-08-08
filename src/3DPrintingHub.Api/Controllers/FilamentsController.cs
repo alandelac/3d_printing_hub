@@ -8,8 +8,6 @@ namespace _3DPrintingHub.Api.Controllers;
 [Route("api/[controller]")]
 public class FilamentsController(IFilamentService filamentService) : ControllerBase
 {
-
-
     /// <summary>
     /// Creates a new Filament record.
     /// </summary>
@@ -31,6 +29,19 @@ public class FilamentsController(IFilamentService filamentService) : ControllerB
     {
         var filaments = await filamentService.GetAllFilamentsAsync(cancellationToken);
         return Ok(filaments);
+    }
+
+    /// <summary>
+    /// Deletes a Filament record by its Id and returns the deleted Filament data.
+    /// </summary>
+    /// <param name="id">The Id of the Filament to delete.</param>
+    /// <param name="cancellationToken"></param>
+    /// <returns>The deleted FilamentDto.</returns>
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> Delete(Guid id, CancellationToken cancellationToken)
+    {
+        var deletedFilament = await filamentService.DeleteFilamentAsync(id, cancellationToken);
+        return Ok(deletedFilament);
     }
     
 }
