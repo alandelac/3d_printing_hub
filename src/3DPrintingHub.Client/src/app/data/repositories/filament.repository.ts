@@ -4,6 +4,7 @@ import { FilamentColor } from '../../domain/models/filament-color.model';
 import { FilamentBrand } from '../../domain/models/filament-brand.model';
 import { FilamentMaterialType } from '../../domain/models/filament-material-type.model';
 import { FilamentProfile, FilamentProfileCreate } from '../../domain/models/filament-profile.model';
+import { Filament, FilamentCreate } from '../../domain/models/filament.model';
 
 @Injectable({ providedIn: 'root' })
 export class FilamentRepository {
@@ -39,5 +40,13 @@ export class FilamentRepository {
 
   createFilamentProfile(payload: FilamentProfileCreate) {
     return this.api.post<{ id: string }>('/filamentprofiles', payload);
+  }
+
+  getFilaments() {
+    return this.api.get<Filament[]>('/filaments');
+  }
+
+  createFilament(payload: FilamentCreate) {
+    return this.api.post<{ id: string }>('/filaments', payload);
   }
 }

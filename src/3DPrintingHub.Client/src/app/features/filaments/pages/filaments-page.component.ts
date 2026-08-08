@@ -6,6 +6,7 @@ import { FilamentColor } from '../../../domain/models/filament-color.model';
 import { FilamentBrand } from '../../../domain/models/filament-brand.model';
 import { FilamentMaterialType } from '../../../domain/models/filament-material-type.model';
 import { FilamentProfile, FilamentProfileCreate } from '../../../domain/models/filament-profile.model';
+import { Filament, FilamentCreate } from '../../../domain/models/filament.model';
 
 @Component({
   selector: 'app-filaments-page',
@@ -46,12 +47,27 @@ export class FilamentsPageComponent implements OnInit {
   protected profileSlopeAngle = signal<number | null>(null);
   protected profileZSeparation = signal<number | null>(null);
 
+  // Filament main data (displayed directly on page)
+  protected filaments = signal<Filament[]>([]);
+  protected filamentLoading = signal(false);
+  protected filamentFormOpen = signal(true);
+
+  // Filament form fields
+  protected filamentProfileId = signal('');
+  protected filamentColorId = signal('');
+  protected filamentMinCost = signal<number | null>(null);
+  protected filamentMaxCost = signal<number | null>(null);
+  protected filamentLastCost = signal<number | null>(null);
+  protected filamentBuyAgain = signal(false);
+  protected filamentBuyLink = signal('');
+  protected filamentLastPurchaseDate = signal('');
+  protected filamentRemainingWeight = signal<number | null>(null);
+
   ngOnInit(): void {
     void this.loadColors();
-    // Also load brands
     void this.loadBrands();
-    // Also load material types
     void this.loadMaterialTypes();
+    void this.loadFilaments();
   }
 
   protected toggleOpen(): void {
@@ -224,5 +240,75 @@ export class FilamentsPageComponent implements OnInit {
     this.profileIroningSpeed.set(null);
     this.profileSlopeAngle.set(null);
     this.profileZSeparation.set(null);
+  }
+
+  protected async loadFilaments(): Promise<void> {
+    this.filamentLoading.set(true);
+    try {
+      const data = await firstValueFrom(this.filamentRepository.getFilaments());
+      this.filaments.set(data ?? []);
+    } catch (error) {
+      console.error(error);
+      this.filaments.set([]);
+    } finally {
+      this.filamentLoading.set(false);
+    }
+  }
+
+  protected toggleFilamentForm(): void {
+    this.filamentFormOpen.set(!this.filamentFormOpen());
+    if (!this.filamentFormOpen()) {
+      this.resetFilamentForm();
+    }
+  }
+
+  protected async addFilament(): Promise<void> {
+    if (!this.filamentProfileId() || this.filamentProfileId() === '') {
+      alert('Please select a filament profile');
+      return;
+    }
+
+    if (!this.filamentColorId() || this.filamentColorId() === '') {
+      alert('Please select a color');
+      return;
+    }
+
+    if (this.filamentMinCost() === null || this.filamentMaxCost() === null || this.filamentLastCost() === null) {
+      alert('Please fill in all cost fields');
+      return;
+    }
+
+    const payload: FilamentCreate = {
+      filamentProfileId: this.filamentProfileId(),
+      filamentColorId: this.filamentColorId(),
+      minCost: this.filamentMinCost()!,
+      maxCost: this.filamentMaxCost()!,
+      lastCost: this.filamentLastCost()!,
+      buyAgain: this.filamentBuyAgain(),
+      buyLink: this.filamentBuyLink() || undefined,
+      lastPurchaseDate: this.filamentLastPurchaseDate() || undefined,
+      remainingWeightGrams: this.filamentRemainingWeight() ?? undefined,
+    };
+
+    try {
+      await firstValueFrom(this.filamentRepository.createFilament(payload));
+      await this.loadFilaments();
+      this.resetFilamentForm();
+    } catch (error) {
+      console.error('Error creating filament:', error);
+      alert(`Error: ${error}`);
+    }
+  }
+
+  private resetFilamentForm(): void {
+    this.filamentProfileId.set('');
+    this.filamentColorId.set('');
+    this.filamentMinCost.set(null);
+    this.filamentMaxCost.set(null);
+    this.filamentLastCost.set(null);
+    this.filamentBuyAgain.set(false);
+    this.filamentBuyLink.set('');
+    this.filamentLastPurchaseDate.set('');
+    this.filamentRemainingWeight.set(null);
   }
 }

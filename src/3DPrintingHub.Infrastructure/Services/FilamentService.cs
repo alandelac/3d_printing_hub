@@ -19,6 +19,10 @@ public class FilamentService(ApplicationDbContext dbContext) : IFilamentService
         var color = await dbContext.FilamentColors
             .FirstOrDefaultAsync(fc => fc.Id == dto.FilamentColorId, cancellationToken) ?? throw new InvalidOperationException($"Filament color with ID {dto.FilamentColorId} does not exist.");
 
+        var lastPurchaseDate = dto.LastPurchaseDate.HasValue
+            ? DateTime.SpecifyKind(dto.LastPurchaseDate.Value, DateTimeKind.Utc)
+            : DateTime.UtcNow;
+
         var filament = new Filament
         {
             FilamentProfileId = dto.FilamentProfileId,
@@ -28,7 +32,7 @@ public class FilamentService(ApplicationDbContext dbContext) : IFilamentService
             LastCost = dto.LastCost,
             BuyAgain = dto.BuyAgain,
             BuyLink = dto.BuyLink,
-            LastPurchaseDate = dto.LastPurchaseDate ?? DateTime.UtcNow,
+            LastPurchaseDate = lastPurchaseDate,
             RemainingWeightGrams = dto.RemainingWeightGrams ?? 1000
         };
 
