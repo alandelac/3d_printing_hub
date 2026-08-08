@@ -7,52 +7,61 @@
     <button class="primary" (click)="toggleProfileOpen()">Filament Profiles</button>
   </div>
 
-  <!-- Filament Form (displayed directly on page) -->
-  <div class="filament-form-section" *ngIf="filamentFormOpen()">
-    <h3>Add New Filament</h3>
-    <div class="add-form">
-      <label>Filament Profile:</label>
-      <select [value]="filamentProfileId()" (change)="filamentProfileId.set($any($event.target).value)">
-        <option value="">Select Profile</option>
-        <option *ngFor="let p of profiles()" [value]="p.id">{{ p.brandName }} - {{ p.materialTypeName }}</option>
-      </select>
-
-      <label>Color:</label>
-      <select [value]="filamentColorId()" (change)="filamentColorId.set($any($event.target).value)">
-        <option value="">Select Color</option>
-        <option *ngFor="let c of colors()" [value]="c.id">{{ c.color }} ({{ c.colorCode }})</option>
-      </select>
-
-      <label>Min Cost:</label>
-      <input type="number" placeholder="Min Cost" [value]="filamentMinCost()" (input)="filamentMinCost.set($any($event.target).value ? +$any($event.target).value : null)" />
-
-      <label>Max Cost:</label>
-      <input type="number" placeholder="Max Cost" [value]="filamentMaxCost()" (input)="filamentMaxCost.set($any($event.target).value ? +$any($event.target).value : null)" />
-
-      <label>Last Cost:</label>
-      <input type="number" placeholder="Last Cost" [value]="filamentLastCost()" (input)="filamentLastCost.set($any($event.target).value ? +$any($event.target).value : null)" />
-
-      <label>Remaining Weight (grams, optional):</label>
-      <input type="number" placeholder="Remaining Weight" [value]="filamentRemainingWeight()" (input)="filamentRemainingWeight.set($any($event.target).value ? +$any($event.target).value : null)" />
-
-      <label>Last Purchase Date (optional):</label>
-      <input type="date" [value]="filamentLastPurchaseDate()" (input)="filamentLastPurchaseDate.set($any($event.target).value)" />
-
-      <label>Buy Link (optional):</label>
-      <input placeholder="https://..." [value]="filamentBuyLink()" (input)="filamentBuyLink.set($any($event.target).value)" />
-
-      <label>
-        <input type="checkbox" [checked]="filamentBuyAgain()" (change)="filamentBuyAgain.set($any($event.target).checked)" />
-        Buy Again
-      </label>
-
-      <button class="primary" (click)="addFilament()">Add Filament</button>
-      <button class="secondary" (click)="toggleFilamentForm()">Cancel</button>
-    </div>
+  <div class="actions">
+    <button class="primary" (click)="toggleFilamentForm()">Add New Filament</button>
   </div>
 
-  <div class="form-toggle" *ngIf="!filamentFormOpen()">
-    <button class="primary" (click)="toggleFilamentForm()">Add New Filament</button>
+  <!-- Filament Modal -->
+  <div *ngIf="filamentFormOpen()" class="modal">
+    <div class="modal-backdrop" (click)="toggleFilamentForm()"></div>
+    <div class="modal-content">
+      <header>
+        <h3>Add New Filament</h3>
+        <button class="close" (click)="toggleFilamentForm()">✕</button>
+      </header>
+
+      <div class="body">
+        <div class="add-form">
+          <label>Filament Profile:</label>
+          <select [value]="filamentProfileId()" (change)="filamentProfileId.set($any($event.target).value)">
+            <option value="">Select Profile</option>
+            <option *ngFor="let p of profiles()" [value]="p.id">{{ p.brandName }} - {{ p.materialTypeName }}</option>
+          </select>
+
+          <label>Color:</label>
+          <select [value]="filamentColorId()" (change)="filamentColorId.set($any($event.target).value)">
+            <option value="">Select Color</option>
+            <option *ngFor="let c of colors()" [value]="c.id">{{ c.color }} ({{ c.colorCode }})</option>
+          </select>
+
+          <label>Min Cost:</label>
+          <input type="number" placeholder="Min Cost" [value]="filamentMinCost()" (input)="filamentMinCost.set($any($event.target).value ? +$any($event.target).value : null)" />
+
+          <label>Max Cost:</label>
+          <input type="number" placeholder="Max Cost" [value]="filamentMaxCost()" (input)="filamentMaxCost.set($any($event.target).value ? +$any($event.target).value : null)" />
+
+          <label>Last Cost:</label>
+          <input type="number" placeholder="Last Cost" [value]="filamentLastCost()" (input)="filamentLastCost.set($any($event.target).value ? +$any($event.target).value : null)" />
+
+          <label>Remaining Weight (grams, optional):</label>
+          <input type="number" placeholder="Remaining Weight" [value]="filamentRemainingWeight()" (input)="filamentRemainingWeight.set($any($event.target).value ? +$any($event.target).value : null)" />
+
+          <label>Last Purchase Date (optional):</label>
+          <input type="date" [value]="filamentLastPurchaseDate()" (input)="filamentLastPurchaseDate.set($any($event.target).value)" />
+
+          <label>Buy Link (optional):</label>
+          <input placeholder="https://..." [value]="filamentBuyLink()" (input)="filamentBuyLink.set($any($event.target).value)" />
+
+          <label>
+            <input type="checkbox" [checked]="filamentBuyAgain()" (change)="filamentBuyAgain.set($any($event.target).checked)" />
+            Buy Again
+          </label>
+
+          <button class="primary" (click)="addFilament()">Add Filament</button>
+          <button class="secondary" (click)="toggleFilamentForm()">Cancel</button>
+        </div>
+      </div>
+    </div>
   </div>
 
   <!-- Filaments Table (displayed directly on page) -->
