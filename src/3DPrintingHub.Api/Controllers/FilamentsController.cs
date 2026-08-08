@@ -43,5 +43,18 @@ public class FilamentsController(IFilamentService filamentService) : ControllerB
         var deletedFilament = await filamentService.DeleteFilamentAsync(id, cancellationToken);
         return Ok(deletedFilament);
     }
+
+    /// <summary>
+    /// Updates a Filament record by its Id with the provided fields and returns the updated Filament data.
+    /// </summary>
+    /// <param name="dto">The update payload.</param>
+    /// <param name="cancellationToken"></param>
+    /// <returns>The updated FilamentDto.</returns>
+    [HttpPut]
+    public async Task<IActionResult> Update([FromBody] FilamentUpdateDto dto, CancellationToken cancellationToken)
+    {
+        var updatedFilament = await filamentService.UpdateFilamentAsync(dto, cancellationToken);
+        return Ok(updatedFilament);
+    }
     
 }

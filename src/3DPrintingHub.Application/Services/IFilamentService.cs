@@ -18,4 +18,9 @@ public interface IFilamentService
     /// Deletes a Filament record by its Id and returns the deleted Filament data.
     /// </summary>
     Task<FilamentDto> DeleteFilamentAsync(Guid id, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Updates a Filament record by its Id with the provided fields and returns the updated Filament data.
+    /// </summary>
+    Task<FilamentDto> UpdateFilamentAsync(FilamentUpdateDto dto, CancellationToken cancellationToken = default);
 }
