@@ -6,19 +6,12 @@ namespace _3DPrintingHub.Api.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class BrandController : ControllerBase
+public class BrandController(IBrandService brandService) : ControllerBase
 {
-    private readonly IBrandService _brandService;
-
-    public BrandController(IBrandService brandService)
-    {
-        _brandService = brandService;
-    }
-
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] BrandCreateDto dto, CancellationToken cancellationToken)
     {
-        var id = await _brandService.CreateBrandAsync(dto, cancellationToken);
+        var id = await brandService.CreateBrandAsync(dto, cancellationToken);
         var location = $"/api/brands/{id}";
         return Created(location, new { id });
     }
@@ -26,7 +19,7 @@ public class BrandController : ControllerBase
     [HttpGet]
     public async Task<IActionResult> GetAll(CancellationToken cancellationToken)
     {
-        var brands = await _brandService.GetAllBrandsAsync(cancellationToken);
+        var brands = await brandService.GetAllBrandsAsync(cancellationToken);
         return Ok(brands);
     }
 }

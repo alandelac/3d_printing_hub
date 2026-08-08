@@ -23,6 +23,7 @@ services:
       - ConnectionStrings__DefaultConnection=Host=db;Database=printinghub;Username=postgres;Password=${DB_PASSWORD}
       - ASPNETCORE_ENVIRONMENT=Production
       - ASPNETCORE_URLS=http://+:8080
+      - AllowedOrigin=${FRONTEND_URL:-http://localhost}
     depends_on:
       - db
     networks:

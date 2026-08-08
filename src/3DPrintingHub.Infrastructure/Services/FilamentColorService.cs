@@ -7,15 +7,8 @@ using _3DPrintingHub.Infrastructure.Data;
 
 namespace _3DPrintingHub.Infrastructure.Services;
 
-public class FilamentColorService : IFilamentColorService
+public class FilamentColorService(ApplicationDbContext dbContext) : IFilamentColorService
 {
-    private readonly ApplicationDbContext _dbContext;
-
-    public FilamentColorService(ApplicationDbContext dbContext)
-    {
-        _dbContext = dbContext;
-    }
-
     public Task<Guid> CreateFilamentColorAsync(FilamentColorCreateDto dto, CancellationToken cancellationToken = default)
     {
         FilamentColor filamentColor = new()
@@ -25,21 +18,21 @@ public class FilamentColorService : IFilamentColorService
         };
 
         // Verify that the color code is unique before adding it to the database
-        var existingColor = _dbContext.FilamentColors.FirstOrDefault(fc => fc.Name == filamentColor.Name);
+        var existingColor = dbContext.FilamentColors.FirstOrDefault(fc => fc.Name == filamentColor.Name);
         if (existingColor != null)
         {
             throw new InvalidOperationException("A filament color with the same name already exists.");
         }
 
-        _dbContext.FilamentColors.Add(filamentColor);
-        _dbContext.SaveChanges();
+        dbContext.FilamentColors.Add(filamentColor);
+        dbContext.SaveChanges();
 
         return Task.FromResult(filamentColor.Id);
     }
 
     public Task<IEnumerable<FilamentColorDto>> GetAllFilamentColorsAsync(CancellationToken cancellationToken = default)
     {
-        var filamentColors = _dbContext.FilamentColors
+        var filamentColors = dbContext.FilamentColors
             .Select(fc => new FilamentColorDto
             {
                 Id = fc.Id,

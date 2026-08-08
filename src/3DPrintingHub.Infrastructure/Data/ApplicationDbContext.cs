@@ -3,10 +3,8 @@ using _3DPrintingHub.Domain.Entities;
 
 namespace _3DPrintingHub.Infrastructure.Data;
 
-public class ApplicationDbContext : DbContext
+public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : DbContext(options)
 {
-    public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options) { }
-
     public DbSet<Brand> Brands => Set<Brand>();
     public DbSet<MaterialType> MaterialTypes => Set<MaterialType>();
     public DbSet<Marketplace> Marketplaces => Set<Marketplace>();

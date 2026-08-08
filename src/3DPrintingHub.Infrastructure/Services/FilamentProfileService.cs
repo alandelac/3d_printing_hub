@@ -8,37 +8,23 @@ using Microsoft.EntityFrameworkCore;
 
 namespace _3DPrintingHub.Infrastructure.Services;
 
-public class FilamentProfileService : IFilamentProfileService
+public class FilamentProfileService(ApplicationDbContext dbContext) : IFilamentProfileService
 {
-    private readonly ApplicationDbContext _dbContext;
-
-    public FilamentProfileService(ApplicationDbContext dbContext)
-    {
-        _dbContext = dbContext;
-    }
 
     public async Task<Guid> CreateFilamentProfileAsync(FilamentProfileCreateDto dto, CancellationToken cancellationToken = default)
     {
         Console.WriteLine($"Creating filament profile with BrandId: {dto.BrandId}, MaterialTypeId: {dto.MaterialTypeId}");
 
         // Validate that the BrandId exists
-        var brand = await _dbContext.Brands.FirstOrDefaultAsync(b => b.Id == dto.BrandId, cancellationToken);
-        if (brand == null)
-        {
-            throw new InvalidOperationException($"Brand with ID {dto.BrandId} does not exist.");
-        }
+        var brand = await dbContext.Brands.FirstOrDefaultAsync(b => b.Id == dto.BrandId, cancellationToken) ?? throw new InvalidOperationException($"Brand with ID {dto.BrandId} does not exist.");
         Console.WriteLine($"Found brand: {brand.Name}");
 
         // Validate that the MaterialTypeId exists
-        var materialType = await _dbContext.MaterialTypes.FirstOrDefaultAsync(mt => mt.Id == dto.MaterialTypeId, cancellationToken);
-        if (materialType == null)
-        {
-            throw new InvalidOperationException($"Material type with ID {dto.MaterialTypeId} does not exist.");
-        }
+        var materialType = await dbContext.MaterialTypes.FirstOrDefaultAsync(mt => mt.Id == dto.MaterialTypeId, cancellationToken) ?? throw new InvalidOperationException($"Material type with ID {dto.MaterialTypeId} does not exist.");
         Console.WriteLine($"Found material type: {materialType.Name}");
 
         // Check if a profile with this Brand + Material Type combination already exists
-        var existingProfile = await _dbContext.FilamentProfiles
+        var existingProfile = await dbContext.FilamentProfiles
             .FirstOrDefaultAsync(fp => fp.BrandId == dto.BrandId && fp.MaterialTypeId == dto.MaterialTypeId, cancellationToken);
 
         if (existingProfile != null)
@@ -58,8 +44,8 @@ public class FilamentProfileService : IFilamentProfileService
             ZSeparationForSupports = dto.ZSeparationForSupports
         };
 
-        await _dbContext.FilamentProfiles.AddAsync(filamentProfile, cancellationToken);
-        await _dbContext.SaveChangesAsync(cancellationToken);
+        await dbContext.FilamentProfiles.AddAsync(filamentProfile, cancellationToken);
+        await dbContext.SaveChangesAsync(cancellationToken);
 
         Console.WriteLine($"Created filament profile with ID: {filamentProfile.Id}");
         return filamentProfile.Id;
@@ -68,12 +54,12 @@ public class FilamentProfileService : IFilamentProfileService
     public async Task<IEnumerable<FilamentProfileDto>> GetAllFilamentProfilesAsync(CancellationToken cancellationToken = default)
     {
         // First, get all filament profiles
-        var filamentProfiles = await _dbContext.FilamentProfiles
+        var filamentProfiles = await dbContext.FilamentProfiles
             .ToListAsync(cancellationToken);
 
         // Get all brands and material types
-        var allBrands = await _dbContext.Brands.ToListAsync(cancellationToken);
-        var allMaterialTypes = await _dbContext.MaterialTypes.ToListAsync(cancellationToken);
+        var allBrands = await dbContext.Brands.ToListAsync(cancellationToken);
+        var allMaterialTypes = await dbContext.MaterialTypes.ToListAsync(cancellationToken);
 
         // Create lookup dictionaries
         var brandLookup = allBrands.ToDictionary(b => b.Id, b => b.Name);

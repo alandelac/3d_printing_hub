@@ -6,19 +6,12 @@ namespace _3DPrintingHub.Api.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class MaterialTypeController : ControllerBase
+public class MaterialTypeController(IMaterialTypeService materialTypeService) : ControllerBase
 {
-    private readonly IMaterialTypeService _materialTypeService;
-
-    public MaterialTypeController(IMaterialTypeService materialTypeService)
-    {
-        _materialTypeService = materialTypeService;
-    }
-
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] MaterialTypeCreateDto dto, CancellationToken cancellationToken)
     {
-        var id = await _materialTypeService.CreateMaterialTypeAsync(dto, cancellationToken);
+        var id = await materialTypeService.CreateMaterialTypeAsync(dto, cancellationToken);
         var location = $"/api/materialtypes/{id}";
         return Created(location, new { id });
     }
@@ -26,7 +19,7 @@ public class MaterialTypeController : ControllerBase
     [HttpGet]
     public async Task<IActionResult> GetAll(CancellationToken cancellationToken)
     {
-        var materialTypes = await _materialTypeService.GetAllMaterialTypesAsync(cancellationToken);
+        var materialTypes = await materialTypeService.GetAllMaterialTypesAsync(cancellationToken);
         return Ok(materialTypes);
     }
 }

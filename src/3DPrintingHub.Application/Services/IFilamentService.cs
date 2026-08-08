@@ -10,4 +10,9 @@ public interface IFilamentService
     /// Creates a new Filament record and returns its Id.
     /// </summary>
     Task<Guid> CreateFilamentAsync(FilamentCreateDto dto, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Retrieves all Filament records with their profile and color information.
+    /// </summary>
+    Task<IEnumerable<FilamentDto>> GetAllFilamentsAsync(CancellationToken cancellationToken = default);
 }

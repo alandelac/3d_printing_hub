@@ -6,15 +6,8 @@ using _3DPrintingHub.Infrastructure.Data;
 
 namespace _3DPrintingHub.Infrastructure.Services;
 
-public class MarketplaceService : IMarketplaceService
+public class MarketplaceService(ApplicationDbContext dbContext) : IMarketplaceService
 {
-    private readonly ApplicationDbContext _dbContext;
-
-    public MarketplaceService(ApplicationDbContext dbContext)
-    {
-        _dbContext = dbContext;
-    }
-
     public Task<Guid> CreateMarketplaceAsync(MarketplaceCreateDto dto, CancellationToken cancellationToken = default)
     {
         Marketplace marketplace = new()
@@ -22,21 +15,21 @@ public class MarketplaceService : IMarketplaceService
             Name = dto.Name
         };
 
-        var existingMarketplace = _dbContext.Marketplaces.FirstOrDefault(m => m.Name == marketplace.Name);
+        var existingMarketplace = dbContext.Marketplaces.FirstOrDefault(m => m.Name == marketplace.Name);
         if (existingMarketplace != null)
         {
             throw new InvalidOperationException("A marketplace with the same name already exists.");
         }
 
-        _dbContext.Marketplaces.Add(marketplace);
-        _dbContext.SaveChanges();
+        dbContext.Marketplaces.Add(marketplace);
+        dbContext.SaveChanges();
 
         return Task.FromResult(marketplace.Id);
     }
 
     public Task<IEnumerable<MarketplaceDto>> GetAllMarketplacesAsync(CancellationToken cancellationToken = default)
     {
-        var marketplaces = _dbContext.Marketplaces
+        var marketplaces = dbContext.Marketplaces
             .Select(m => new MarketplaceDto
             {
                 Id = m.Id,

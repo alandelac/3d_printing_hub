@@ -6,9 +6,9 @@ public class Filament
 
     // Clave Foránea hacia el Perfil Técnico
     public Guid FilamentProfileId { get; set; }
-    public FilamentProfile Profile { get; set; } = new FilamentProfile();
+    public FilamentProfile? Profile { get; set; } 
     public Guid FilamentColorId { get; set; }
-    public FilamentColor Color { get; set; } = new FilamentColor();
+    public FilamentColor? Color { get; set; }
 
     // Inventario y Pesaje
     public int RemainingWeightGrams { get; set; } = 1000;

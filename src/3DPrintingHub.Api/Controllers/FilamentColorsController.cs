@@ -6,19 +6,12 @@ namespace _3DPrintingHub.Api.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class FilamentColorsController : ControllerBase
+public class FilamentColorsController(IFilamentColorService filamentColorService) : ControllerBase
 {
-    private readonly IFilamentColorService _filamentColorService;
-    
-    public FilamentColorsController(IFilamentColorService filamentColorService)
-    {
-        _filamentColorService = filamentColorService;
-    }
-
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] FilamentColorCreateDto dto, CancellationToken cancellationToken)
     {
-        var id = await _filamentColorService.CreateFilamentColorAsync(dto, cancellationToken);
+        var id = await filamentColorService.CreateFilamentColorAsync(dto, cancellationToken);
         var location = $"/api/filamentcolors/{id}";
         return Created(location, new { id });
     }
@@ -26,7 +19,7 @@ public class FilamentColorsController : ControllerBase
     [HttpGet]
     public async Task<IActionResult> GetAll(CancellationToken cancellationToken)
     {
-        var filamentColors = await _filamentColorService.GetAllFilamentColorsAsync(cancellationToken);
+        var filamentColors = await filamentColorService.GetAllFilamentColorsAsync(cancellationToken);
         return Ok(filamentColors);
     }
 }

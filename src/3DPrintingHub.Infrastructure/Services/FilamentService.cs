@@ -1,41 +1,87 @@
-using System.Threading;
-using System.Threading.Tasks;
 using _3DPrintingHub.Application.Dtos;
 using _3DPrintingHub.Application.Services;
 using _3DPrintingHub.Domain.Entities;
 using _3DPrintingHub.Infrastructure.Data;
+using Microsoft.EntityFrameworkCore;
 
 namespace _3DPrintingHub.Infrastructure.Services;
 
-public class FilamentService : IFilamentService
+public class FilamentService(ApplicationDbContext dbContext) : IFilamentService
 {
-    private readonly ApplicationDbContext _dbContext;
-
-    public FilamentService(ApplicationDbContext dbContext)
-    {
-        _dbContext = dbContext;
-    }
 
     public async Task<Guid> CreateFilamentAsync(FilamentCreateDto dto, CancellationToken cancellationToken = default)
     {
+        // Validate that the FilamentProfileId exists
+        var profile = await dbContext.FilamentProfiles
+            .FirstOrDefaultAsync(fp => fp.Id == dto.FilamentProfileId, cancellationToken) ?? throw new InvalidOperationException($"Filament profile with ID {dto.FilamentProfileId} does not exist.");
+
+        // Validate that the FilamentColorId exists
+        var color = await dbContext.FilamentColors
+            .FirstOrDefaultAsync(fc => fc.Id == dto.FilamentColorId, cancellationToken) ?? throw new InvalidOperationException($"Filament color with ID {dto.FilamentColorId} does not exist.");
+
         var filament = new Filament
         {
-           /* FilamentProfileId = dto.FilamentProfileId,
-            Color = dto.Color,
-            TotalWeightGrams = dto.TotalWeightGrams,
-            RemainingWeightGrams = dto.RemainingWeightGrams,
-            SpoolEmptyWeightGrams = dto.SpoolEmptyWeightGrams,
-            minCost = dto.MinCost,
-            maxCost = dto.MaxCost,
-            lastCost = dto.LastCost,
-            CustomNozzleTemp = dto.CustomNozzleTemp,
-            CreatedAt = DateTime.UtcNow
-            */
+            FilamentProfileId = dto.FilamentProfileId,
+            FilamentColorId = dto.FilamentColorId,
+            MinCost = dto.MinCost,
+            MaxCost = dto.MaxCost,
+            LastCost = dto.LastCost,
+            BuyAgain = dto.BuyAgain,
+            BuyLink = dto.BuyLink,
+            LastPurchaseDate = dto.LastPurchaseDate ?? DateTime.UtcNow,
+            RemainingWeightGrams = dto.RemainingWeightGrams ?? 1000
         };
 
-        await _dbContext.Filaments.AddAsync(filament, cancellationToken);
-        await _dbContext.SaveChangesAsync(cancellationToken);
+        await dbContext.Filaments.AddAsync(filament, cancellationToken);
+        await dbContext.SaveChangesAsync(cancellationToken);
 
         return filament.Id;
+    }
+
+    public async Task<IEnumerable<FilamentDto>> GetAllFilamentsAsync(CancellationToken cancellationToken = default)
+    {
+        var filaments = await dbContext.Filaments
+            .Include(f => f.Profile)
+                .ThenInclude(p => p!.BrandName)
+            .Include(f => f.Profile)
+                .ThenInclude(p => p!.MaterialType)
+            .Include(f => f.Color)
+            .ToListAsync(cancellationToken);
+
+        var allBrands = await dbContext.Brands.ToListAsync(cancellationToken);
+        var allMaterialTypes = await dbContext.MaterialTypes.ToListAsync(cancellationToken);
+
+        var brandLookup = allBrands.ToDictionary(b => b.Id, b => b.Name);
+        var materialTypeLookup = allMaterialTypes.ToDictionary(mt => mt.Id, mt => mt.Name);
+
+        var result = filaments.Select(f => new FilamentDto
+        {
+            Id = f.Id,
+            FilamentProfileId = f.FilamentProfileId,
+            FilamentProfile = new FilamentProfileDto
+            {
+                Id = f.Profile!.Id,
+                BrandId = f.Profile.BrandId,
+                BrandName = brandLookup.TryGetValue(f.Profile.BrandId, out var brandName) ? brandName : $"Unknown Brand ({f.Profile.BrandId})",
+                MaterialTypeId = f.Profile.MaterialTypeId,
+                MaterialTypeName = materialTypeLookup.TryGetValue(f.Profile.MaterialTypeId, out var mtName) ? mtName : $"Unknown Material ({f.Profile.MaterialTypeId})",
+                IroningFlowPercentage = f.Profile.IroningFlowPercentage,
+                IroningSpeedMmS = f.Profile.IroningSpeedMmS,
+                SlopeAngleForSupports = f.Profile.SlopeAngleForSupports,
+                ZSeparationForSupports = f.Profile.ZSeparationForSupports
+            },
+            FilamentColorId = f.FilamentColorId,
+            ColorName = f.Color != null ? f.Color.Name : $"Unknown Color ({f.FilamentColorId})",
+            ColorCode = f.Color != null ? f.Color.ColorCode : string.Empty,
+            RemainingWeightGrams = f.RemainingWeightGrams,
+            MinCost = f.MinCost,
+            MaxCost = f.MaxCost,
+            LastCost = f.LastCost,
+            LastPurchaseDate = f.LastPurchaseDate,
+            BuyLink = f.BuyLink,
+            BuyAgain = f.BuyAgain
+        }).ToList();
+
+        return result;
     }
 }
