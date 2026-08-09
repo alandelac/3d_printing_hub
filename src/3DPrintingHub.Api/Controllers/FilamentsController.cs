@@ -56,5 +56,25 @@ public class FilamentsController(IFilamentService filamentService) : ControllerB
         var updatedFilament = await filamentService.UpdateFilamentAsync(dto, cancellationToken);
         return Ok(updatedFilament);
     }
+
+    /// <summary>
+    /// Adjusts the remaining weight of a Filament by adding or reducing the specified amount of grams.
+    /// If the resulting weight is less than 0, it will be set to 0.
+    /// </summary>
+    /// <param name="id">The Id of the Filament to adjust.</param>
+    /// <param name="dto">The adjustment payload containing the grams to add or reduce.</param>
+    /// <param name="cancellationToken"></param>
+    /// <returns>The updated FilamentDto.</returns>
+    [HttpPut("{id}/adjust-weight")]
+    public async Task<IActionResult> AdjustWeight(Guid id, [FromBody] AdjustFilamentWeightDto dto, CancellationToken cancellationToken)
+    {
+        if (id != dto.FilamentId)
+        {
+            return BadRequest(new { message = "The filament id in the route does not match the one in the body." });
+        }
+
+        var updatedFilament = await filamentService.AdjustFilamentWeightAsync(dto.FilamentId, dto.Grams, cancellationToken);
+        return Ok(updatedFilament);
+    }
     
 }
