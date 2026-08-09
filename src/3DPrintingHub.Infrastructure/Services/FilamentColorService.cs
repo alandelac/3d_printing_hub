@@ -38,7 +38,7 @@ public class FilamentColorService(ApplicationDbContext dbContext) : IFilamentCol
                 Id = fc.Id,
                 Color = fc.Name,
                 ColorCode = fc.ColorCode
-            })
+            }).OrderBy(fc => fc.Color)
             .ToList();
 
         return Task.FromResult<IEnumerable<FilamentColorDto>>(filamentColors);

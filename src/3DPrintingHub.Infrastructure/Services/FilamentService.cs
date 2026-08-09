@@ -84,7 +84,10 @@ public class FilamentService(ApplicationDbContext dbContext) : IFilamentService
             LastPurchaseDate = f.LastPurchaseDate,
             BuyLink = f.BuyLink,
             BuyAgain = f.BuyAgain
-        }).ToList();
+        }).OrderBy(f => f.FilamentProfile.BrandName)
+        .ThenBy(f => f.FilamentProfile.MaterialTypeName)
+        .ThenBy(f => f.ColorName)
+        .ToList();
 
         return result;
     }

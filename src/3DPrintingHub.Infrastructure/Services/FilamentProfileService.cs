@@ -77,7 +77,9 @@ public class FilamentProfileService(ApplicationDbContext dbContext) : IFilamentP
             IroningSpeedMmS = fp.IroningSpeedMmS,
             SlopeAngleForSupports = fp.SlopeAngleForSupports,
             ZSeparationForSupports = fp.ZSeparationForSupports
-        }).ToList();
+        }).OrderBy(fp => fp.BrandName)
+        .ThenBy(fp => fp.MaterialTypeName)
+        .ToList();
 
         return result;
     }

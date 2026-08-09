@@ -34,7 +34,7 @@ public class BrandService(ApplicationDbContext dbContext) : IBrandService
             {
                 Id = b.Id,
                 Name = b.Name
-            })
+            }).OrderBy(b => b.Name)
             .ToList();
 
         return Task.FromResult<IEnumerable<BrandDto>>(brands);

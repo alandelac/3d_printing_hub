@@ -37,6 +37,7 @@ public class MaterialTypeService(ApplicationDbContext dbContext) : IMaterialType
                 Id = mt.Id,
                 Name = mt.Name
             })
+            .OrderBy(mt => mt.Name)
             .ToList();
 
         return Task.FromResult<IEnumerable<MaterialTypeDto>>(materialTypes);

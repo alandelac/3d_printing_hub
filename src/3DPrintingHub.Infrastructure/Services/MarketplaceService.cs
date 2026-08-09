@@ -35,6 +35,7 @@ public class MarketplaceService(ApplicationDbContext dbContext) : IMarketplaceSe
                 Id = m.Id,
                 Name = m.Name
             })
+            .OrderBy(m => m.Name)
             .ToList();
 
         return Task.FromResult<IEnumerable<MarketplaceDto>>(marketplaces);
