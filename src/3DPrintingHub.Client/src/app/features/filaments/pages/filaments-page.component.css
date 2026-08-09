@@ -19,6 +19,8 @@ th, td { text-align: left; padding: 0.5rem; border-bottom: 1px solid #eee; }
 .secondary { background: #e5e7eb; color: #374151; border: none; padding: 0.5rem 0.75rem; border-radius: 6px; cursor: pointer; }
 .danger { background: #dc2626; color: white; border: none; padding: 0.5rem 0.75rem; border-radius: 6px; cursor: pointer; }
 .danger:disabled { opacity: 0.6; cursor: not-allowed; }
+.modal-actions { display: flex; gap: 0.5rem; flex: 0 0 100%; margin-top: 0.5rem; }
+.modal-actions button { flex: 1; }
 
 @media (max-width: 600px) {
   .modal-content { padding: 0.75rem; width: 100%; }

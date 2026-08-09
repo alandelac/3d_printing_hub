@@ -4,7 +4,7 @@ import { FilamentColor } from '../../domain/models/filament-color.model';
 import { FilamentBrand } from '../../domain/models/filament-brand.model';
 import { FilamentMaterialType } from '../../domain/models/filament-material-type.model';
 import { FilamentProfile, FilamentProfileCreate } from '../../domain/models/filament-profile.model';
-import { Filament, FilamentCreate, FilamentUpdate } from '../../domain/models/filament.model';
+import { Filament, FilamentCreate, FilamentUpdate, AdjustFilamentWeight } from '../../domain/models/filament.model';
 
 @Injectable({ providedIn: 'root' })
 export class FilamentRepository {
@@ -56,5 +56,9 @@ export class FilamentRepository {
 
   deleteFilament(id: string) {
     return this.api.delete(`/filaments/${id}`);
+  }
+
+  adjustFilamentWeight(payload: AdjustFilamentWeight) {
+    return this.api.put<Filament>(`/filaments/${payload.filamentId}/adjust-weight`, payload);
   }
 }

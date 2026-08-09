@@ -6,7 +6,7 @@ import { FilamentColor } from '../../../domain/models/filament-color.model';
 import { FilamentBrand } from '../../../domain/models/filament-brand.model';
 import { FilamentMaterialType } from '../../../domain/models/filament-material-type.model';
 import { FilamentProfile, FilamentProfileCreate } from '../../../domain/models/filament-profile.model';
-import { Filament, FilamentCreate, FilamentUpdate } from '../../../domain/models/filament.model';
+import { Filament, FilamentCreate, FilamentUpdate, AdjustFilamentWeight } from '../../../domain/models/filament.model';
 
 @Component({
   selector: 'app-filaments-page',
@@ -80,6 +80,12 @@ export class FilamentsPageComponent implements OnInit {
   protected deleteLoading = signal(false);
   protected deleteFilamentId = signal('');
   protected deleteFilamentName = signal('');
+
+  // Adjust Weight modal state
+  protected adjustWeightOpen = signal(false);
+  protected adjustWeightLoading = signal(false);
+  protected adjustWeightFilamentId = signal('');
+  protected adjustWeightGrams = signal<number | null>(null);
 
   ngOnInit(): void {
     void this.loadColors();
@@ -406,6 +412,43 @@ export class FilamentsPageComponent implements OnInit {
       alert(`Error: ${error}`);
     } finally {
       this.deleteLoading.set(false);
+    }
+  }
+
+  protected openAdjustWeightModal(filament: Filament): void {
+    this.adjustWeightFilamentId.set(filament.id);
+    this.adjustWeightGrams.set(null);
+    this.adjustWeightOpen.set(true);
+  }
+
+  protected closeAdjustWeightModal(): void {
+    this.adjustWeightOpen.set(false);
+    this.adjustWeightFilamentId.set('');
+    this.adjustWeightGrams.set(null);
+  }
+
+  protected async adjustWeight(action: 'add' | 'subtract'): Promise<void> {
+    const grams = this.adjustWeightGrams();
+    if (grams === null || grams <= 0) {
+      alert('Please enter a valid quantity greater than 0.');
+      return;
+    }
+
+    const payload: AdjustFilamentWeight = {
+      filamentId: this.adjustWeightFilamentId(),
+      grams: action === 'add' ? grams : -grams,
+    };
+
+    this.adjustWeightLoading.set(true);
+    try {
+      await firstValueFrom(this.filamentRepository.adjustFilamentWeight(payload));
+      await this.loadFilaments();
+      this.closeAdjustWeightModal();
+    } catch (error) {
+      console.error(`Error ${action === 'add' ? 'adding' : 'subtracting'} weight:`, error);
+      alert(`Error: ${error}`);
+    } finally {
+      this.adjustWeightLoading.set(false);
     }
   }
 }

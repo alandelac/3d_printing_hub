@@ -1,4 +1,5 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { FilamentBrand } from '../../../../domain/models/filament-brand.model';
 import { FilamentMaterialType } from '../../../../domain/models/filament-material-type.model';
 import { FilamentProfile, FilamentProfileCreate } from '../../../../domain/models/filament-profile.model';
@@ -6,6 +7,7 @@ import { FilamentProfile, FilamentProfileCreate } from '../../../../domain/model
 @Component({
   selector: 'app-profiles-modal',
   standalone: true,
+  imports: [CommonModule],
   templateUrl: './profiles-modal.component.html',
   styleUrls: ['./profiles-modal.component.css']
 })

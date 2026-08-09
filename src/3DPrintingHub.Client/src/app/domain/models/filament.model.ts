@@ -48,3 +48,8 @@ export interface FilamentUpdate {
   buyLink?: string;
   buyAgain?: boolean;
 }
+
+export interface AdjustFilamentWeight {
+  filamentId: string;
+  grams: number;
+}

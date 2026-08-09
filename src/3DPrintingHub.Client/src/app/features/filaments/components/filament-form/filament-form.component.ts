@@ -1,4 +1,5 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { FilamentProfile } from '../../../../domain/models/filament-profile.model';
 import { FilamentColor } from '../../../../domain/models/filament-color.model';
 import { Filament, FilamentCreate } from '../../../../domain/models/filament.model';
@@ -17,37 +18,37 @@ import { Filament, FilamentCreate } from '../../../../domain/models/filament.mod
       <div class="body">
         <div class="add-form">
           <label>Filament Profile:</label>
-          <select [value]="selectedProfileId" (change)="selectedProfileId = $event.target.value">
+          <select [value]="selectedProfileId" (change)="selectedProfileId = $any($event.target).value">
             <option value="">Select Profile</option>
             <option *ngFor="let p of profiles" [value]="p.id">{{ p.brandName }} - {{ p.materialTypeName }}</option>
           </select>
 
           <label>Color:</label>
-          <select [value]="selectedColorId" (change)="selectedColorId = $event.target.value">
+          <select [value]="selectedColorId" (change)="selectedColorId = $any($event.target).value">
             <option value="">Select Color</option>
             <option *ngFor="let c of colors" [value]="c.id">{{ c.color }} ({{ c.colorCode }})</option>
           </select>
 
           <label>Min Cost:</label>
-          <input type="number" [value]="minCost" (input)="minCost = $event.target.value ? Number($event.target.value) : null" />
+          <input type="number" [value]="minCost" (input)="minCost = $any($event.target).value ? +$any($event.target).value : null" />
 
           <label>Max Cost:</label>
-          <input type="number" [value]="maxCost" (input)="maxCost = $event.target.value ? Number($event.target.value) : null" />
+          <input type="number" [value]="maxCost" (input)="maxCost = $any($event.target).value ? +$any($event.target).value : null" />
 
           <label>Last Cost:</label>
-          <input type="number" [value]="lastCost" (input)="lastCost = $event.target.value ? Number($event.target.value) : null" />
+          <input type="number" [value]="lastCost" (input)="lastCost = $any($event.target).value ? +$any($event.target).value : null" />
 
           <label>Remaining Weight (g):</label>
-          <input type="number" [value]="remainingWeight" (input)="remainingWeight = $event.target.value ? Number($event.target.value) : null" />
+          <input type="number" [value]="remainingWeight" (input)="remainingWeight = $any($event.target).value ? +$any($event.target).value : null" />
 
           <label>Last Purchase Date:</label>
-          <input type="date" [value]="lastPurchaseDate" (input)="lastPurchaseDate = $event.target.value" />
+          <input type="date" [value]="lastPurchaseDate" (input)="lastPurchaseDate = $any($event.target).value" />
 
           <label>Buy Link:</label>
-          <input type="text" [value]="buyLink" (input)="buyLink = $event.target.value" placeholder="https://..." />
+          <input type="text" [value]="buyLink" (input)="buyLink = $any($event.target).value" placeholder="https://..." />
 
           <label class="checkbox-label">
-            <input type="checkbox" [checked]="buyAgain" (change)="buyAgain = $event.target.checked" />
+            <input type="checkbox" [checked]="buyAgain" (change)="buyAgain = $any($event.target).checked" />
             Buy Again
           </label>
 
@@ -57,7 +58,7 @@ import { Filament, FilamentCreate } from '../../../../domain/models/filament.mod
       </div>
     </div>
   </div>`,
-  imports: []
+  imports: [CommonModule]
 })
 export class FilamentFormComponent {
   @Input() profiles: FilamentProfile[] = [];

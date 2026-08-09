@@ -1,9 +1,11 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { FilamentBrand } from '../../../../domain/models/filament-brand.model';
 
 @Component({
   selector: 'app-brands-modal',
   standalone: true,
+  imports: [CommonModule],
   templateUrl: './brands-modal.component.html',
   styleUrls: ['./brands-modal.component.css']
 })

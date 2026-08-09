@@ -1,9 +1,11 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { FilamentMaterialType } from '../../../../domain/models/filament-material-type.model';
 
 @Component({
   selector: 'app-material-types-modal',
   standalone: true,
+  imports: [CommonModule],
   templateUrl: './material-types-modal.component.html',
   styleUrls: ['./material-types-modal.component.css']
 })

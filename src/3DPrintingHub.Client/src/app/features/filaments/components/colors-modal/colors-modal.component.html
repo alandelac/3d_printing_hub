@@ -8,8 +8,8 @@
 
     <div class="body">
       <div class="add-form">
-        <input placeholder="Color name" [value]="name" (input)="name = $event.target.value" />
-        <input placeholder="#RRGGBB" [value]="code" (input)="code = $event.target.value" />
+        <input placeholder="Color name" [value]="name" (input)="name = $event.target?.value" />
+        <input placeholder="#RRGGBB" [value]="code" (input)="code = $event.target?.value" />
         <button class="primary" (click)="onAdd()">Add</button>
       </div>
 

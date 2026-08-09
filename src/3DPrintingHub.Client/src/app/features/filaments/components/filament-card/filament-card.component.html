@@ -1,0 +1,11 @@
+<div class="filament-card" *ngIf="filament">
+  <div class="card-content">
+    <h4>{{ filament.filamentProfile.brandName }} - {{ filament.filamentProfile.materialTypeName }}</h4>
+    <p><span class="swatch" [style.background]="filament.colorCode"></span> {{ filament.colorName }}</p>
+    <p>Remaining: {{ filament.remainingWeightGrams }}g</p>
+  </div>
+  <div class="card-actions">
+    <button class="secondary" (click)="onEdit()">Edit</button>
+    <button class="danger" (click)="onDelete()">Delete</button>
+  </div>
+</div>

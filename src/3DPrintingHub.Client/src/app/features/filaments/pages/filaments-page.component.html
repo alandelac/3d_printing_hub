@@ -88,7 +88,10 @@
           <tr *ngFor="let f of filaments()">
             <td>{{ f.filamentProfile.brandName }} - {{ f.filamentProfile.materialTypeName }}</td>
             <td><span class="swatch" [style.background]="f.colorCode"></span> {{ f.colorName }}</td>
-            <td>{{ f.remainingWeightGrams }}g</td>
+            <td>
+              {{ f.remainingWeightGrams }}g
+              <button class="secondary" (click)="openAdjustWeightModal(f)">Update</button>
+            </td>
             <td>${{ f.minCost }}</td>
             <td>${{ f.maxCost }}</td>
             <td>${{ f.lastCost }}</td>
@@ -145,6 +148,31 @@
 
           <button class="primary" (click)="updateFilament()" [disabled]="editLoading()">Save Changes</button>
           <button class="secondary" (click)="closeEditModal()" [disabled]="editLoading()">Cancel</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Adjust Weight Modal -->
+  <div *ngIf="adjustWeightOpen()" class="modal">
+    <div class="modal-backdrop" (click)="closeAdjustWeightModal()"></div>
+    <div class="modal-content">
+      <header>
+        <h3>Adjust Filament Weight</h3>
+        <button class="close" (click)="closeAdjustWeightModal()">✕</button>
+      </header>
+
+      <div class="body">
+        <div class="add-form">
+          <label>Quantity (grams):</label>
+          <input type="number" placeholder="Enter grams" [value]="adjustWeightGrams()" (input)="adjustWeightGrams.set($any($event.target).value ? +$any($event.target).value : null)" />
+
+          <div class="modal-actions">
+            <button class="primary" (click)="adjustWeight('add')" [disabled]="adjustWeightLoading()">Add</button>
+            <button class="danger" (click)="adjustWeight('subtract')" [disabled]="adjustWeightLoading()">Subtract</button>
+          </div>
+
+          <button class="secondary" (click)="closeAdjustWeightModal()" [disabled]="adjustWeightLoading()">Cancel</button>
         </div>
       </div>
     </div>
