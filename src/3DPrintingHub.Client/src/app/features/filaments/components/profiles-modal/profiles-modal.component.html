@@ -1,0 +1,66 @@
+<div class="modal">
+  <div class="modal-backdrop" (click)="onClose()"></div>
+  <div class="modal-content">
+    <header>
+      <h3>Filament Profiles</h3>
+      <button class="close" (click)="onClose()">✕</button>
+    </header>
+
+    <div class="body">
+      <div class="add-form">
+        <label>Brand:</label>
+        <select [value]="profileBrandId" (change)="profileBrandId = $event.target.value">
+          <option value="">Select Brand</option>
+          <option *ngFor="let b of brands" [value]="b.id">{{ b.name }}</option>
+        </select>
+
+        <label>Material Type:</label>
+        <select [value]="profileMaterialTypeId" (change)="profileMaterialTypeId = $event.target.value">
+          <option value="">Select Material Type</option>
+          <option *ngFor="let mt of materialTypes" [value]="mt.id">{{ mt.name }}</option>
+        </select>
+
+        <label>Ironing Flow %:</label>
+        <input type="number" [value]="profileIroningFlow" (input)="profileIroningFlow = $event.target.value ? Number($event.target.value) : null" />
+
+        <label>Ironing Speed mm/s:</label>
+        <input type="number" [value]="profileIroningSpeed" (input)="profileIroningSpeed = $event.target.value ? Number($event.target.value) : null" />
+
+        <label>Slope Angle:</label>
+        <input type="number" [value]="profileSlopeAngle" (input)="profileSlopeAngle = $event.target.value ? Number($event.target.value) : null" />
+
+        <label>Z Separation:</label>
+        <input type="number" [value]="profileZSeparation" (input)="profileZSeparation = $event.target.value ? Number($event.target.value) : null" />
+
+        <button class="primary" (click)="onAdd()">Add Filament Profile</button>
+      </div>
+
+      <div *ngIf="loading">Loading...</div>
+
+      <table *ngIf="!loading && profiles.length">
+        <thead>
+          <tr>
+            <th>Brand</th>
+            <th>Material Type</th>
+            <th>Ironing Flow %</th>
+            <th>Ironing Speed</th>
+            <th>Slope Angle</th>
+            <th>Z Separation</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let p of profiles">
+            <td>{{ p.brandName }}</td>
+            <td>{{ p.materialTypeName }}</td>
+            <td>{{ p.ironingFlowPercentage }}</td>
+            <td>{{ p.ironingSpeedMmS }}</td>
+            <td>{{ p.slopeAngleForSupports }}</td>
+            <td>{{ p.zSeparationForSupports }}</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div *ngIf="!loading && !profiles.length">No filament profiles found.</div>
+    </div>
+  </div>
+</div>

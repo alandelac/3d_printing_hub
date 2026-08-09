@@ -1,0 +1,33 @@
+<div class="modal">
+  <div class="modal-backdrop" (click)="onClose()"></div>
+  <div class="modal-content">
+    <header>
+      <h3>Filament Colors</h3>
+      <button class="close" (click)="onClose()">✕</button>
+    </header>
+
+    <div class="body">
+      <div class="add-form">
+        <input placeholder="Color name" [value]="name" (input)="name = $event.target.value" />
+        <input placeholder="#RRGGBB" [value]="code" (input)="code = $event.target.value" />
+        <button class="primary" (click)="onAdd()">Add</button>
+      </div>
+
+      <div *ngIf="loading">Loading...</div>
+
+      <table *ngIf="!loading && colors.length">
+        <thead>
+          <tr><th>Name</th><th>Code</th></tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let c of colors">
+            <td>{{ c.color }}</td>
+            <td><span class="swatch" [style.background]="c.colorCode"></span>{{ c.colorCode }}</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div *ngIf="!loading && !colors.length">No colors found.</div>
+    </div>
+  </div>
+</div>

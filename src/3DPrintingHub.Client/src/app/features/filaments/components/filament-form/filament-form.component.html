@@ -1,0 +1,51 @@
+<div class="modal">
+  <div class="modal-backdrop" (click)="onCancel()"></div>
+  <div class="modal-content">
+    <header>
+      <h3>{{ isEdit ? 'Edit Filament' : 'Add New Filament' }}</h3>
+      <button class="close" (click)="onCancel()">✕</button>
+    </header>
+
+    <div class="body">
+      <div class="add-form">
+        <label>Filament Profile:</label>
+        <select [value]="selectedProfileId" (change)="selectedProfileId = $event.target.value">
+          <option value="">Select Profile</option>
+          <option *ngFor="let p of profiles" [value]="p.id">{{ p.brandName }} - {{ p.materialTypeName }}</option>
+        </select>
+
+        <label>Color:</label>
+        <select [value]="selectedColorId" (change)="selectedColorId = $event.target.value">
+          <option value="">Select Color</option>
+          <option *ngFor="let c of colors" [value]="c.id">{{ c.color }} ({{ c.colorCode }})</option>
+        </select>
+
+        <label>Min Cost:</label>
+        <input type="number" [value]="minCost" (input)="minCost = $event.target.value ? Number($event.target.value) : null" />
+
+        <label>Max Cost:</label>
+        <input type="number" [value]="maxCost" (input)="maxCost = $event.target.value ? Number($event.target.value) : null" />
+
+        <label>Last Cost:</label>
+        <input type="number" [value]="lastCost" (input)="lastCost = $event.target.value ? Number($event.target.value) : null" />
+
+        <label>Remaining Weight (g):</label>
+        <input type="number" [value]="remainingWeight" (input)="remainingWeight = $event.target.value ? Number($event.target.value) : null" />
+
+        <label>Last Purchase Date:</label>
+        <input type="date" [value]="lastPurchaseDate" (input)="lastPurchaseDate = $event.target.value" />
+
+        <label>Buy Link:</label>
+        <input type="text" [value]="buyLink" (input)="buyLink = $event.target.value" placeholder="https://..." />
+
+        <label class="checkbox-label">
+          <input type="checkbox" [checked]="buyAgain" (change)="buyAgain = $event.target.checked" />
+          Buy Again
+        </label>
+
+        <button class="primary" (click)="onSubmit()" [disabled]="loading">{{ loading ? 'Saving...' : 'Save' }}</button>
+        <button class="secondary" (click)="onCancel()">Cancel</button>
+      </div>
+    </div>
+  </div>
+</div>

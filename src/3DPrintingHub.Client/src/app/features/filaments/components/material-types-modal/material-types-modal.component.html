@@ -1,0 +1,27 @@
+<div class="modal">
+  <div class="modal-backdrop" (click)="onClose()"></div>
+  <div class="modal-content">
+    <header>
+      <h3>Filament Material Types</h3>
+      <button class="close" (click)="onClose()">✕</button>
+    </header>
+
+    <div class="body">
+      <div class="add-form">
+        <input placeholder="Material Type name" [value]="nameInput" (input)="nameInput = $event.target.value" />
+        <button class="primary" (click)="onAdd()">Add</button>
+      </div>
+
+      <div *ngIf="loading">Loading...</div>
+      <table *ngIf="!loading && materialTypes.length">
+        <thead><tr><th>Name</th></tr></thead>
+        <tbody>
+          <tr *ngFor="let mt of materialTypes">
+            <td>{{ mt.name }}</td>
+          </tr>
+        </tbody>
+      </table>
+      <div *ngIf="!loading && !materialTypes.length">No material types found.</div>
+    </div>
+  </div>
+</div>
