@@ -50,7 +50,7 @@ export class FilamentsPageComponent implements OnInit {
   // Filament main data (displayed directly on page)
   protected filaments = signal<Filament[]>([]);
   protected filamentLoading = signal(false);
-  protected filamentFormOpen = signal(true);
+  protected filamentFormOpen = signal(false);
 
   // Filament form fields
   protected filamentProfileId = signal('');
