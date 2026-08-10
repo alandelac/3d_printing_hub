@@ -32,7 +32,7 @@ public class FilamentCreateDtoValidator : AbstractValidator<FilamentCreateDto>
             .When(x => x.RemainingWeightGrams.HasValue);
 
         RuleFor(x => x.BuyLink)
-            .MaximumLength(500).WithMessage("Buy link must not exceed 500 characters.")
+            .MaximumLength(1000).WithMessage("Buy link must not exceed 500 characters.")
             .When(x => !string.IsNullOrEmpty(x.BuyLink));
     }
 }

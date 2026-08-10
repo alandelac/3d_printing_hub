@@ -16,6 +16,7 @@ namespace Microsoft.Extensions.DependencyInjection
             services.AddScoped<IFilamentProfileService, FilamentProfileService>();
             services.AddScoped<IMaterialTypeService, MaterialTypeService>();
             services.AddScoped<IMarketplaceService, MarketplaceService>();
+            services.AddScoped<IModelPrintCategoryService, ModelPrintCategoryService>();
 
             services.AddFluentValidationAutoValidation();
             services.AddValidatorsFromAssemblyContaining<BrandCreateDtoValidator>();
