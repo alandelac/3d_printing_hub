@@ -1,20 +1,18 @@
-.modal { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; z-index: 60; padding: 1rem; }
-.modal-backdrop { position: absolute; inset: 0; background: rgba(0,0,0,0.4); }
-.modal-content { position: relative; background: white; border-radius: 8px; padding: 1rem; max-width: 800px; width: 100%; max-height: 90vh; overflow-y: auto; box-shadow: 0 8px 24px rgba(0,0,0,0.12); }
-.modal-content header { display: flex; justify-content: space-between; align-items: center; }
-.modal-content .body { margin-top: 0.75rem; }
-.add-form { display: flex; flex-direction: column; gap: 0.5rem; margin-bottom: 1rem; }
-.add-form label { font-weight: 500; margin-top: 0.25rem; }
-.add-form input { padding: 0.4rem; border: 1px solid #ddd; border-radius: 4px; }
-.add-form button { margin-top: 0.5rem; width: 100%; }
-.close { background: none; border: none; font-size: 1.2rem; cursor: pointer; color: #666; }
-.primary { background: linear-gradient(90deg,#6b46c1,#ff4da6); color: white; border: none; padding: 0.5rem 0.75rem; border-radius: 6px; cursor: pointer; }
-.secondary { background: #e5e7eb; color: #374151; border: none; padding: 0.5rem 0.75rem; border-radius: 6px; cursor: pointer; }
-.danger { background: #dc2626; color: white; border: none; padding: 0.5rem 0.75rem; border-radius: 6px; cursor: pointer; }
-.danger:disabled { opacity: 0.6; cursor: not-allowed; }
+/* Profile modal uses column layout for forms */
+.add-form {
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
 
-@media (max-width: 600px) {
-  .modal-content { padding: 0.75rem; width: 100%; }
-  table { font-size: 0.85rem; }
-  th, td { padding: 0.4rem 0.25rem; }
+.add-form label {
+  margin-top: 0.25rem;
+}
+
+.add-form input {
+  width: 100%;
+}
+
+.add-form button {
+  width: 100%;
 }
