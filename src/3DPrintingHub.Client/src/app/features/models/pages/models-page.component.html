@@ -1,0 +1,37 @@
+<section class="models-page">
+  <h2>{{ title() }}</h2>
+  <div class="actions">
+    <button class="primary" (click)="toggleCategoryOpen()">Category</button>
+  </div>
+
+  <!-- Category Modal -->
+  <div *ngIf="categoryOpen()" class="modal">
+    <div class="modal-backdrop" (click)="toggleCategoryOpen()"></div>
+    <div class="modal-content">
+      <header>
+        <h3>Categories</h3>
+        <button class="close" (click)="toggleCategoryOpen()">✕</button>
+      </header>
+
+      <div class="body">
+        <div class="add-form">
+          <input placeholder="Category name" [value]="categoryNameInput()" (input)="categoryNameInput.set($any($event.target).value)" />
+          <button class="primary" (click)="addCategory()" [disabled]="categoryLoading()">Add</button>
+        </div>
+
+        <div *ngIf="categoryLoading()">Loading...</div>
+        <table *ngIf="!categoryLoading() && categories().length">
+          <thead>
+            <tr><th>Name</th></tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let c of categories()">
+              <td>{{ c.name }}</td>
+            </tr>
+          </tbody>
+        </table>
+        <div *ngIf="!categoryLoading() && !categories().length">No categories found.</div>
+      </div>
+    </div>
+  </div>
+</section>
