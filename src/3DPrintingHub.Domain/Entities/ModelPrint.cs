@@ -5,7 +5,7 @@ public class ModelPrint
     public Guid Id { get; set; } = Guid.NewGuid();
     public string Name { get; set; } = string.Empty;
     public Guid CategoryId { get; set; }
-    public ModelPrintCategory Category { get; set; } = new ModelPrintCategory();
+    public ModelPrintCategory? Category { get; set; }
     public int EstimatedWeightGrams { get; set; }
     public int EstimatedTimeMinutes { get; set; }
 

@@ -17,10 +17,11 @@ namespace Microsoft.Extensions.DependencyInjection
             services.AddScoped<IMaterialTypeService, MaterialTypeService>();
             services.AddScoped<IMarketplaceService, MarketplaceService>();
             services.AddScoped<IModelPrintCategoryService, ModelPrintCategoryService>();
+            services.AddScoped<IModelPrintService, ModelPrintService>();
             services.AddScoped<ISettingService, SettingService>();
 
             services.AddFluentValidationAutoValidation();
-            services.AddValidatorsFromAssemblyContaining<BrandCreateDtoValidator>();
+            services.AddValidatorsFromAssemblyContaining<ModelPrintCreateDtoValidator>();
 
             return services;
         }

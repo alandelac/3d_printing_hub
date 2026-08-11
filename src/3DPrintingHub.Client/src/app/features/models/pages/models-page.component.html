@@ -1,8 +1,130 @@
 <section class="models-page">
   <h2>{{ title() }}</h2>
   <div class="actions">
-    <button class="primary" (click)="toggleCategoryOpen()">Category</button>
+    <button class="primary" (click)="toggleModelOpen()">New Model</button>
+    <button class="secondary" (click)="toggleCategoryOpen()">Category</button>
   </div>
+
+  <!-- Model Creation Modal -->
+  <div *ngIf="modelOpen()" class="modal">
+    <div class="modal-backdrop" (click)="toggleModelOpen()"></div>
+    <div class="modal-content">
+      <header>
+        <h3>Create New Model</h3>
+        <button class="close" (click)="toggleModelOpen()">✕</button>
+      </header>
+
+      <div class="body">
+        <form class="model-form" (submit)="createModel()">
+          <div class="form-group">
+            <label for="modelName">Name *</label>
+            <input 
+              id="modelName"
+              type="text" 
+              placeholder="Model name" 
+              [value]="modelForm().name" 
+              (input)="onModelInputChange('name', $any($event.target).value)"
+              required
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="modelCategory">Category *</label>
+            <select 
+              id="modelCategory"
+              [value]="modelForm().categoryId" 
+              (change)="onCategoryChange($any($event.target).value)"
+              required
+            >
+              <option *ngIf="!categories().length" value="" disabled>No categories available</option>
+              <option *ngFor="let c of categories()" [value]="c.id">{{ c.name }}</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="modelWeight">Estimated Weight (grams) *</label>
+            <input 
+              id="modelWeight"
+              type="number" 
+              placeholder="e.g. 150" 
+              [value]="modelForm().estimatedWeightGrams" 
+              (input)="onModelInputChange('estimatedWeightGrams', +$any($event.target).value || 0)"
+              min="1"
+              required
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="modelTime">Estimated Time (minutes) *</label>
+            <input 
+              id="modelTime"
+              type="number" 
+              placeholder="e.g. 45" 
+              [value]="modelForm().estimatedTimeMinutes" 
+              (input)="onModelInputChange('estimatedTimeMinutes', +$any($event.target).value || 0)"
+              min="1"
+              required
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="modelFile">File Location or URL</label>
+            <input 
+              id="modelFile"
+              type="text" 
+              placeholder="https://... (optional)" 
+              [value]="modelForm().fileLocationOrUrl || ''" 
+              (input)="onModelInputChange('fileLocationOrUrl', $any($event.target).value)"
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="modelNotes">Notes</label>
+            <textarea 
+              id="modelNotes"
+              placeholder="Additional notes (optional)" 
+              [value]="modelForm().notes || ''" 
+              (input)="onModelInputChange('notes', $any($event.target).value)"
+              rows="3"
+            ></textarea>
+          </div>
+
+          <div class="form-actions">
+            <button type="button" class="secondary" (click)="toggleModelOpen()" [disabled]="modelLoading()">Cancel</button>
+            <button type="submit" class="primary" [disabled]="modelLoading() || !categories().length">
+              {{ modelLoading() ? 'Creating...' : 'Create Model' }}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Models List -->
+  <div *ngIf="modelsLoading()">Loading models...</div>
+  <div *ngIf="!modelsLoading() && !models().length">No models found. Create your first model above.</div>
+  <table *ngIf="!modelsLoading() && models().length" class="models-table">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Category</th>
+        <th>Weight (g)</th>
+        <th>Time (min)</th>
+        <th>Default Cost</th>
+        <th>Sale Price</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let m of models()">
+        <td>{{ m.name }}</td>
+        <td>{{ m.categoryName }}</td>
+        <td>{{ m.estimatedWeightGrams }}</td>
+        <td>{{ m.estimatedTimeMinutes }}</td>
+        <td>{{ m.defaultCost | number:'1.2-2' }}</td>
+        <td>{{ m.defaultSalePrice | number:'1.2-2' }}</td>
+      </tr>
+    </tbody>
+  </table>
 
   <!-- Category Modal -->
   <div *ngIf="categoryOpen()" class="modal">
