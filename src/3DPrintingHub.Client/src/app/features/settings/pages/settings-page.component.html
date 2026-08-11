@@ -1,0 +1,68 @@
+<section class="settings-page">
+  <h2>{{ title() }}</h2>
+
+  <!-- Settings Table -->
+  <div class="table-section">
+    <h3>Application Settings</h3>
+    <div *ngIf="loading()">Loading...</div>
+    <div *ngIf="!loading() && settings().length" class="table-scroll">
+      <table>
+        <thead>
+          <tr>
+            <th>Parameter</th>
+            <th>Value</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let setting of settings()">
+            <td>{{ setting.parameter }}</td>
+            <td>{{ setting.value }}</td>
+            <td>
+              <button class="secondary" (click)="openEditModal(setting)">Edit</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div *ngIf="!loading() && !settings().length">
+      <p>No settings found.</p>
+    </div>
+  </div>
+
+  <!-- Edit Setting Modal -->
+  <div *ngIf="editOpen()" class="modal">
+    <div class="modal-backdrop" (click)="closeEditModal()"></div>
+    <div class="modal-content">
+      <header>
+        <h3>Edit Setting</h3>
+        <button class="close" (click)="closeEditModal()">✕</button>
+      </header>
+
+      <div class="body">
+        <div class="add-form">
+          <label>Parameter:</label>
+          <input 
+            type="text" 
+            [value]="editParameter()" 
+            (input)="editParameter.set($any($event.target).value)"
+            readonly
+          />
+
+          <label>Value:</label>
+          <input 
+            type="number" 
+            step="0.01"
+            [value]="editValue()" 
+            (input)="editValue.set($any($event.target).value ? +$any($event.target).value : null)"
+          />
+
+          <button class="primary" (click)="updateSetting()" [disabled]="editLoading()">
+            {{ editLoading() ? 'Saving...' : 'Save Changes' }}
+          </button>
+          <button class="secondary" (click)="closeEditModal()" [disabled]="editLoading()">Cancel</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

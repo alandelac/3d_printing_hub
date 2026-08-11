@@ -1,6 +1,7 @@
 using _3DPrintingHub.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using _3DPrintingHub.Application;
+using _3DPrintingHub.Api.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -40,6 +41,9 @@ using (var scope = app.Services.CreateScope())
 {
     var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
     dbContext.Database.Migrate();
+    
+    // 4. Seed default settings if table is empty
+    await SettingsSeeder.SeedAsync(dbContext);
 }
 
 // Permite que la API reconozca los archivos del cliente de Blazor
