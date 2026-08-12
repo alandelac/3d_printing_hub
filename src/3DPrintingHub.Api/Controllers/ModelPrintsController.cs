@@ -28,4 +28,25 @@ public class ModelPrintsController(IModelPrintService modelPrintService) : Contr
         var models = await modelPrintService.GetAllModelPrintsAsync(cancellationToken);
         return Ok(models);
     }
+
+    /// <summary>
+    /// Deletes a ModelPrint record by its Id and returns the deleted ModelPrint data.
+    /// </summary>
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> Delete(Guid id, CancellationToken cancellationToken)
+    {
+        var deletedModelPrint = await modelPrintService.DeleteModelPrintAsync(id, cancellationToken);
+        return Ok(deletedModelPrint);
+    }
+
+    /// <summary>
+    /// Updates a ModelPrint record by its Id with the provided fields and returns the updated ModelPrint data.
+    /// DefaultCost and DefaultSalePrice are recalculated when EstimatedWeightGrams or EstimatedTimeMinutes are provided.
+    /// </summary>
+    [HttpPut]
+    public async Task<IActionResult> Update([FromBody] ModelPrintUpdateDto dto, CancellationToken cancellationToken)
+    {
+        var updatedModelPrint = await modelPrintService.UpdateModelPrintAsync(dto, cancellationToken);
+        return Ok(updatedModelPrint);
+    }
 }

@@ -20,3 +20,13 @@ export interface ModelPrintCreate {
   fileLocationOrUrl?: string;
   notes?: string;
 }
+
+export interface ModelPrintUpdate {
+  id: string;
+  name?: string;
+  categoryId?: string;
+  estimatedWeightGrams?: number;
+  estimatedTimeMinutes?: number;
+  fileLocationOrUrl?: string;
+  notes?: string;
+}

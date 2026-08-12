@@ -1,4 +1,4 @@
-using _3DPrintingHub.Application.Dtos;
+﻿using _3DPrintingHub.Application.Dtos;
 
 namespace _3DPrintingHub.Application.Services;
 
@@ -13,4 +13,15 @@ public interface IModelPrintService
     /// Retrieves all ModelPrint records with their category names.
     /// </summary>
     Task<IEnumerable<ModelPrintDto>> GetAllModelPrintsAsync(CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Deletes a ModelPrint record by its Id and returns the deleted ModelPrint data.
+    /// </summary>
+    Task<ModelPrintDto> DeleteModelPrintAsync(Guid id, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Updates a ModelPrint record by its Id with the provided fields and returns the updated ModelPrint data.
+    /// DefaultCost and DefaultSalePrice are recalculated when EstimatedWeightGrams or EstimatedTimeMinutes are provided.
+    /// </summary>
+    Task<ModelPrintDto> UpdateModelPrintAsync(ModelPrintUpdateDto dto, CancellationToken cancellationToken = default);
 }

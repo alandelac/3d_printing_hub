@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { firstValueFrom } from 'rxjs';
 import { ModelRepository } from '../../../data/repositories/model.repository';
 import { ModelPrintCategory } from '../../../domain/models/model-print-category.model';
-import { ModelPrint, ModelPrintCreate } from '../../../domain/models/model-print.model';
+import { ModelPrint, ModelPrintCreate, ModelPrintUpdate } from '../../../domain/models/model-print.model';
 
 @Component({
   selector: 'app-models-page',
@@ -35,6 +35,23 @@ export class ModelsPageComponent implements OnInit {
   // Models list functionality
   protected models = signal<ModelPrint[]>([]);
   protected modelsLoading = signal(false);
+
+  // Edit Model modal state
+  protected editOpen = signal(false);
+  protected editLoading = signal(false);
+  protected editModelId = signal('');
+  protected editName = signal('');
+  protected editCategoryId = signal('');
+  protected editEstimatedWeightGrams = signal<number | null>(null);
+  protected editEstimatedTimeMinutes = signal<number | null>(null);
+  protected editFileLocationOrUrl = signal('');
+  protected editNotes = signal('');
+
+  // Delete Model confirmation state
+  protected deleteOpen = signal(false);
+  protected deleteLoading = signal(false);
+  protected deleteModelId = signal('');
+  protected deleteModelName = signal('');
 
   async ngOnInit(): Promise<void> {
     await Promise.all([
@@ -148,5 +165,83 @@ export class ModelsPageComponent implements OnInit {
       fileLocationOrUrl: '',
       notes: ''
     });
+  }
+
+  protected openEditModal(model: ModelPrint): void {
+    this.editModelId.set(model.id);
+    this.editName.set(model.name);
+    this.editCategoryId.set(model.categoryId);
+    this.editEstimatedWeightGrams.set(model.estimatedWeightGrams);
+    this.editEstimatedTimeMinutes.set(model.estimatedTimeMinutes);
+    this.editFileLocationOrUrl.set(model.fileLocationOrUrl ?? '');
+    this.editNotes.set(model.notes ?? '');
+    this.editOpen.set(true);
+  }
+
+  protected closeEditModal(): void {
+    this.editOpen.set(false);
+    this.resetEditForm();
+  }
+
+  protected async updateModel(): Promise<void> {
+    const payload: ModelPrintUpdate = {
+      id: this.editModelId(),
+      name: this.editName() || undefined,
+      categoryId: this.editCategoryId() || undefined,
+      estimatedWeightGrams: this.editEstimatedWeightGrams() ?? undefined,
+      estimatedTimeMinutes: this.editEstimatedTimeMinutes() ?? undefined,
+      fileLocationOrUrl: this.editFileLocationOrUrl() || undefined,
+      notes: this.editNotes() || undefined,
+    };
+
+    this.editLoading.set(true);
+    try {
+      await firstValueFrom(this.modelRepository.updateModelPrint(payload));
+      await this.loadModels();
+      this.closeEditModal();
+      alert('Model updated successfully!');
+    } catch (error) {
+      console.error('Error updating model:', error);
+      alert(`Error: ${error}`);
+    } finally {
+      this.editLoading.set(false);
+    }
+  }
+
+  private resetEditForm(): void {
+    this.editModelId.set('');
+    this.editName.set('');
+    this.editCategoryId.set('');
+    this.editEstimatedWeightGrams.set(null);
+    this.editEstimatedTimeMinutes.set(null);
+    this.editFileLocationOrUrl.set('');
+    this.editNotes.set('');
+  }
+
+  protected openDeleteModal(model: ModelPrint): void {
+    this.deleteModelId.set(model.id);
+    this.deleteModelName.set(model.name);
+    this.deleteOpen.set(true);
+  }
+
+  protected closeDeleteModal(): void {
+    this.deleteOpen.set(false);
+    this.deleteModelId.set('');
+    this.deleteModelName.set('');
+  }
+
+  protected async confirmDelete(): Promise<void> {
+    this.deleteLoading.set(true);
+    try {
+      await firstValueFrom(this.modelRepository.deleteModelPrint(this.deleteModelId()));
+      await this.loadModels();
+      this.closeDeleteModal();
+      alert('Model deleted successfully!');
+    } catch (error) {
+      console.error('Error deleting model:', error);
+      alert(`Error: ${error}`);
+    } finally {
+      this.deleteLoading.set(false);
+    }
   }
 }

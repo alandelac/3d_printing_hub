@@ -110,8 +110,9 @@
         <th>Category</th>
         <th>Weight (g)</th>
         <th>Time (min)</th>
-        <th>Default Cost</th>
+                <th>Default Cost</th>
         <th>Sale Price</th>
+        <th>Actions</th>
       </tr>
     </thead>
     <tbody>
@@ -121,10 +122,131 @@
         <td>{{ m.estimatedWeightGrams }}</td>
         <td>{{ m.estimatedTimeMinutes }}</td>
         <td>{{ m.defaultCost | number:'1.2-2' }}</td>
-        <td>{{ m.defaultSalePrice | number:'1.2-2' }}</td>
+                <td>{{ m.defaultSalePrice | number:'1.2-2' }}</td>
+        <td>
+          <button class="secondary" (click)="openEditModal(m)">Edit</button>
+          <button class="danger" (click)="openDeleteModal(m)">Delete</button>
+        </td>
       </tr>
     </tbody>
-  </table>
+    </table>
+
+  <!-- Edit Model Modal -->
+  <div *ngIf="editOpen()" class="modal">
+    <div class="modal-backdrop" (click)="closeEditModal()"></div>
+    <div class="modal-content">
+      <header>
+        <h3>Edit Model</h3>
+        <button class="close" (click)="closeEditModal()">✕</button>
+      </header>
+
+      <div class="body">
+        <form class="model-form" (submit)="updateModel()">
+          <div class="form-group">
+            <label for="editModelName">Name *</label>
+            <input
+              id="editModelName"
+              type="text"
+              placeholder="Model name"
+              [value]="editName()"
+              (input)="editName.set($any($event.target).value)"
+              required
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="editModelCategory">Category *</label>
+            <select
+              id="editModelCategory"
+              [value]="editCategoryId()"
+              (change)="editCategoryId.set($any($event.target).value)"
+              required
+            >
+              <option *ngIf="!categories().length" value="" disabled>No categories available</option>
+              <option *ngFor="let c of categories()" [value]="c.id">{{ c.name }}</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="editModelWeight">Estimated Weight (grams) *</label>
+            <input
+              id="editModelWeight"
+              type="number"
+              placeholder="e.g. 150"
+              [value]="editEstimatedWeightGrams()"
+              (input)="editEstimatedWeightGrams.set($any($event.target).value ? +$any($event.target).value : null)"
+              min="1"
+              required
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="editModelTime">Estimated Time (minutes) *</label>
+            <input
+              id="editModelTime"
+              type="number"
+              placeholder="e.g. 45"
+              [value]="editEstimatedTimeMinutes()"
+              (input)="editEstimatedTimeMinutes.set($any($event.target).value ? +$any($event.target).value : null)"
+              min="1"
+              required
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="editModelFile">File Location or URL</label>
+            <input
+              id="editModelFile"
+              type="text"
+              placeholder="https://... (optional)"
+              [value]="editFileLocationOrUrl()"
+              (input)="editFileLocationOrUrl.set($any($event.target).value)"
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="editModelNotes">Notes</label>
+            <textarea
+              id="editModelNotes"
+              placeholder="Additional notes (optional)"
+              [value]="editNotes()"
+              (input)="editNotes.set($any($event.target).value)"
+              rows="3"
+            ></textarea>
+          </div>
+
+          <div class="form-actions">
+            <button type="button" class="secondary" (click)="closeEditModal()" [disabled]="editLoading()">Cancel</button>
+            <button type="submit" class="primary" [disabled]="editLoading()">
+              {{ editLoading() ? 'Saving...' : 'Save Changes' }}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Delete Model Confirmation Modal -->
+  <div *ngIf="deleteOpen()" class="modal">
+    <div class="modal-backdrop" (click)="closeDeleteModal()"></div>
+    <div class="modal-content">
+      <header>
+        <h3>Delete Model</h3>
+        <button class="close" (click)="closeDeleteModal()">✕</button>
+      </header>
+
+      <div class="body">
+        <div class="add-form">
+          <p>Are you sure you want to delete <strong>{{ deleteModelName() }}</strong>? This action cannot be undone.</p>
+
+          <div class="modal-actions">
+            <button class="danger" (click)="confirmDelete()" [disabled]="deleteLoading()">Yes, Delete</button>
+            <button class="secondary" (click)="closeDeleteModal()" [disabled]="deleteLoading()">Cancel</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <!-- Category Modal -->
   <div *ngIf="categoryOpen()" class="modal">

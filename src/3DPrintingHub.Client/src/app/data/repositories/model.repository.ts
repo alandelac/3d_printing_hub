@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { ApiClient } from '../../core/http/api-client';
 import { ModelPrintCategory } from '../../domain/models/model-print-category.model';
-import { ModelPrint, ModelPrintCreate } from '../../domain/models/model-print.model';
+import { ModelPrint, ModelPrintCreate, ModelPrintUpdate } from '../../domain/models/model-print.model';
 
 @Injectable({ providedIn: 'root' })
 export class ModelRepository {
@@ -21,5 +21,13 @@ export class ModelRepository {
 
   getAllModelPrints() {
     return this.api.get<ModelPrint[]>('/modelprints');
+  }
+
+  updateModelPrint(payload: ModelPrintUpdate) {
+    return this.api.put<ModelPrint>('/modelprints', payload);
+  }
+
+  deleteModelPrint(id: string) {
+    return this.api.delete(`/modelprints/${id}`);
   }
 }
