@@ -18,6 +18,7 @@ namespace Microsoft.Extensions.DependencyInjection
             services.AddScoped<IMarketplaceService, MarketplaceService>();
             services.AddScoped<IModelPrintCategoryService, ModelPrintCategoryService>();
             services.AddScoped<IModelPrintService, ModelPrintService>();
+            services.AddScoped<IProductStockService, ProductStockService>();
             services.AddScoped<ISettingService, SettingService>();
 
             services.AddFluentValidationAutoValidation();
