@@ -121,9 +121,29 @@ export class ModelsPageComponent implements OnInit {
 
   protected async createModel(): Promise<void> {
     const form = this.modelForm();
-    
-    if (!form.name.trim() || !form.categoryId || form.estimatedWeightGrams <= 0 || form.estimatedTimeMinutes <= 0) {
-      alert('Please fill in all required fields with valid values.');
+    const errors: string[] = [];
+
+    // Validaciones detalladas
+    if (!form.name.trim()) {
+      errors.push('Name is required');
+    }
+    if (!form.categoryId) {
+      errors.push('Category is required');
+    }
+    if (form.estimatedWeightGrams <= 0) {
+      errors.push('Weight must be greater than 0');
+    }
+    if (form.estimatedTimeMinutes <= 0) {
+      errors.push('Time must be greater than 0');
+    }
+
+    // Si hay errores, los imprimimos detalladamente en consola
+    if (errors.length > 0) {
+      console.warn('❌ Form Validation Failed:', errors);
+      console.table(errors.map(err => ({ error: err }))); // Esto crea una tablita en la consola
+      
+      // Opcional: Si quieres que el alert también sea útil:
+      alert(`Validation Error:\n- ${errors.join('\n- ')}`);
       return;
     }
 
