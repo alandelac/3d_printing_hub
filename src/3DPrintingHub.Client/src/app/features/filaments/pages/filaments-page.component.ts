@@ -54,14 +54,36 @@ export class FilamentsPageComponent implements OnInit {
   // Sorting state
   protected sortColumn = signal<string>('');
   protected sortDirection = signal<'asc' | 'desc'>('asc');
-  protected sortedFilaments = computed(() => {
+
+  // Filter state
+  protected filamentFilter = signal('');
+
+  // Combined filter + sort
+  protected filteredSortedFilaments = computed(() => {
     const data = this.filaments();
+    const filterText = this.filamentFilter().toLowerCase().trim();
     const column = this.sortColumn();
     const direction = this.sortDirection();
 
-    if (!column) return data;
+    // Step 1: filter
+    const filtered = !filterText
+      ? data
+      : data.filter(f =>
+          `${f.filamentProfile.brandName} ${f.filamentProfile.materialTypeName}`.toLowerCase().includes(filterText) ||
+          f.colorName.toLowerCase().includes(filterText) ||
+          String(f.remainingWeightGrams).includes(filterText) ||
+          String(f.minCost).includes(filterText) ||
+          String(f.maxCost).includes(filterText) ||
+          String(f.lastCost).includes(filterText) ||
+          (f.lastPurchaseDate || '').toLowerCase().includes(filterText) ||
+          (f.buyAgain ? 'yes' : 'no').includes(filterText) ||
+          (f.buyLink || '').toLowerCase().includes(filterText)
+        );
 
-    const sorted = [...data].sort((a, b) => {
+    // Step 2: sort
+    if (!column) return filtered;
+
+    return [...filtered].sort((a, b) => {
       let valA: string | number | boolean;
       let valB: string | number | boolean;
 
@@ -118,8 +140,6 @@ export class FilamentsPageComponent implements OnInit {
 
       return 0;
     });
-
-    return sorted;
   });
 
   protected toggleSort(column: string): void {

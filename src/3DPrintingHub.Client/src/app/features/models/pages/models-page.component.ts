@@ -39,14 +39,33 @@ export class ModelsPageComponent implements OnInit {
   // Sorting state
   protected sortColumn = signal<string>('');
   protected sortDirection = signal<'asc' | 'desc'>('asc');
-  protected sortedModels = computed(() => {
+
+  // Filter state
+  protected modelFilter = signal('');
+
+  // Combined filter + sort
+  protected filteredSortedModels = computed(() => {
     const data = this.models();
+    const filterText = this.modelFilter().toLowerCase().trim();
     const column = this.sortColumn();
     const direction = this.sortDirection();
 
-    if (!column) return data;
+    // Step 1: filter
+    const filtered = !filterText
+      ? data
+      : data.filter(m =>
+          m.name.toLowerCase().includes(filterText) ||
+          m.categoryName.toLowerCase().includes(filterText) ||
+          String(m.estimatedWeightGrams).includes(filterText) ||
+          String(m.estimatedTimeMinutes).includes(filterText) ||
+          String(m.defaultCost).includes(filterText) ||
+          String(m.defaultSalePrice).includes(filterText)
+        );
 
-    return [...data].sort((a, b) => {
+    // Step 2: sort
+    if (!column) return filtered;
+
+    return [...filtered].sort((a, b) => {
       let valA: string | number;
       let valB: string | number;
 

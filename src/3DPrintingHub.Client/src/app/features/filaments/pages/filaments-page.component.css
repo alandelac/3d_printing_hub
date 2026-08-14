@@ -10,3 +10,14 @@ th.sortable {
 th.sortable:hover {
   text-decoration: underline;
 }
+.filter-bar {
+  margin-bottom: 0.5rem;
+}
+.filter-input {
+  width: 100%;
+  max-width: 320px;
+  padding: 0.4rem 0.6rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 0.9rem;
+}

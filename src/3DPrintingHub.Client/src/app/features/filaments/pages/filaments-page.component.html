@@ -67,6 +67,9 @@
   <!-- Filaments Table (displayed directly on page) -->
   <div class="table-section">
     <h3>Filaments</h3>
+    <div class="filter-bar">
+      <input type="text" placeholder="Filter filaments…" [value]="filamentFilter()" (input)="filamentFilter.set($any($event.target).value)" class="filter-input" />
+    </div>
     <div *ngIf="filamentLoading()">Loading...</div>
     <div *ngIf="!filamentLoading() && filaments().length" class="table-scroll">
       <table>
@@ -85,7 +88,7 @@
           </tr>
         </thead>
         <tbody>
-          <tr *ngFor="let f of sortedFilaments()">
+          <tr *ngFor="let f of filteredSortedFilaments()">
             <td>{{ f.filamentProfile.brandName }} - {{ f.filamentProfile.materialTypeName }}</td>
             <td><span class="swatch" [style.background]="f.colorCode"></span> {{ f.colorName }}</td>
             <td>
