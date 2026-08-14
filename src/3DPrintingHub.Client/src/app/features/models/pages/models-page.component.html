@@ -106,17 +106,17 @@
   <table *ngIf="!modelsLoading() && models().length" class="models-table">
     <thead>
       <tr>
-        <th>Name</th>
-        <th>Category</th>
-        <th>Weight (g)</th>
-        <th>Time (min)</th>
-                <th>Default Cost</th>
-        <th>Sale Price</th>
+        <th class="sortable" (click)="toggleSort('name')">Name{{ sortIndicator('name') }}</th>
+        <th class="sortable" (click)="toggleSort('category')">Category{{ sortIndicator('category') }}</th>
+        <th class="sortable" (click)="toggleSort('weight')">Weight (g){{ sortIndicator('weight') }}</th>
+        <th class="sortable" (click)="toggleSort('time')">Time (min){{ sortIndicator('time') }}</th>
+                <th class="sortable" (click)="toggleSort('defaultCost')">Default Cost{{ sortIndicator('defaultCost') }}</th>
+        <th class="sortable" (click)="toggleSort('salePrice')">Sale Price{{ sortIndicator('salePrice') }}</th>
         <th>Actions</th>
       </tr>
     </thead>
     <tbody>
-      <tr *ngFor="let m of models()">
+      <tr *ngFor="let m of sortedModels()">
         <td>{{ m.name }}</td>
         <td>{{ m.categoryName }}</td>
         <td>{{ m.estimatedWeightGrams }}</td>

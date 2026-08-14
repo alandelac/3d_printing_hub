@@ -72,20 +72,20 @@
       <table>
         <thead>
           <tr>
-            <th>Profile</th>
-            <th>Color</th>
-            <th>Remaining Weight</th>
-            <th>Min Cost</th>
-            <th>Max Cost</th>
-            <th>Last Cost</th>
-            <th>Last Purchase</th>
-            <th>Buy Again</th>
+            <th class="sortable" (click)="toggleSort('profile')">Profile{{ sortIndicator('profile') }}</th>
+            <th class="sortable" (click)="toggleSort('color')">Color{{ sortIndicator('color') }}</th>
+            <th class="sortable" (click)="toggleSort('remainingWeight')">Remaining Weight{{ sortIndicator('remainingWeight') }}</th>
+            <th class="sortable" (click)="toggleSort('minCost')">Min Cost{{ sortIndicator('minCost') }}</th>
+            <th class="sortable" (click)="toggleSort('maxCost')">Max Cost{{ sortIndicator('maxCost') }}</th>
+            <th class="sortable" (click)="toggleSort('lastCost')">Last Cost{{ sortIndicator('lastCost') }}</th>
+            <th class="sortable" (click)="toggleSort('lastPurchaseDate')">Last Purchase{{ sortIndicator('lastPurchaseDate') }}</th>
+            <th class="sortable" (click)="toggleSort('buyAgain')">Buy Again{{ sortIndicator('buyAgain') }}</th>
             <th>Buy URL</th>
             <th>Actions</th>
           </tr>
         </thead>
         <tbody>
-          <tr *ngFor="let f of filaments()">
+          <tr *ngFor="let f of sortedFilaments()">
             <td>{{ f.filamentProfile.brandName }} - {{ f.filamentProfile.materialTypeName }}</td>
             <td><span class="swatch" [style.background]="f.colorCode"></span> {{ f.colorName }}</td>
             <td>

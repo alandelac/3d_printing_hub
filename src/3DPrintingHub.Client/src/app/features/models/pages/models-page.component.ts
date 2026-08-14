@@ -1,4 +1,4 @@
-import { Component, signal, inject, OnInit } from '@angular/core';
+import { Component, signal, computed, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { firstValueFrom } from 'rxjs';
 import { ModelRepository } from '../../../data/repositories/model.repository';
@@ -35,6 +35,71 @@ export class ModelsPageComponent implements OnInit {
   // Models list functionality
   protected models = signal<ModelPrint[]>([]);
   protected modelsLoading = signal(false);
+
+  // Sorting state
+  protected sortColumn = signal<string>('');
+  protected sortDirection = signal<'asc' | 'desc'>('asc');
+  protected sortedModels = computed(() => {
+    const data = this.models();
+    const column = this.sortColumn();
+    const direction = this.sortDirection();
+
+    if (!column) return data;
+
+    return [...data].sort((a, b) => {
+      let valA: string | number;
+      let valB: string | number;
+
+      switch (column) {
+        case 'name':
+          valA = a.name.toLowerCase();
+          valB = b.name.toLowerCase();
+          break;
+        case 'category':
+          valA = a.categoryName.toLowerCase();
+          valB = b.categoryName.toLowerCase();
+          break;
+        case 'weight':
+          valA = a.estimatedWeightGrams;
+          valB = b.estimatedWeightGrams;
+          break;
+        case 'time':
+          valA = a.estimatedTimeMinutes;
+          valB = b.estimatedTimeMinutes;
+          break;
+        case 'defaultCost':
+          valA = a.defaultCost;
+          valB = b.defaultCost;
+          break;
+        case 'salePrice':
+          valA = a.defaultSalePrice;
+          valB = b.defaultSalePrice;
+          break;
+        default:
+          return 0;
+      }
+
+      if (typeof valA === 'string' && typeof valB === 'string') {
+        return direction === 'asc' ? valA.localeCompare(valB) : valB.localeCompare(valA);
+      }
+
+      return direction === 'asc' ? (valA as number) - (valB as number) : (valB as number) - (valA as number);
+    });
+  });
+
+  protected toggleSort(column: string): void {
+    if (this.sortColumn() === column) {
+      this.sortDirection.set(this.sortDirection() === 'asc' ? 'desc' : 'asc');
+    } else {
+      this.sortColumn.set(column);
+      this.sortDirection.set('asc');
+    }
+  }
+
+  protected sortIndicator(column: string): string {
+    if (this.sortColumn() !== column) return '';
+    return this.sortDirection() === 'asc' ? ' ▲' : ' ▼';
+  }
 
   // Edit Model modal state
   protected editOpen = signal(false);

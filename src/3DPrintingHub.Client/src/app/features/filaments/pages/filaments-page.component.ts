@@ -1,4 +1,4 @@
-import { Component, signal, inject, OnInit } from '@angular/core';
+import { Component, signal, computed, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { firstValueFrom } from 'rxjs';
 import { FilamentRepository } from '../../../data/repositories/filament.repository';
@@ -50,6 +50,91 @@ export class FilamentsPageComponent implements OnInit {
   // Filament main data (displayed directly on page)
   protected filaments = signal<Filament[]>([]);
   protected filamentLoading = signal(false);
+
+  // Sorting state
+  protected sortColumn = signal<string>('');
+  protected sortDirection = signal<'asc' | 'desc'>('asc');
+  protected sortedFilaments = computed(() => {
+    const data = this.filaments();
+    const column = this.sortColumn();
+    const direction = this.sortDirection();
+
+    if (!column) return data;
+
+    const sorted = [...data].sort((a, b) => {
+      let valA: string | number | boolean;
+      let valB: string | number | boolean;
+
+      switch (column) {
+        case 'profile':
+          valA = `${a.filamentProfile.brandName} ${a.filamentProfile.materialTypeName}`.toLowerCase();
+          valB = `${b.filamentProfile.brandName} ${b.filamentProfile.materialTypeName}`.toLowerCase();
+          break;
+        case 'color':
+          valA = a.colorName.toLowerCase();
+          valB = b.colorName.toLowerCase();
+          break;
+        case 'remainingWeight':
+          valA = a.remainingWeightGrams;
+          valB = b.remainingWeightGrams;
+          break;
+        case 'minCost':
+          valA = a.minCost;
+          valB = b.minCost;
+          break;
+        case 'maxCost':
+          valA = a.maxCost;
+          valB = b.maxCost;
+          break;
+        case 'lastCost':
+          valA = a.lastCost;
+          valB = b.lastCost;
+          break;
+        case 'lastPurchaseDate':
+          valA = a.lastPurchaseDate || '';
+          valB = b.lastPurchaseDate || '';
+          break;
+        case 'buyAgain':
+          valA = a.buyAgain ?? false;
+          valB = b.buyAgain ?? false;
+          break;
+        default:
+          return 0;
+      }
+
+      if (typeof valA === 'string' && typeof valB === 'string') {
+        return direction === 'asc' ? valA.localeCompare(valB) : valB.localeCompare(valA);
+      }
+
+      if (typeof valA === 'number' && typeof valB === 'number') {
+        return direction === 'asc' ? valA - valB : valB - valA;
+      }
+
+      if (typeof valA === 'boolean' && typeof valB === 'boolean') {
+        return direction === 'asc'
+          ? (valA === valB ? 0 : valA ? 1 : -1)
+          : (valA === valB ? 0 : valA ? -1 : 1);
+      }
+
+      return 0;
+    });
+
+    return sorted;
+  });
+
+  protected toggleSort(column: string): void {
+    if (this.sortColumn() === column) {
+      this.sortDirection.set(this.sortDirection() === 'asc' ? 'desc' : 'asc');
+    } else {
+      this.sortColumn.set(column);
+      this.sortDirection.set('asc');
+    }
+  }
+
+  protected sortIndicator(column: string): string {
+    if (this.sortColumn() !== column) return '';
+    return this.sortDirection() === 'asc' ? ' ▲' : ' ▼';
+  }
   protected filamentFormOpen = signal(false);
 
   // Filament form fields
