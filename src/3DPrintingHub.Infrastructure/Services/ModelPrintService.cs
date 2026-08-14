@@ -8,7 +8,7 @@ namespace _3DPrintingHub.Infrastructure.Services;
 
 public class ModelPrintService(
     ApplicationDbContext dbContext,
-    ISettingService settingService) : IModelPrintService
+    IPrintPricingService printPricingService) : IModelPrintService
 {
     public async Task<ModelPrintDto> CreateModelPrintAsync(ModelPrintCreateDto dto, CancellationToken cancellationToken = default)
     {
@@ -17,37 +17,13 @@ public class ModelPrintService(
             .FirstOrDefaultAsync(c => c.Id == dto.CategoryId, cancellationToken)
             ?? throw new InvalidOperationException($"Model print category with ID {dto.CategoryId} does not exist.");
 
-        // Get settings needed for cost calculation
-        var misprintRatioSetting = await settingService.GetSettingByParameterAsync("misprint_error_rate", cancellationToken)
-            ?? throw new InvalidOperationException("Setting 'misprint_error_rate' is not configured.");
-        var electricityPriceSetting = await settingService.GetSettingByParameterAsync("electricity_cost_per_kwh", cancellationToken)
-            ?? throw new InvalidOperationException("Setting 'electricity_cost_per_kwh' is not configured.");
-        var printerConsumptionSetting = await settingService.GetSettingByParameterAsync("printer_electricity_consumption_per_hour", cancellationToken)
-            ?? throw new InvalidOperationException("Setting 'printer_electricity_consumption_per_hour' is not configured.");
-        var teardownPriceSetting = await settingService.GetSettingByParameterAsync("tear_down_cost_per_hour", cancellationToken)
-            ?? throw new InvalidOperationException("Setting 'tear_down_cost_per_hour' is not configured.");
+        // Get settings needed for cost calculation (including the current average filament price)
+        var inputs = await printPricingService.GetPricingInputsAsync(cancellationToken);
 
-        var misprintRatio = misprintRatioSetting.Value;
-        var electricityPrice = electricityPriceSetting.Value;
-        var printerConsumptionWatts = printerConsumptionSetting.Value;
-        var teardownPricePerHour = teardownPriceSetting.Value;
-
-        // Calculate average maxPrice of all filaments
-        var avgMaxPrice = await dbContext.Filaments
-            .AverageAsync(f => (decimal)f.MaxCost, cancellationToken);
-
-        // Material cost: grams * (avgMaxPrice / 1000) * misprintRatio
-        // MaxCost is per kg (1000g), so cost per gram = maxPrice / 1000
-        var materialCost = dto.EstimatedWeightGrams * (avgMaxPrice / 1000m) * (1 + misprintRatio);
-
-        // Electricity cost: (timeMinutes / 60) * (watts / 1000) * electricityPricePerKwh
-        var electricityCost = (dto.EstimatedTimeMinutes / 60m) * (printerConsumptionWatts / 1000m) * electricityPrice;
-
-        // Teardown cost: (timeMinutes / 60) * teardownPricePerHour
-        var teardownCost = (dto.EstimatedTimeMinutes / 60m) * teardownPricePerHour;
-
-        var defaultCost = materialCost + electricityCost + teardownCost;
-        var defaultSalePrice = defaultCost * 2;
+        var (defaultCost, defaultSalePrice) = printPricingService.CalculateCostAndSalePrice(
+            dto.EstimatedWeightGrams,
+            dto.EstimatedTimeMinutes,
+            inputs);
 
         var modelPrint = new ModelPrint
         {
@@ -168,35 +144,12 @@ public class ModelPrintService(
         // Recalculate DefaultCost and DefaultSalePrice when weight or time change
         if (dto.EstimatedWeightGrams.HasValue || dto.EstimatedTimeMinutes.HasValue)
         {
-            var misprintRatioSetting = await settingService.GetSettingByParameterAsync("misprint_error_rate", cancellationToken)
-                ?? throw new InvalidOperationException("Setting 'misprint_error_rate' is not configured.");
-            var electricityPriceSetting = await settingService.GetSettingByParameterAsync("electricity_cost_per_kwh", cancellationToken)
-                ?? throw new InvalidOperationException("Setting 'electricity_cost_per_kwh' is not configured.");
-            var printerConsumptionSetting = await settingService.GetSettingByParameterAsync("printer_electricity_consumption_per_hour", cancellationToken)
-                ?? throw new InvalidOperationException("Setting 'printer_electricity_consumption_per_hour' is not configured.");
-            var teardownPriceSetting = await settingService.GetSettingByParameterAsync("tear_down_cost_per_hour", cancellationToken)
-                ?? throw new InvalidOperationException("Setting 'tear_down_cost_per_hour' is not configured.");
+            var inputs = await printPricingService.GetPricingInputsAsync(cancellationToken);
 
-            var misprintRatio = misprintRatioSetting.Value;
-            var electricityPrice = electricityPriceSetting.Value;
-            var printerConsumptionWatts = printerConsumptionSetting.Value;
-            var teardownPricePerHour = teardownPriceSetting.Value;
-
-            // Calculate average maxPrice of all filaments
-            var avgMaxPrice = await dbContext.Filaments
-                .AverageAsync(f => (decimal)f.MaxCost, cancellationToken);
-
-            // Material cost: grams * (avgMaxPrice / 1000) * misprintRatio
-            var materialCost = modelPrint.EstimatedWeightGrams * (avgMaxPrice / 1000m) * (1 + misprintRatio);
-
-            // Electricity cost: (timeMinutes / 60) * (watts / 1000) * electricityPricePerKwh
-            var electricityCost = (modelPrint.EstimatedTimeMinutes / 60m) * (printerConsumptionWatts / 1000m) * electricityPrice;
-
-            // Teardown cost: (timeMinutes / 60) * teardownPricePerHour
-            var teardownCost = (modelPrint.EstimatedTimeMinutes / 60m) * teardownPricePerHour;
-
-            modelPrint.DefaultCost = materialCost + electricityCost + teardownCost;
-            modelPrint.DefaultSalePrice = modelPrint.DefaultCost * 2;
+            (modelPrint.DefaultCost, modelPrint.DefaultSalePrice) = printPricingService.CalculateCostAndSalePrice(
+                modelPrint.EstimatedWeightGrams,
+                modelPrint.EstimatedTimeMinutes,
+                inputs);
         }
 
         await dbContext.SaveChangesAsync(cancellationToken);
@@ -215,6 +168,11 @@ public class ModelPrintService(
             FileLocationOrUrl = modelPrint.FileLocationOrUrl,
             Notes = modelPrint.Notes
         };
+    }
+
+    public async Task<int> RecalculateAllModelPrintCostsAsync(CancellationToken cancellationToken = default)
+    {
+        return await printPricingService.RecalculateAllModelPrintCostsAsync(cancellationToken);
     }
 }
 

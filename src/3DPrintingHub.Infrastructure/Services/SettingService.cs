@@ -6,8 +6,20 @@ using Microsoft.EntityFrameworkCore;
 
 namespace _3DPrintingHub.Infrastructure.Services;
 
-public class SettingService(ApplicationDbContext dbContext) : ISettingService
+public class SettingService(
+    ApplicationDbContext dbContext,
+    IPrintPricingService printPricingService) : ISettingService
 {
+    // Settings that participate in the ModelPrint cost calculation.
+    private static readonly HashSet<string> PricingSettingParameters =
+        new(StringComparer.OrdinalIgnoreCase)
+        {
+            "misprint_error_rate",
+            "electricity_cost_per_kwh",
+            "printer_electricity_consumption_per_hour",
+            "tear_down_cost_per_hour",
+        };
+
     public async Task<Guid> CreateSettingAsync(SettingCreateDto dto, CancellationToken cancellationToken = default)
     {
         // Check if a setting with the same parameter name already exists
@@ -27,6 +39,13 @@ public class SettingService(ApplicationDbContext dbContext) : ISettingService
 
         await dbContext.Settings.AddAsync(setting, cancellationToken);
         await dbContext.SaveChangesAsync(cancellationToken);
+
+        // A newly created pricing setting changes the cost calculation,
+        // so keep ModelPrint costs and prices in sync.
+        if (PricingSettingParameters.Contains(setting.parameter))
+        {
+            await printPricingService.RecalculateAllModelPrintCostsAsync(cancellationToken);
+        }
 
         return setting.Id;
     }
@@ -95,6 +114,13 @@ public class SettingService(ApplicationDbContext dbContext) : ISettingService
         setting.value = dto.Value;
 
         await dbContext.SaveChangesAsync(cancellationToken);
+
+        // If a pricing setting changed, the cost calculation changed too,
+        // so keep ModelPrint costs and prices in sync.
+        if (PricingSettingParameters.Contains(setting.parameter))
+        {
+            await printPricingService.RecalculateAllModelPrintCostsAsync(cancellationToken);
+        }
 
         return new SettingDto
         {

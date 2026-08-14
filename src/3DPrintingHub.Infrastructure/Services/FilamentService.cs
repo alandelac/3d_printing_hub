@@ -6,7 +6,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace _3DPrintingHub.Infrastructure.Services;
 
-public class FilamentService(ApplicationDbContext dbContext) : IFilamentService
+public class FilamentService(
+    ApplicationDbContext dbContext,
+    IModelPrintService modelPrintService) : IFilamentService
 {
 
     public async Task<Guid> CreateFilamentAsync(FilamentCreateDto dto, CancellationToken cancellationToken = default)
@@ -38,6 +40,10 @@ public class FilamentService(ApplicationDbContext dbContext) : IFilamentService
 
         await dbContext.Filaments.AddAsync(filament, cancellationToken);
         await dbContext.SaveChangesAsync(cancellationToken);
+
+        // Adding a filament changes the average filament price,
+        // so keep ModelPrint costs and prices in sync.
+        await modelPrintService.RecalculateAllModelPrintCostsAsync(cancellationToken);
 
         return filament.Id;
     }
@@ -140,6 +146,10 @@ public class FilamentService(ApplicationDbContext dbContext) : IFilamentService
         dbContext.Filaments.Remove(filament);
         await dbContext.SaveChangesAsync(cancellationToken);
 
+        // Deleting a filament also changes the average filament price,
+        // so keep ModelPrint costs and prices in sync.
+        await modelPrintService.RecalculateAllModelPrintCostsAsync(cancellationToken);
+
         return deletedDto;
     }
 
@@ -154,6 +164,8 @@ public class FilamentService(ApplicationDbContext dbContext) : IFilamentService
             .FirstOrDefaultAsync(f => f.Id == dto.Id, cancellationToken)
             ?? throw new InvalidOperationException($"Filament with ID {dto.Id} does not exist.");
 
+        var maxCostChanged = false;
+
         if (dto.RemainingWeightGrams.HasValue)
         {
             filament.RemainingWeightGrams = dto.RemainingWeightGrams.Value;
@@ -164,9 +176,10 @@ public class FilamentService(ApplicationDbContext dbContext) : IFilamentService
             filament.MinCost = dto.MinCost.Value;
         }
 
-        if (dto.MaxCost.HasValue)
+        if (dto.MaxCost.HasValue && dto.MaxCost.Value != filament.MaxCost)
         {
             filament.MaxCost = dto.MaxCost.Value;
+            maxCostChanged = true;
         }
 
         if (dto.LastCost.HasValue)
@@ -190,6 +203,13 @@ public class FilamentService(ApplicationDbContext dbContext) : IFilamentService
         }
 
         await dbContext.SaveChangesAsync(cancellationToken);
+
+        // If the max price changed, the average filament price changed too,
+        // so keep ModelPrint costs and prices in sync.
+        if (maxCostChanged)
+        {
+            await modelPrintService.RecalculateAllModelPrintCostsAsync(cancellationToken);
+        }
 
         var allBrands = await dbContext.Brands.ToListAsync(cancellationToken);
         var allMaterialTypes = await dbContext.MaterialTypes.ToListAsync(cancellationToken);
