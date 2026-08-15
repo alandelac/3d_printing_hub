@@ -1,0 +1,40 @@
+<div class="pie-chart" *ngIf="hasData()">
+  <svg
+    class="pie-svg"
+    [attr.width]="size()"
+    [attr.height]="size()"
+    [attr.viewBox]="'0 0 ' + size() + ' ' + size()"
+  >
+    <ng-container *ngFor="let segment of segments()">
+      <path
+        class="pie-slice"
+        [attr.d]="segment.path"
+        [attr.fill]="segment.color"
+        stroke="#ffffff"
+        stroke-width="2"
+      >
+        <title>{{ segment.label }}: {{ segment.value | number: '1.1-2' }} {{ unit() }} ({{ segment.percent | number: '1.1-1' }}%)</title>
+      </path>
+    </ng-container>
+
+    <ng-container *ngFor="let segment of segments()">
+      <text
+        *ngIf="segment.percent >= 5"
+        class="slice-label"
+        [attr.x]="segment.labelX"
+        [attr.y]="segment.labelY"
+        text-anchor="middle"
+        dominant-baseline="middle"
+      >{{ segment.percent | number: '1.1-1' }}%</text>
+    </ng-container>
+  </svg>
+
+  <ul class="legend">
+    <li *ngFor="let segment of segments()">
+      <span class="swatch" [style.background]="segment.color"></span>
+      <span class="legend-label">{{ segment.label }}</span>
+      <span class="legend-value">{{ segment.value | number: '1.2-2' }} {{ unit() }}</span>
+      <span class="legend-percent">{{ segment.percent | number: '1.1-1' }}%</span>
+    </li>
+  </ul>
+</div>

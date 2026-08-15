@@ -1,0 +1,40 @@
+<section class="dashboard-page">
+  <h2>{{ title() }}</h2>
+
+  <div class="dashboard-grid">
+    <!-- Dashboard 1: Filament inventory by type -->
+    <div class="dashboard-card">
+      <h3>Filament by type</h3>
+      <p class="total">Total: <strong>{{ totalKg() | number: '1.1-2' }} kg</strong></p>
+
+      <div *ngIf="loading()">Loading...</div>
+      <div *ngIf="!loading() && error()" class="error">{{ error() }}</div>
+
+      <app-pie-chart
+        *ngIf="!loading() && !error() && typeSlices().length"
+        [data]="typeSlices()"
+        [size]="280"
+        unit="kg"
+      ></app-pie-chart>
+
+      <p *ngIf="!loading() && !error() && !typeSlices().length">No filaments found.</p>
+    </div>
+
+    <!-- Dashboard 2: Models by category -->
+    <div class="dashboard-card">
+      <h3>Models by category</h3>
+      <p class="total">Total: <strong>{{ totalModels() }} models</strong></p>
+
+      <app-pie-chart
+        *ngIf="!loading() && categorySlices().length"
+        [data]="categorySlices()"
+        [size]="280"
+        unit="models"
+      ></app-pie-chart>
+
+      <p *ngIf="!loading() && !categorySlices().length">No models found.</p>
+    </div>
+
+    <!-- More dashboards can be added here as additional .dashboard-card blocks -->
+  </div>
+</section>

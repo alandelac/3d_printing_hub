@@ -1,0 +1,60 @@
+.pie-chart {
+  display: flex;
+  gap: 1.25rem;
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.pie-svg {
+  flex: 0 0 auto;
+}
+
+.pie-slice {
+  transition: opacity 0.15s ease;
+  cursor: pointer;
+}
+
+.pie-slice:hover {
+  opacity: 0.85;
+}
+
+.slice-label {
+  font-size: 13px;
+  font-weight: 600;
+  fill: #ffffff;
+  pointer-events: none;
+}
+
+.legend {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  min-width: 160px;
+}
+
+.legend li {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+}
+
+.legend .swatch {
+  width: 12px;
+  height: 12px;
+  border-radius: 3px;
+  flex: 0 0 auto;
+}
+
+.legend .legend-label {
+  font-weight: 500;
+}
+
+.legend .legend-percent {
+  margin-left: auto;
+  color: #555;
+}
