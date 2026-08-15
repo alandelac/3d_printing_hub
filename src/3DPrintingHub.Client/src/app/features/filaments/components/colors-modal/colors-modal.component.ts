@@ -1,13 +1,14 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FilamentColor } from '../../../../domain/models/filament-color.model';
+import { ModalComponent } from '../../../../shared/ui/modal/modal.component';
+import { ListStateComponent } from '../../../../shared/ui/list-state/list-state.component';
 
 @Component({
   selector: 'app-colors-modal',
   standalone: true,
-  imports: [CommonModule],
-  templateUrl: './colors-modal.component.html',
-  styleUrls: ['./colors-modal.component.css']
+  imports: [CommonModule, ModalComponent, ListStateComponent],
+  templateUrl: './colors-modal.component.html'
 })
 export class ColorsModalComponent {
   @Input() colors: FilamentColor[] = [];

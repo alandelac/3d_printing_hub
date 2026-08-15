@@ -1,13 +1,14 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FilamentMaterialType } from '../../../../domain/models/filament-material-type.model';
+import { ModalComponent } from '../../../../shared/ui/modal/modal.component';
+import { ListStateComponent } from '../../../../shared/ui/list-state/list-state.component';
 
 @Component({
   selector: 'app-material-types-modal',
   standalone: true,
-  imports: [CommonModule],
-  templateUrl: './material-types-modal.component.html',
-  styleUrls: ['./material-types-modal.component.css']
+  imports: [CommonModule, ModalComponent, ListStateComponent],
+  templateUrl: './material-types-modal.component.html'
 })
 export class MaterialTypesModalComponent {
   @Input() materialTypes: FilamentMaterialType[] = [];

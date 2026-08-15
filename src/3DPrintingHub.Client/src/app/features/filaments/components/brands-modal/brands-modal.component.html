@@ -1,29 +1,19 @@
-<div class="modal">
-  <div class="modal-backdrop" (click)="onClose()"></div>
-  <div class="modal-content">
-    <header>
-      <h3>Filament Brands</h3>
-      <button class="close" (click)="onClose()">✕</button>
-    </header>
-
-    <div class="body">
-      <div class="add-form">
-        <input placeholder="Brand name" [value]="nameInput" (input)="nameInput = $event.target?.value" />
-        <button class="primary" (click)="onAdd()">Add Brand</button>
-      </div>
-
-      <div *ngIf="loading">Loading...</div>
-      <table *ngIf="!loading && brands.length">
-        <thead>
-          <tr><th>Name</th></tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let b of brands">
-            <td>{{ b.name }}</td>
-          </tr>
-        </tbody>
-      </table>
-      <div *ngIf="!loading && !brands.length">No brands found.</div>
-    </div>
+<app-modal title="Filament Brands" (close)="onClose()">
+  <div class="add-form">
+    <input placeholder="Brand name" [value]="nameInput" (input)="nameInput = $event.target?.value" />
+    <button class="primary" (click)="onAdd()">Add Brand</button>
   </div>
-</div>
+
+  <app-list-state [loading]="loading" [hasData]="brands.length > 0" emptyText="No brands found.">
+    <table>
+      <thead>
+        <tr><th>Name</th></tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let b of brands">
+          <td>{{ b.name }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </app-list-state>
+</app-modal>

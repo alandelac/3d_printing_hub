@@ -3,13 +3,14 @@ import { CommonModule } from '@angular/common';
 import { FilamentBrand } from '../../../../domain/models/filament-brand.model';
 import { FilamentMaterialType } from '../../../../domain/models/filament-material-type.model';
 import { FilamentProfile, FilamentProfileCreate } from '../../../../domain/models/filament-profile.model';
+import { ModalComponent } from '../../../../shared/ui/modal/modal.component';
+import { ListStateComponent } from '../../../../shared/ui/list-state/list-state.component';
 
 @Component({
   selector: 'app-profiles-modal',
   standalone: true,
-  imports: [CommonModule],
-  templateUrl: './profiles-modal.component.html',
-  styleUrls: ['./profiles-modal.component.css']
+  imports: [CommonModule, ModalComponent, ListStateComponent],
+  templateUrl: './profiles-modal.component.html'
 })
 export class ProfilesModalComponent {
   @Input() brands: FilamentBrand[] = [];

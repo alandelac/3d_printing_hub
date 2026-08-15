@@ -7,11 +7,16 @@ import { FilamentBrand } from '../../../domain/models/filament-brand.model';
 import { FilamentMaterialType } from '../../../domain/models/filament-material-type.model';
 import { FilamentProfile, FilamentProfileCreate, FilamentProfileUpdate } from '../../../domain/models/filament-profile.model';
 import { Filament, FilamentCreate, FilamentUpdate, AdjustFilamentWeight } from '../../../domain/models/filament.model';
+import { ModalComponent } from '../../../shared/ui/modal/modal.component';
+import { ListStateComponent } from '../../../shared/ui/list-state/list-state.component';
+import { ColorsModalComponent } from '../components/colors-modal/colors-modal.component';
+import { BrandsModalComponent } from '../components/brands-modal/brands-modal.component';
+import { MaterialTypesModalComponent } from '../components/material-types-modal/material-types-modal.component';
 
 @Component({
   selector: 'app-filaments-page',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, ModalComponent, ListStateComponent, ColorsModalComponent, BrandsModalComponent, MaterialTypesModalComponent],
   templateUrl: './filaments-page.component.html',
   styleUrls: ['./filaments-page.component.css']
 })
@@ -21,20 +26,16 @@ export class FilamentsPageComponent implements OnInit {
   protected open = signal(false);
   protected colors = signal<FilamentColor[]>([]);
   protected loading = signal(false);
-  protected nameInput = signal('');
-  protected codeInput = signal('#FFFFFF');
 
   // Brand functionality
   protected brandOpen = signal(false);
   protected brands = signal<FilamentBrand[]>([]);
   protected brandLoading = signal(false);
-  protected brandNameInput = signal('');
 
   // MaterialType functionality
   protected materialTypeOpen = signal(false);
   protected materialTypes = signal<FilamentMaterialType[]>([]);
   protected materialTypeLoading = signal(false);
-  protected materialNameInput = signal('');
 
   // Filament Profile functionality
   protected profileOpen = signal(false);
@@ -240,19 +241,14 @@ export class FilamentsPageComponent implements OnInit {
     }
   }
 
-  protected async addColor(): Promise<void> {
-    await firstValueFrom(this.filamentRepository.createColor({ color: this.nameInput(), colorCode: this.codeInput() }));
+  protected async createColor(payload: { color: string; colorCode: string }): Promise<void> {
+    await firstValueFrom(this.filamentRepository.createColor(payload));
     await this.loadColors();
-    this.nameInput.set('');
-    this.codeInput.set('#FFFFFF');
   }
 
   // Brand methods
   protected toggleBrandOpen(): void {
     this.brandOpen.set(!this.brandOpen());
-    if (!this.brandOpen()) {
-      this.brandNameInput.set('');
-    }
   }
 
   protected closeBrandModal(): void {
@@ -272,18 +268,14 @@ export class FilamentsPageComponent implements OnInit {
     }
   }
 
-  protected async addBrand(): Promise<void> {
-    await firstValueFrom(this.filamentRepository.createBrand({ name: this.brandNameInput() }));
+  protected async createBrand(payload: { name: string }): Promise<void> {
+    await firstValueFrom(this.filamentRepository.createBrand(payload));
     await this.loadBrands();
-    this.brandNameInput.set('');
   }
 
   // MaterialType methods
   protected toggleMaterialTypeOpen(): void {
     this.materialTypeOpen.set(!this.materialTypeOpen());
-    if (!this.materialTypeOpen()) {
-      this.materialNameInput.set('');
-    }
   }
 
   protected closeMaterialTypeModal(): void {
@@ -303,10 +295,9 @@ export class FilamentsPageComponent implements OnInit {
     }
   }
 
-  protected async addMaterialType(): Promise<void> {
-    await firstValueFrom(this.filamentRepository.createMaterialType({ name: this.materialNameInput() }));
+  protected async createMaterialType(payload: { name: string }): Promise<void> {
+    await firstValueFrom(this.filamentRepository.createMaterialType(payload));
     await this.loadMaterialTypes();
-    this.materialNameInput.set('');
   }
 
   // Filament Profile methods

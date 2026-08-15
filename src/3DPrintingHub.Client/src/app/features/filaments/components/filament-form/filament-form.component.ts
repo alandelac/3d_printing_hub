@@ -3,20 +3,13 @@ import { CommonModule } from '@angular/common';
 import { FilamentProfile } from '../../../../domain/models/filament-profile.model';
 import { FilamentColor } from '../../../../domain/models/filament-color.model';
 import { Filament, FilamentCreate } from '../../../../domain/models/filament.model';
+import { ModalComponent } from '../../../../shared/ui/modal/modal.component';
 
 @Component({
   selector: 'app-filament-form',
   standalone: true,
-  template: `<div class="modal">
-    <div class="modal-backdrop" (click)="onCancel()"></div>
-    <div class="modal-content">
-      <header>
-        <h3>{{ isEdit ? 'Edit Filament' : 'Add New Filament' }}</h3>
-        <button class="close" (click)="onCancel()">✕</button>
-      </header>
-
-      <div class="body">
-        <div class="add-form">
+  template: `<app-modal [title]="isEdit ? 'Edit Filament' : 'Add New Filament'" (close)="onCancel()">
+      <div class="add-form">
           <label>Filament Profile:</label>
           <select [value]="selectedProfileId" (change)="selectedProfileId = $any($event.target).value">
             <option value="">Select Profile</option>
@@ -54,11 +47,9 @@ import { Filament, FilamentCreate } from '../../../../domain/models/filament.mod
 
           <button class="primary" (click)="onSubmit()" [disabled]="loading">{{ loading ? 'Saving...' : 'Save' }}</button>
           <button class="secondary" (click)="onCancel()">Cancel</button>
-        </div>
       </div>
-    </div>
-  </div>`,
-  imports: [CommonModule]
+    </app-modal>`,
+  imports: [CommonModule, ModalComponent]
 })
 export class FilamentFormComponent {
   @Input() profiles: FilamentProfile[] = [];

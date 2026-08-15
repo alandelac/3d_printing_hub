@@ -4,11 +4,13 @@ import { firstValueFrom } from 'rxjs';
 import { ModelRepository } from '../../../data/repositories/model.repository';
 import { ModelPrintCategory } from '../../../domain/models/model-print-category.model';
 import { ModelPrint, ModelPrintCreate, ModelPrintUpdate } from '../../../domain/models/model-print.model';
+import { ModalComponent } from '../../../shared/ui/modal/modal.component';
+import { ListStateComponent } from '../../../shared/ui/list-state/list-state.component';
 
 @Component({
   selector: 'app-models-page',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, ModalComponent, ListStateComponent],
   templateUrl: './models-page.component.html',
   styleUrls: ['./models-page.component.css']
 })

@@ -6,15 +6,7 @@
   </div>
 
   <!-- Model Creation Modal -->
-  <div *ngIf="modelOpen()" class="modal">
-    <div class="modal-backdrop" (click)="toggleModelOpen()"></div>
-    <div class="modal-content">
-      <header>
-        <h3>Create New Model</h3>
-        <button class="close" (click)="toggleModelOpen()">✕</button>
-      </header>
-
-      <div class="body">
+  <app-modal *ngIf="modelOpen()" title="Create New Model" (close)="toggleModelOpen()">
         <form class="model-form" (submit)="createModel()">
           <div class="form-group">
             <label for="modelName">Name *</label>
@@ -96,54 +88,44 @@
             </button>
           </div>
         </form>
-      </div>
-    </div>
-  </div>
+  </app-modal>
 
   <!-- Models List -->
   <div class="filter-bar">
     <input type="text" placeholder="Filter models…" [value]="modelFilter()" (input)="modelFilter.set($any($event.target).value)" class="filter-input" />
   </div>
-  <div *ngIf="modelsLoading()">Loading models...</div>
-  <div *ngIf="!modelsLoading() && !models().length">No models found. Create your first model above.</div>
-  <table *ngIf="!modelsLoading() && models().length" class="models-table">
-    <thead>
-      <tr>
-        <th class="sortable" (click)="toggleSort('name')">Name{{ sortIndicator('name') }}</th>
-        <th class="sortable" (click)="toggleSort('category')">Category{{ sortIndicator('category') }}</th>
-        <th class="sortable" (click)="toggleSort('weight')">Weight (g){{ sortIndicator('weight') }}</th>
-        <th class="sortable" (click)="toggleSort('time')">Time (min){{ sortIndicator('time') }}</th>
-                <th class="sortable" (click)="toggleSort('defaultCost')">Default Cost{{ sortIndicator('defaultCost') }}</th>
-        <th class="sortable" (click)="toggleSort('salePrice')">Sale Price{{ sortIndicator('salePrice') }}</th>
-        <th>Actions</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr *ngFor="let m of filteredSortedModels()">
-        <td>{{ m.name }}</td>
-        <td>{{ m.categoryName }}</td>
-        <td>{{ m.estimatedWeightGrams }}</td>
-        <td>{{ m.estimatedTimeMinutes }}</td>
-        <td>{{ m.defaultCost | number:'1.2-2' }}</td>
-                <td>{{ m.defaultSalePrice | number:'1.2-2' }}</td>
-        <td>
-          <button class="secondary" (click)="openEditModal(m)">Edit</button>
-          <button class="danger" (click)="openDeleteModal(m)">Delete</button>
-        </td>
-      </tr>
-    </tbody>
+  <app-list-state [loading]="modelsLoading()" [hasData]="models().length > 0" emptyText="No models found. Create your first model above.">
+    <table class="models-table">
+      <thead>
+        <tr>
+          <th class="sortable" (click)="toggleSort('name')">Name{{ sortIndicator('name') }}</th>
+          <th class="sortable" (click)="toggleSort('category')">Category{{ sortIndicator('category') }}</th>
+          <th class="sortable" (click)="toggleSort('weight')">Weight (g){{ sortIndicator('weight') }}</th>
+          <th class="sortable" (click)="toggleSort('time')">Time (min){{ sortIndicator('time') }}</th>
+                  <th class="sortable" (click)="toggleSort('defaultCost')">Default Cost{{ sortIndicator('defaultCost') }}</th>
+          <th class="sortable" (click)="toggleSort('salePrice')">Sale Price{{ sortIndicator('salePrice') }}</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let m of filteredSortedModels()">
+          <td>{{ m.name }}</td>
+          <td>{{ m.categoryName }}</td>
+          <td>{{ m.estimatedWeightGrams }}</td>
+          <td>{{ m.estimatedTimeMinutes }}</td>
+          <td>{{ m.defaultCost | number:'1.2-2' }}</td>
+                  <td>{{ m.defaultSalePrice | number:'1.2-2' }}</td>
+          <td>
+            <button class="secondary" (click)="openEditModal(m)">Edit</button>
+            <button class="danger" (click)="openDeleteModal(m)">Delete</button>
+          </td>
+        </tr>
+      </tbody>
     </table>
+  </app-list-state>
 
   <!-- Edit Model Modal -->
-  <div *ngIf="editOpen()" class="modal">
-    <div class="modal-backdrop" (click)="closeEditModal()"></div>
-    <div class="modal-content">
-      <header>
-        <h3>Edit Model</h3>
-        <button class="close" (click)="closeEditModal()">✕</button>
-      </header>
-
-      <div class="body">
+  <app-modal *ngIf="editOpen()" title="Edit Model" (close)="closeEditModal()">
         <form class="model-form" (submit)="updateModel()">
           <div class="form-group">
             <label for="editModelName">Name *</label>
@@ -225,20 +207,10 @@
             </button>
           </div>
         </form>
-      </div>
-    </div>
-  </div>
+  </app-modal>
 
   <!-- Delete Model Confirmation Modal -->
-  <div *ngIf="deleteOpen()" class="modal">
-    <div class="modal-backdrop" (click)="closeDeleteModal()"></div>
-    <div class="modal-content">
-      <header>
-        <h3>Delete Model</h3>
-        <button class="close" (click)="closeDeleteModal()">✕</button>
-      </header>
-
-      <div class="body">
+  <app-modal *ngIf="deleteOpen()" title="Delete Model" (close)="closeDeleteModal()">
         <div class="add-form">
           <p>Are you sure you want to delete <strong>{{ deleteModelName() }}</strong>? This action cannot be undone.</p>
 
@@ -246,39 +218,27 @@
             <button class="danger" (click)="confirmDelete()" [disabled]="deleteLoading()">Yes, Delete</button>
             <button class="secondary" (click)="closeDeleteModal()" [disabled]="deleteLoading()">Cancel</button>
           </div>
-        </div>
       </div>
-    </div>
-  </div>
+  </app-modal>
 
   <!-- Category Modal -->
-  <div *ngIf="categoryOpen()" class="modal">
-    <div class="modal-backdrop" (click)="toggleCategoryOpen()"></div>
-    <div class="modal-content">
-      <header>
-        <h3>Categories</h3>
-        <button class="close" (click)="toggleCategoryOpen()">✕</button>
-      </header>
-
-      <div class="body">
+  <app-modal *ngIf="categoryOpen()" title="Categories" (close)="toggleCategoryOpen()">
         <div class="add-form">
           <input placeholder="Category name" [value]="categoryNameInput()" (input)="categoryNameInput.set($any($event.target).value)" />
           <button class="primary" (click)="addCategory()" [disabled]="categoryLoading()">Add</button>
         </div>
 
-        <div *ngIf="categoryLoading()">Loading...</div>
-        <table *ngIf="!categoryLoading() && categories().length">
-          <thead>
-            <tr><th>Name</th></tr>
-          </thead>
-          <tbody>
-            <tr *ngFor="let c of categories()">
-              <td>{{ c.name }}</td>
-            </tr>
-          </tbody>
-        </table>
-        <div *ngIf="!categoryLoading() && !categories().length">No categories found.</div>
-      </div>
-    </div>
-  </div>
+        <app-list-state [loading]="categoryLoading()" [hasData]="categories().length > 0" emptyText="No categories found.">
+          <table>
+            <thead>
+              <tr><th>Name</th></tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let c of categories()">
+                <td>{{ c.name }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </app-list-state>
+  </app-modal>
 </section>

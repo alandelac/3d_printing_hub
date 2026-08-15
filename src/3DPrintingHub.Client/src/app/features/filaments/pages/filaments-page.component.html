@@ -12,16 +12,8 @@
   </div>
 
   <!-- Filament Modal -->
-  <div *ngIf="filamentFormOpen()" class="modal">
-    <div class="modal-backdrop" (click)="toggleFilamentForm()"></div>
-    <div class="modal-content">
-      <header>
-        <h3>Add New Filament</h3>
-        <button class="close" (click)="toggleFilamentForm()">✕</button>
-      </header>
-
-      <div class="body">
-        <div class="add-form">
+  <app-modal *ngIf="filamentFormOpen()" title="Add New Filament" (close)="toggleFilamentForm()">
+    <div class="add-form">
           <label>Filament Profile:</label>
           <select [value]="filamentProfileId()" (change)="filamentProfileId.set($any($event.target).value)">
             <option value="">Select Profile</option>
@@ -58,11 +50,9 @@
           </label>
 
           <button class="primary" (click)="addFilament()">Add Filament</button>
-          <button class="secondary" (click)="toggleFilamentForm()">Cancel</button>
-        </div>
-      </div>
+        <button class="secondary" (click)="toggleFilamentForm()">Cancel</button>
     </div>
-  </div>
+  </app-modal>
 
   <!-- Filaments Table (displayed directly on page) -->
   <div class="table-section">
@@ -70,62 +60,54 @@
     <div class="filter-bar">
       <input type="text" placeholder="Filter filaments…" [value]="filamentFilter()" (input)="filamentFilter.set($any($event.target).value)" class="filter-input" />
     </div>
-    <div *ngIf="filamentLoading()">Loading...</div>
-    <div *ngIf="!filamentLoading() && filaments().length" class="table-scroll">
-      <table>
-        <thead>
-          <tr>
-            <th class="sortable" (click)="toggleSort('profile')">Profile{{ sortIndicator('profile') }}</th>
-            <th class="sortable" (click)="toggleSort('color')">Color{{ sortIndicator('color') }}</th>
-            <th class="sortable" (click)="toggleSort('remainingWeight')">Remaining Weight{{ sortIndicator('remainingWeight') }}</th>
-            <th class="sortable" (click)="toggleSort('minCost')">Min Cost{{ sortIndicator('minCost') }}</th>
-            <th class="sortable" (click)="toggleSort('maxCost')">Max Cost{{ sortIndicator('maxCost') }}</th>
-            <th class="sortable" (click)="toggleSort('lastCost')">Last Cost{{ sortIndicator('lastCost') }}</th>
-            <th class="sortable" (click)="toggleSort('lastPurchaseDate')">Last Purchase{{ sortIndicator('lastPurchaseDate') }}</th>
-            <th class="sortable" (click)="toggleSort('buyAgain')">Buy Again{{ sortIndicator('buyAgain') }}</th>
-            <th>Buy URL</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let f of filteredSortedFilaments()">
-            <td>{{ f.filamentProfile.brandName }} - {{ f.filamentProfile.materialTypeName }}</td>
-            <td><span class="swatch" [style.background]="f.colorCode"></span> {{ f.colorName }}</td>
-            <td>
-              {{ f.remainingWeightGrams }}g
-              <button class="secondary" (click)="openAdjustWeightModal(f)">Update</button>
-            </td>
-            <td>${{ f.minCost }}</td>
-            <td>${{ f.maxCost }}</td>
-            <td>${{ f.lastCost }}</td>
-            <td>{{ f.lastPurchaseDate | date: 'shortDate' }}</td>
-            <td>{{ f.buyAgain ? 'Yes' : 'No' }}</td>
-            <td>
-              <a *ngIf="f.buyLink" [href]="f.buyLink" target="_blank" rel="noopener noreferrer">Link</a>
-              <span *ngIf="!f.buyLink">-</span>
-            </td>
-            <td>
-              <button class="secondary" (click)="openEditModal(f)">Edit</button>
-              <button class="danger" (click)="openDeleteModal(f)">Delete</button>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-    <div *ngIf="!filamentLoading() && !filaments().length">No filaments found.</div>
+    <app-list-state [loading]="filamentLoading()" [hasData]="filaments().length > 0" emptyText="No filaments found.">
+      <div class="table-scroll">
+        <table>
+          <thead>
+            <tr>
+              <th class="sortable" (click)="toggleSort('profile')">Profile{{ sortIndicator('profile') }}</th>
+              <th class="sortable" (click)="toggleSort('color')">Color{{ sortIndicator('color') }}</th>
+              <th class="sortable" (click)="toggleSort('remainingWeight')">Remaining Weight{{ sortIndicator('remainingWeight') }}</th>
+              <th class="sortable" (click)="toggleSort('minCost')">Min Cost{{ sortIndicator('minCost') }}</th>
+              <th class="sortable" (click)="toggleSort('maxCost')">Max Cost{{ sortIndicator('maxCost') }}</th>
+              <th class="sortable" (click)="toggleSort('lastCost')">Last Cost{{ sortIndicator('lastCost') }}</th>
+              <th class="sortable" (click)="toggleSort('lastPurchaseDate')">Last Purchase{{ sortIndicator('lastPurchaseDate') }}</th>
+              <th class="sortable" (click)="toggleSort('buyAgain')">Buy Again{{ sortIndicator('buyAgain') }}</th>
+              <th>Buy URL</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let f of filteredSortedFilaments()">
+              <td>{{ f.filamentProfile.brandName }} - {{ f.filamentProfile.materialTypeName }}</td>
+              <td><span class="swatch" [style.background]="f.colorCode"></span> {{ f.colorName }}</td>
+              <td>
+                {{ f.remainingWeightGrams }}g
+                <button class="secondary" (click)="openAdjustWeightModal(f)">Update</button>
+              </td>
+              <td>${{ f.minCost }}</td>
+              <td>${{ f.maxCost }}</td>
+              <td>${{ f.lastCost }}</td>
+              <td>{{ f.lastPurchaseDate | date: 'shortDate' }}</td>
+              <td>{{ f.buyAgain ? 'Yes' : 'No' }}</td>
+              <td>
+                <a *ngIf="f.buyLink" [href]="f.buyLink" target="_blank" rel="noopener noreferrer">Link</a>
+                <span *ngIf="!f.buyLink">-</span>
+              </td>
+              <td>
+                <button class="secondary" (click)="openEditModal(f)">Edit</button>
+                <button class="danger" (click)="openDeleteModal(f)">Delete</button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </app-list-state>
   </div>
 
   <!-- Edit Filament Modal -->
-  <div *ngIf="editOpen()" class="modal">
-    <div class="modal-backdrop" (click)="closeEditModal()"></div>
-    <div class="modal-content">
-      <header>
-        <h3>Edit Filament</h3>
-        <button class="close" (click)="closeEditModal()">✕</button>
-      </header>
-
-      <div class="body">
-        <div class="add-form">
+  <app-modal *ngIf="editOpen()" title="Edit Filament" (close)="closeEditModal()">
+    <div class="add-form">
           <label>Remaining Weight (grams):</label>
           <input type="number" placeholder="Remaining Weight" [value]="editRemainingWeight()" (input)="editRemainingWeight.set($any($event.target).value ? +$any($event.target).value : null)" />
 
@@ -150,23 +132,13 @@
           </label>
 
           <button class="primary" (click)="updateFilament()" [disabled]="editLoading()">Save Changes</button>
-          <button class="secondary" (click)="closeEditModal()" [disabled]="editLoading()">Cancel</button>
-        </div>
-      </div>
+        <button class="secondary" (click)="closeEditModal()" [disabled]="editLoading()">Cancel</button>
     </div>
-  </div>
+  </app-modal>
 
   <!-- Adjust Weight Modal -->
-  <div *ngIf="adjustWeightOpen()" class="modal">
-    <div class="modal-backdrop" (click)="closeAdjustWeightModal()"></div>
-    <div class="modal-content">
-      <header>
-        <h3>Adjust Filament Weight</h3>
-        <button class="close" (click)="closeAdjustWeightModal()">✕</button>
-      </header>
-
-      <div class="body">
-        <div class="add-form">
+  <app-modal *ngIf="adjustWeightOpen()" title="Adjust Filament Weight" (close)="closeAdjustWeightModal()">
+    <div class="add-form">
           <label>Quantity (grams):</label>
           <input type="number" placeholder="Enter grams" [value]="adjustWeightGrams()" (input)="adjustWeightGrams.set($any($event.target).value ? +$any($event.target).value : null)" />
 
@@ -176,134 +148,49 @@
           </div>
 
           <button class="secondary" (click)="closeAdjustWeightModal()" [disabled]="adjustWeightLoading()">Cancel</button>
-        </div>
-      </div>
     </div>
-  </div>
+  </app-modal>
 
   <!-- Delete Filament Confirmation Modal -->
-  <div *ngIf="deleteOpen()" class="modal">
-    <div class="modal-backdrop" (click)="closeDeleteModal()"></div>
-    <div class="modal-content">
-      <header>
-        <h3>Delete Filament</h3>
-        <button class="close" (click)="closeDeleteModal()">✕</button>
-      </header>
-
-      <div class="body">
-        <div class="add-form">
+  <app-modal *ngIf="deleteOpen()" title="Delete Filament" (close)="closeDeleteModal()">
+    <div class="add-form">
           <p>Are you sure you want to delete <strong>{{ deleteFilamentName() }}</strong>? This action cannot be undone.</p>
 
           <button class="danger" (click)="confirmDelete()" [disabled]="deleteLoading()">Yes, Delete</button>
           <button class="secondary" (click)="closeDeleteModal()" [disabled]="deleteLoading()">Cancel</button>
-        </div>
-      </div>
     </div>
-  </div>
+  </app-modal>
 
   <!-- Colors Modal -->
-  <div *ngIf="open()" class="modal">
-    <div class="modal-backdrop" (click)="closeModal()"></div>
-    <div class="modal-content">
-      <header>
-        <h3>Filament Colors</h3>
-        <button class="close" (click)="closeModal()">✕</button>
-      </header>
-
-      <div class="body">
-        <div class="add-form">
-          <input placeholder="Color name" [value]="nameInput()" (input)="nameInput.set($any($event.target).value)" />
-          <input placeholder="#RRGGBB" [value]="codeInput()" (input)="codeInput.set($any($event.target).value)" />
-          <button class="primary" (click)="addColor()">Add</button>
-        </div>
-        <div *ngIf="loading()">Loading...</div>
-        <table *ngIf="!loading() && colors().length">
-          <thead>
-            <tr><th>Name</th><th>Code</th></tr>
-          </thead>
-          <tbody>
-            <tr *ngFor="let c of colors()">
-              <td>{{ c.color }}</td>
-              <td><span class="swatch" [style.background]="c.colorCode"></span>{{ c.colorCode }}</td>
-            </tr>
-          </tbody>
-        </table>
-        <div *ngIf="!loading() && !colors().length">No colors found.</div>
-      </div>
-    </div>
-  </div>
+  <app-colors-modal
+    *ngIf="open()"
+    [colors]="colors()"
+    [loading]="loading()"
+    (addColor)="createColor($event)"
+    (close)="closeModal()"
+  />
 
   <!-- Brands Modal -->
-  <div *ngIf="brandOpen()" class="modal">
-    <div class="modal-backdrop" (click)="closeBrandModal()"></div>
-    <div class="modal-content">
-      <header>
-        <h3>Filament Brands</h3>
-        <button class="close" (click)="closeBrandModal()">✕</button>
-      </header>
-
-      <div class="body">
-        <div class="add-form">
-          <input placeholder="Brand name" [value]="brandNameInput()" (input)="brandNameInput.set($any($event.target).value)" />
-          <button class="primary" (click)="addBrand()">Add</button>
-        </div>
-        <div *ngIf="brandLoading()">Loading...</div>
-        <table *ngIf="!brandLoading() && brands().length">
-          <thead>
-            <tr><th>Name</th></tr>
-          </thead>
-          <tbody>
-            <tr *ngFor="let b of brands()">
-              <td>{{ b.name }}</td>
-            </tr>
-          </tbody>
-        </table>
-        <div *ngIf="!brandLoading() && !brands().length">No brands found.</div>
-      </div>
-    </div>
-  </div>
+  <app-brands-modal
+    *ngIf="brandOpen()"
+    [brands]="brands()"
+    [loading]="brandLoading()"
+    (addBrand)="createBrand($event)"
+    (close)="closeBrandModal()"
+  />
 
   <!-- Material Types Modal -->
-  <div *ngIf="materialTypeOpen()" class="modal">
-    <div class="modal-backdrop" (click)="closeMaterialTypeModal()"></div>
-    <div class="modal-content">
-      <header>
-        <h3>Filament Material Types</h3>
-        <button class="close" (click)="closeMaterialTypeModal()">✕</button>
-      </header>
-
-      <div class="body">
-        <div class="add-form">
-          <input placeholder="Material Type name" [value]="materialNameInput()" (input)="materialNameInput.set($any($event.target).value)" />
-          <button class="primary" (click)="addMaterialType()">Add</button>
-        </div>
-        <div *ngIf="materialTypeLoading()">Loading...</div>
-        <table *ngIf="!materialTypeLoading() && materialTypes().length">
-          <thead>
-            <tr><th>Name</th></tr>
-          </thead>
-          <tbody>
-            <tr *ngFor="let mt of materialTypes()">
-              <td>{{ mt.name }}</td>
-            </tr>
-          </tbody>
-        </table>
-        <div *ngIf="!materialTypeLoading() && !materialTypes().length">No material types found.</div>
-      </div>
-    </div>
-  </div>
+  <app-material-types-modal
+    *ngIf="materialTypeOpen()"
+    [materialTypes]="materialTypes()"
+    [loading]="materialTypeLoading()"
+    (addMaterialType)="createMaterialType($event)"
+    (close)="closeMaterialTypeModal()"
+  />
 
   <!-- Filament Profiles Modal -->
-  <div *ngIf="profileOpen()" class="modal">
-    <div class="modal-backdrop" (click)="closeProfileModal()"></div>
-    <div class="modal-content">
-      <header>
-        <h3>Filament Profiles</h3>
-        <button class="close" (click)="closeProfileModal()">✕</button>
-      </header>
-
-      <div class="body">
-        <div class="add-form">
+  <app-modal *ngIf="profileOpen()" title="Filament Profiles" (close)="closeProfileModal()">
+    <div class="add-form">
           <label>Brand:</label>
           <select [value]="profileBrandId()" (change)="profileBrandId.set($any($event.target).value)">
             <option value="">Select Brand</option>
@@ -332,35 +219,33 @@
           <button *ngIf="isEditingProfile()" class="secondary" (click)="cancelEditProfile()">Cancel</button>
         </div>
 
-        <div *ngIf="profileLoading()">Loading...</div>
-        <table *ngIf="!profileLoading() && profiles().length">
-          <thead>
-            <tr>
-              <th>Brand</th>
-              <th>Material Type</th>
-              <th>Ironing Flow %</th>
-              <th>Ironing Speed</th>
-              <th>Slope Angle</th>
-              <th>Z Separation</th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr *ngFor="let p of profiles()">
-              <td>{{ p.brandName }}</td>
-              <td>{{ p.materialTypeName }}</td>
-              <td>{{ p.ironingFlowPercentage }}</td>
-              <td>{{ p.ironingSpeedMmS }}</td>
-              <td>{{ p.slopeAngleForSupports }}</td>
-              <td>{{ p.zSeparationForSupports }}</td>
-              <td>
-                <button class="secondary" (click)="startEditProfile(p)">Edit</button>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-        <div *ngIf="!profileLoading() && !profiles().length">No filament profiles found.</div>
-      </div>
-    </div>
-  </div>
+        <app-list-state [loading]="profileLoading()" [hasData]="profiles().length > 0" emptyText="No filament profiles found.">
+      <table>
+        <thead>
+          <tr>
+            <th>Brand</th>
+            <th>Material Type</th>
+            <th>Ironing Flow %</th>
+            <th>Ironing Speed</th>
+            <th>Slope Angle</th>
+            <th>Z Separation</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let p of profiles()">
+            <td>{{ p.brandName }}</td>
+            <td>{{ p.materialTypeName }}</td>
+            <td>{{ p.ironingFlowPercentage }}</td>
+            <td>{{ p.ironingSpeedMmS }}</td>
+            <td>{{ p.slopeAngleForSupports }}</td>
+            <td>{{ p.zSeparationForSupports }}</td>
+            <td>
+              <button class="secondary" (click)="startEditProfile(p)">Edit</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </app-list-state>
+  </app-modal>
 </section>
