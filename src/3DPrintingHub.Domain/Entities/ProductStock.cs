@@ -12,6 +12,7 @@ public class ProductStock
 
     public int QuantityInStock { get; set; }
     public decimal CostToProduce { get; set; }
+    public decimal RecommendedSalePrice { get; set; }
     public decimal SalePrice { get; set; }
     public DateTime LastUpdated { get; set; } = DateTime.UtcNow;
 

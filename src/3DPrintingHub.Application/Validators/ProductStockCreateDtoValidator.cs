@@ -16,9 +16,6 @@ namespace _3DPrintingHub.Application.Validators
             RuleFor(x => x.QuantityInStock)
                 .GreaterThanOrEqualTo(0).WithMessage("Quantity in stock cannot be negative.");
 
-            RuleFor(x => x.CostToProduce)
-                .GreaterThanOrEqualTo(0).WithMessage("Cost to produce cannot be negative.");
-
             RuleFor(x => x.SalePrice)
                 .GreaterThanOrEqualTo(0).WithMessage("Sale price cannot be negative.");
         }

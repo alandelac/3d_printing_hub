@@ -18,11 +18,6 @@ public class ProductStockCreateDto
     public int QuantityInStock { get; set; }
 
     /// <summary>
-    /// Required: The cost to produce one unit.
-    /// </summary>
-    public decimal CostToProduce { get; set; }
-
-    /// <summary>
     /// Required: The sale price of one unit.
     /// </summary>
     public decimal SalePrice { get; set; }

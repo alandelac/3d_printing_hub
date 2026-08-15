@@ -37,9 +37,21 @@ public class PrintPricingService(ApplicationDbContext dbContext) : IPrintPricing
 
     public (decimal Cost, decimal SalePrice) CalculateCostAndSalePrice(int grams, int minutes, PricingInputs inputs)
     {
-        // Material cost: grams * (avgMaxPrice / 1000) * (1 + misprintRatio)
-        // MaxCost is per kg (1000g), so cost per gram = maxPrice / 1000
-        var materialCost = grams * (inputs.AvgMaxPrice / 1000m) * (1 + inputs.MisprintRatio);
+        return CalculateCostAndSalePrice(grams, minutes, inputs.AvgMaxPrice, inputs);
+    }
+
+    public async Task<decimal> CalculateCostUsingFilamentAsync(int grams, int minutes, decimal filamentMaxCost, CancellationToken cancellationToken = default)
+    {
+        var inputs = await GetPricingInputsAsync(cancellationToken);
+        var (cost, _) = CalculateCostAndSalePrice(grams, minutes, filamentMaxCost, inputs);
+        return cost;
+    }
+
+    private static (decimal Cost, decimal SalePrice) CalculateCostAndSalePrice(int grams, int minutes, decimal maxPricePerKg, PricingInputs inputs)
+    {
+        // Material cost: grams * (maxPricePerKg / 1000) * (1 + misprintRatio)
+        // MaxCost is per kg (1000g), so cost per gram = maxPricePerKg / 1000
+        var materialCost = grams * (maxPricePerKg / 1000m) * (1 + inputs.MisprintRatio);
 
         // Electricity cost: (timeMinutes / 60) * (watts / 1000) * electricityPricePerKwh
         var electricityCost = (minutes / 60m) * (inputs.PrinterConsumptionWatts / 1000m) * inputs.ElectricityPricePerKwh;

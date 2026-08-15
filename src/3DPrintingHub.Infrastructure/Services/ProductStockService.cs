@@ -6,7 +6,7 @@ using _3DPrintingHub.Infrastructure.Data;
 
 namespace _3DPrintingHub.Infrastructure.Services;
 
-public class ProductStockService(ApplicationDbContext dbContext) : IProductStockService
+public class ProductStockService(ApplicationDbContext dbContext, IPrintPricingService printPricingService) : IProductStockService
 {
     public async Task<Guid> CreateProductStockAsync(ProductStockCreateDto dto, CancellationToken cancellationToken = default)
     {
@@ -20,13 +20,27 @@ public class ProductStockService(ApplicationDbContext dbContext) : IProductStock
             .FirstOrDefaultAsync(f => f.Id == dto.FilamentId, cancellationToken)
             ?? throw new InvalidOperationException($"Filament with ID {dto.FilamentId} does not exist.");
 
+        // CostToProduce is calculated automatically from the selected filament's MaxCost
+        // (unlike ModelPrint, which uses the average MaxCost of all filaments)
+        var costToProduce = await printPricingService.CalculateCostUsingFilamentAsync(
+            modelPrint.EstimatedWeightGrams,
+            modelPrint.EstimatedTimeMinutes,
+            filament.MaxCost,
+            cancellationToken);
+
+        var recommendedSalePrice = costToProduce * 2;
+
+        // Use the user-provided sale price if specified (> 0), otherwise default to recommended
+        var salePrice = dto.SalePrice > 0 ? dto.SalePrice : recommendedSalePrice;
+
         var productStock = new ProductStock
         {
             ModelPrintId = dto.ModelPrintId,
             FilamentId = dto.FilamentId,
             QuantityInStock = dto.QuantityInStock,
-            CostToProduce = dto.CostToProduce,
-            SalePrice = dto.SalePrice,
+            CostToProduce = costToProduce,
+            RecommendedSalePrice = recommendedSalePrice,
+            SalePrice = salePrice,
             LastUpdated = DateTime.UtcNow
         };
 
@@ -96,14 +110,28 @@ public class ProductStockService(ApplicationDbContext dbContext) : IProductStock
             productStock.QuantityInStock = dto.QuantityInStock.Value;
         }
 
-        if (dto.CostToProduce.HasValue)
-        {
-            productStock.CostToProduce = dto.CostToProduce.Value;
-        }
+        // CostToProduce is calculated automatically from the (possibly updated) model and filament.
+        var modelForCost = await dbContext.ModelPrints
+            .FirstAsync(mp => mp.Id == productStock.ModelPrintId, cancellationToken);
+        var filamentForCost = await dbContext.Filaments
+            .FirstAsync(f => f.Id == productStock.FilamentId, cancellationToken);
+        productStock.CostToProduce = await printPricingService.CalculateCostUsingFilamentAsync(
+            modelForCost.EstimatedWeightGrams,
+            modelForCost.EstimatedTimeMinutes,
+            filamentForCost.MaxCost,
+            cancellationToken);
 
-        if (dto.SalePrice.HasValue)
+        // Recommended sale price is always double the cost.
+        productStock.RecommendedSalePrice = productStock.CostToProduce * 2;
+
+        // Keep a specific user-provided sale price; otherwise fall back to the recommended one.
+        if (dto.SalePrice.HasValue && dto.SalePrice.Value > 0)
         {
             productStock.SalePrice = dto.SalePrice.Value;
+        }
+        else
+        {
+            productStock.SalePrice = productStock.RecommendedSalePrice;
         }
 
         productStock.LastUpdated = DateTime.UtcNow;
@@ -150,6 +178,7 @@ public class ProductStockService(ApplicationDbContext dbContext) : IProductStock
             FilamentColorCode = ps.Filament?.Color?.ColorCode ?? string.Empty,
             QuantityInStock = ps.QuantityInStock,
             CostToProduce = ps.CostToProduce,
+            RecommendedSalePrice = ps.RecommendedSalePrice,
             SalePrice = ps.SalePrice,
             LastUpdated = ps.LastUpdated
         };

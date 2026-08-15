@@ -1,1 +1,33 @@
-/* Stocked page specific styles */
+.stocked-page {
+  padding: 1rem;
+}
+
+.form-hint {
+  display: block;
+  flex: 0 0 100%;
+  font-size: 0.8rem;
+  color: #666;
+  margin-top: 0.25rem;
+}
+
+.qty-adjust {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  margin-left: 0.5rem;
+}
+
+.qty-adjust input {
+  width: 70px;
+  padding: 0.3rem 0.4rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 0.9rem;
+}
+
+.qty-adjust button {
+  padding: 0.3rem 0.6rem;
+  line-height: 1;
+}
+
+

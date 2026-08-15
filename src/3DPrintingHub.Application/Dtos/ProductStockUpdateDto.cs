@@ -23,11 +23,6 @@ public class ProductStockUpdateDto
     public int? QuantityInStock { get; set; }
 
     /// <summary>
-    /// Optional: The cost to produce one unit.
-    /// </summary>
-    public decimal? CostToProduce { get; set; }
-
-    /// <summary>
     /// Optional: The sale price of one unit.
     /// </summary>
     public decimal? SalePrice { get; set; }

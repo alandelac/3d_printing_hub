@@ -69,6 +69,7 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
         modelBuilder.Entity<ProductStock>(entity =>
         {
             entity.Property(ps => ps.CostToProduce).HasPrecision(18, 2);
+            entity.Property(ps => ps.RecommendedSalePrice).HasPrecision(18, 2);
             entity.Property(ps => ps.SalePrice).HasPrecision(18, 2);
 
             entity.HasOne(ps => ps.ModelPrint)
