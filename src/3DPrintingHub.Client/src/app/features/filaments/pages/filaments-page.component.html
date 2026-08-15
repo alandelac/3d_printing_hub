@@ -328,7 +328,8 @@
           <label>Z Separation (optional):</label>
           <input type="number" placeholder="Z Separation" [value]="profileZSeparation()" (input)="profileZSeparation.set($any($event.target).value ? +$any($event.target).value : null)" />
 
-          <button class="primary" (click)="addProfile()">Add Filament Profile</button>
+          <button class="primary" (click)="saveProfile()">{{ isEditingProfile() ? 'Save Changes' : 'Add Filament Profile' }}</button>
+          <button *ngIf="isEditingProfile()" class="secondary" (click)="cancelEditProfile()">Cancel</button>
         </div>
 
         <div *ngIf="profileLoading()">Loading...</div>
@@ -341,6 +342,7 @@
               <th>Ironing Speed</th>
               <th>Slope Angle</th>
               <th>Z Separation</th>
+              <th></th>
             </tr>
           </thead>
           <tbody>
@@ -351,6 +353,9 @@
               <td>{{ p.ironingSpeedMmS }}</td>
               <td>{{ p.slopeAngleForSupports }}</td>
               <td>{{ p.zSeparationForSupports }}</td>
+              <td>
+                <button class="secondary" (click)="startEditProfile(p)">Edit</button>
+              </td>
             </tr>
           </tbody>
         </table>

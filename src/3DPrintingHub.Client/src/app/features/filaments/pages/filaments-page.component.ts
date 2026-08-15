@@ -5,7 +5,7 @@ import { FilamentRepository } from '../../../data/repositories/filament.reposito
 import { FilamentColor } from '../../../domain/models/filament-color.model';
 import { FilamentBrand } from '../../../domain/models/filament-brand.model';
 import { FilamentMaterialType } from '../../../domain/models/filament-material-type.model';
-import { FilamentProfile, FilamentProfileCreate } from '../../../domain/models/filament-profile.model';
+import { FilamentProfile, FilamentProfileCreate, FilamentProfileUpdate } from '../../../domain/models/filament-profile.model';
 import { Filament, FilamentCreate, FilamentUpdate, AdjustFilamentWeight } from '../../../domain/models/filament.model';
 
 @Component({
@@ -46,6 +46,26 @@ export class FilamentsPageComponent implements OnInit {
   protected profileIroningSpeed = signal<number | null>(null);
   protected profileSlopeAngle = signal<number | null>(null);
   protected profileZSeparation = signal<number | null>(null);
+  protected editingProfileId = signal('');
+
+  protected isEditingProfile(): boolean {
+    return this.editingProfileId() !== '';
+  }
+
+  protected startEditProfile(profile: FilamentProfile): void {
+    this.editingProfileId.set(profile.id);
+    this.profileBrandId.set(profile.brandId);
+    this.profileMaterialTypeId.set(profile.materialTypeId);
+    this.profileIroningFlow.set(profile.ironingFlowPercentage ?? null);
+    this.profileIroningSpeed.set(profile.ironingSpeedMmS ?? null);
+    this.profileSlopeAngle.set(profile.slopeAngleForSupports ?? null);
+    this.profileZSeparation.set(profile.zSeparationForSupports ?? null);
+  }
+
+  protected cancelEditProfile(): void {
+    this.editingProfileId.set('');
+    this.resetProfileForm();
+  }
 
   // Filament main data (displayed directly on page)
   protected filaments = signal<Filament[]>([]);
@@ -362,7 +382,52 @@ export class FilamentsPageComponent implements OnInit {
     }
   }
 
+  protected async updateProfile(): Promise<void> {
+    const id = this.editingProfileId();
+    if (!id) {
+      return;
+    }
+
+    if (!this.profileBrandId() || this.profileBrandId() === '') {
+      alert('Please select a brand');
+      return;
+    }
+
+    if (!this.profileMaterialTypeId() || this.profileMaterialTypeId() === '') {
+      alert('Please select a material type');
+      return;
+    }
+
+    const payload: FilamentProfileUpdate = {
+      id,
+      brandId: this.profileBrandId(),
+      materialTypeId: this.profileMaterialTypeId(),
+      ironingFlowPercentage: this.profileIroningFlow() ?? undefined,
+      ironingSpeedMmS: this.profileIroningSpeed() ?? undefined,
+      slopeAngleForSupports: this.profileSlopeAngle() ?? undefined,
+      zSeparationForSupports: this.profileZSeparation() ?? undefined,
+    };
+
+    try {
+      await firstValueFrom(this.filamentRepository.updateFilamentProfile(payload));
+      await this.loadProfiles();
+      this.cancelEditProfile();
+    } catch (error) {
+      console.error('Error updating profile:', error);
+      alert(`Error: ${error}`);
+    }
+  }
+
+  protected saveProfile(): void {
+    if (this.isEditingProfile()) {
+      void this.updateProfile();
+    } else {
+      void this.addProfile();
+    }
+  }
+
   private resetProfileForm(): void {
+    this.editingProfileId.set('');
     this.profileBrandId.set('');
     this.profileMaterialTypeId.set('');
     this.profileIroningFlow.set(null);

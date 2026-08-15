@@ -15,4 +15,9 @@ public interface IFilamentProfileService
     /// Retrieves all FilamentProfile records.
     /// </summary>
     Task<IEnumerable<FilamentProfileDto>> GetAllFilamentProfilesAsync(CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Updates an existing FilamentProfile record and returns its Id.
+    /// </summary>
+    Task<Guid> UpdateFilamentProfileAsync(FilamentProfileUpdateDto dto, CancellationToken cancellationToken = default);
 }

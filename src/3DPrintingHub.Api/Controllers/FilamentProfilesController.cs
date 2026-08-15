@@ -23,4 +23,16 @@ public class FilamentProfilesController(IFilamentProfileService filamentProfileS
         var filamentProfiles = await filamentProfileService.GetAllFilamentProfilesAsync(cancellationToken);
         return Ok(filamentProfiles);
     }
+
+    [HttpPut("{id:guid}")]
+    public async Task<IActionResult> Update(Guid id, [FromBody] FilamentProfileUpdateDto dto, CancellationToken cancellationToken)
+    {
+        if (id != dto.Id)
+        {
+            return BadRequest("The route id does not match the id in the request body.");
+        }
+
+        await filamentProfileService.UpdateFilamentProfileAsync(dto, cancellationToken);
+        return NoContent();
+    }
 }

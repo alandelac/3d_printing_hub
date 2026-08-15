@@ -18,3 +18,13 @@ export interface FilamentProfileCreate {
   slopeAngleForSupports?: number;
   zSeparationForSupports?: number;
 }
+
+export interface FilamentProfileUpdate {
+  id: string;
+  materialTypeId: string;
+  brandId: string;
+  ironingFlowPercentage?: number;
+  ironingSpeedMmS?: number;
+  slopeAngleForSupports?: number;
+  zSeparationForSupports?: number;
+}

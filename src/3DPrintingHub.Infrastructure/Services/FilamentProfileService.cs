@@ -83,4 +83,41 @@ public class FilamentProfileService(ApplicationDbContext dbContext) : IFilamentP
 
         return result;
     }
+
+    public async Task<Guid> UpdateFilamentProfileAsync(FilamentProfileUpdateDto dto, CancellationToken cancellationToken = default)
+    {
+        var filamentProfile = await dbContext.FilamentProfiles
+            .FirstOrDefaultAsync(fp => fp.Id == dto.Id, cancellationToken)
+            ?? throw new InvalidOperationException($"Filament profile with ID {dto.Id} does not exist.");
+
+        // Validate that the BrandId exists
+        var brand = await dbContext.Brands.FirstOrDefaultAsync(b => b.Id == dto.BrandId, cancellationToken)
+            ?? throw new InvalidOperationException($"Brand with ID {dto.BrandId} does not exist.");
+
+        // Validate that the MaterialTypeId exists
+        var materialType = await dbContext.MaterialTypes.FirstOrDefaultAsync(mt => mt.Id == dto.MaterialTypeId, cancellationToken)
+            ?? throw new InvalidOperationException($"Material type with ID {dto.MaterialTypeId} does not exist.");
+
+        // Check if another profile with this Brand + Material Type combination already exists
+        var conflictingProfile = await dbContext.FilamentProfiles
+            .FirstOrDefaultAsync(fp => fp.Id != dto.Id && fp.BrandId == dto.BrandId && fp.MaterialTypeId == dto.MaterialTypeId, cancellationToken);
+
+        if (conflictingProfile != null)
+        {
+            throw new InvalidOperationException(
+                $"A filament profile for brand '{brand.Name}' and material type '{materialType.Name}' already exists.");
+        }
+
+        filamentProfile.BrandId = dto.BrandId;
+        filamentProfile.MaterialTypeId = dto.MaterialTypeId;
+        filamentProfile.IroningFlowPercentage = dto.IroningFlowPercentage;
+        filamentProfile.IroningSpeedMmS = dto.IroningSpeedMmS;
+        filamentProfile.SlopeAngleForSupports = dto.SlopeAngleForSupports;
+        filamentProfile.ZSeparationForSupports = dto.ZSeparationForSupports;
+
+        await dbContext.SaveChangesAsync(cancellationToken);
+
+        Console.WriteLine($"Updated filament profile with ID: {filamentProfile.Id}");
+        return filamentProfile.Id;
+    }
 }
