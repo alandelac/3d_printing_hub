@@ -35,4 +35,11 @@ public class FilamentProfilesController(IFilamentProfileService filamentProfileS
         await filamentProfileService.UpdateFilamentProfileAsync(dto, cancellationToken);
         return NoContent();
     }
+
+    [HttpDelete("{id:guid}")]
+    public async Task<IActionResult> Delete(Guid id, CancellationToken cancellationToken)
+    {
+        await filamentProfileService.DeleteFilamentProfileAsync(id, cancellationToken);
+        return NoContent();
+    }
 }

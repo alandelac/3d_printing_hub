@@ -16,4 +16,14 @@ public interface IBrandService
     /// Retrieves all Brand records.
     /// </summary>
     Task<IEnumerable<BrandDto>> GetAllBrandsAsync(CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Updates an existing Brand record and returns its Id.
+    /// </summary>
+    Task<Guid> UpdateBrandAsync(BrandUpdateDto dto, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Deletes a Brand record by its Id.
+    /// </summary>
+    Task DeleteBrandAsync(Guid id, CancellationToken cancellationToken = default);
 }

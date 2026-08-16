@@ -1,15 +1,17 @@
 <app-modal title="Filament Material Types" (close)="onClose()">
   <div class="add-form">
     <input placeholder="Material Type name" [value]="nameInput" (input)="nameInput = $event.target?.value" />
-    <button class="primary" (click)="onAdd()">Add</button>
+    <button class="primary" (click)="onAdd()">{{ isEditing ? 'Save Changes' : 'Add' }}</button>
+    <button *ngIf="isEditing" class="secondary" (click)="cancelEdit()">Cancel</button>
   </div>
 
   <app-list-state [loading]="loading" [hasData]="materialTypes.length > 0" emptyText="No material types found.">
     <table>
-      <thead><tr><th>Name</th></tr></thead>
+      <thead><tr><th>Name</th><th>Actions</th></tr></thead>
       <tbody>
         <tr *ngFor="let mt of materialTypes">
           <td>{{ mt.name }}</td>
+          <td><app-table-actions (edit)="startEdit(mt)" (delete)="onDelete(mt)" /></td>
         </tr>
       </tbody>
     </table>

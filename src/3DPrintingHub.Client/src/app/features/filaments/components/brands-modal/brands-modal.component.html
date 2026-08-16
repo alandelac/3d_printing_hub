@@ -1,17 +1,19 @@
 <app-modal title="Filament Brands" (close)="onClose()">
   <div class="add-form">
     <input placeholder="Brand name" [value]="nameInput" (input)="nameInput = $event.target?.value" />
-    <button class="primary" (click)="onAdd()">Add Brand</button>
+    <button class="primary" (click)="onAdd()">{{ isEditing ? 'Save Changes' : 'Add Brand' }}</button>
+    <button *ngIf="isEditing" class="secondary" (click)="cancelEdit()">Cancel</button>
   </div>
 
   <app-list-state [loading]="loading" [hasData]="brands.length > 0" emptyText="No brands found.">
     <table>
       <thead>
-        <tr><th>Name</th></tr>
+        <tr><th>Name</th><th>Actions</th></tr>
       </thead>
       <tbody>
         <tr *ngFor="let b of brands">
           <td>{{ b.name }}</td>
+          <td><app-table-actions (edit)="startEdit(b)" (delete)="onDelete(b)" /></td>
         </tr>
       </tbody>
     </table>

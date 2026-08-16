@@ -15,6 +15,14 @@ export class ModelRepository {
     return this.api.post<{ id: string }>('/modelprintcategories', payload);
   }
 
+  updateCategory(payload: { id: string; name: string }) {
+    return this.api.put(`/modelprintcategories/${payload.id}`, payload);
+  }
+
+  deleteCategory(id: string) {
+    return this.api.delete(`/modelprintcategories/${id}`);
+  }
+
   createModelPrint(payload: ModelPrintCreate) {
     return this.api.post<ModelPrint>('/modelprints', payload);
   }

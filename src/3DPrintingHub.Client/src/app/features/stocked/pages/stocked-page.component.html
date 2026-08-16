@@ -10,7 +10,7 @@
     <div class="modal-backdrop" (click)="toggleOpen()"></div>
     <div class="modal-content">
       <header>
-        <h3>Add New Product Stock</h3>
+        <h3>{{ isEditingStock() ? 'Edit Product Stock' : 'Add New Product Stock' }}</h3>
         <button class="close" (click)="toggleOpen()">✕</button>
       </header>
 
@@ -52,9 +52,9 @@
 
           <div class="modal-actions">
             <button class="primary" (click)="createProductStock()" [disabled]="loading()">
-              {{ loading() ? 'Adding...' : 'Add Product Stock' }}
+              {{ loading() ? 'Saving...' : (isEditingStock() ? 'Update' : 'Add Product Stock') }}
             </button>
-            <button class="secondary" (click)="toggleOpen()" [disabled]="loading()">Cancel</button>
+            <button class="secondary" (click)="isEditingStock() ? cancelEditStock() : toggleOpen()" [disabled]="loading()">Cancel</button>
           </div>
         </div>
       </div>
@@ -70,6 +70,7 @@
       <table>
         <thead>
           <tr>
+            <th>ID</th>
             <th>Model</th>
             <th>Filament</th>
             <th>Quantity</th>
@@ -77,10 +78,12 @@
             <th>Recommended Sale Price</th>
             <th>Sale Price</th>
             <th>Last Updated</th>
+            <th>Actions</th>
           </tr>
         </thead>
         <tbody>
           <tr *ngFor="let s of productStocks()">
+            <td>{{ s.id }}</td>
             <td>{{ s.modelPrintName }}</td>
             <td>{{ s.filamentColorName }}</td>
             <td>
@@ -102,10 +105,21 @@
             <td>{{ s.recommendedSalePrice }}</td>
             <td>{{ s.salePrice }}</td>
             <td>{{ s.lastUpdated }}</td>
+            <td><app-table-actions (edit)="openEditStock(s)" (delete)="deleteStockConfirm(s)" /></td>
           </tr>
         </tbody>
       </table>
     </div>
   </div>
+
+  <!-- Generic Delete Confirmation Modal (product stock table) -->
+  <app-confirm-delete
+    *ngIf="deleteOpen()"
+    title="Delete Record"
+    [entityName]="deleteName()"
+    [loading]="deleteLoading()"
+    (confirm)="confirmDelete()"
+    (cancel)="closeDeleteModal()"
+  />
 </section>
 

@@ -16,4 +16,14 @@ public interface IMaterialTypeService
     /// Retrieves all MaterialType records.
     /// </summary>
     Task<IEnumerable<MaterialTypeDto>> GetAllMaterialTypesAsync(CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Updates an existing MaterialType record and returns its Id.
+    /// </summary>
+    Task<Guid> UpdateMaterialTypeAsync(MaterialTypeUpdateDto dto, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Deletes a MaterialType record by its Id.
+    /// </summary>
+    Task DeleteMaterialTypeAsync(Guid id, CancellationToken cancellationToken = default);
 }

@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { ApiClient } from '../../core/http/api-client';
-import { ProductStock, ProductStockCreate } from '../../domain/models/product-stock.model';
+import { ProductStock, ProductStockCreate, ProductStockUpdate } from '../../domain/models/product-stock.model';
 
 @Injectable({ providedIn: 'root' })
 export class ProductStockRepository {
@@ -12,6 +12,14 @@ export class ProductStockRepository {
 
   createProductStock(payload: ProductStockCreate) {
     return this.api.post<{ id: string }>('/productstock', payload);
+  }
+
+  updateProductStock(payload: ProductStockUpdate) {
+    return this.api.put<ProductStock>('/productstock', payload);
+  }
+
+  deleteProductStock(id: string) {
+    return this.api.delete(`/productstock/${id}`);
   }
 
   adjustProductStockQuantity(payload: { productStockId: string; quantity: number }) {

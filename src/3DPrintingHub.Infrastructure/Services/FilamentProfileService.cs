@@ -120,4 +120,21 @@ public class FilamentProfileService(ApplicationDbContext dbContext) : IFilamentP
         Console.WriteLine($"Updated filament profile with ID: {filamentProfile.Id}");
         return filamentProfile.Id;
     }
+
+    public async Task DeleteFilamentProfileAsync(Guid id, CancellationToken cancellationToken = default)
+    {
+        var filamentProfile = await dbContext.FilamentProfiles
+            .FirstOrDefaultAsync(fp => fp.Id == id, cancellationToken)
+            ?? throw new InvalidOperationException($"Filament profile with ID {id} does not exist.");
+
+        dbContext.FilamentProfiles.Remove(filamentProfile);
+        try
+        {
+            await dbContext.SaveChangesAsync(cancellationToken);
+        }
+        catch (DbUpdateException)
+        {
+            throw new InvalidOperationException("This filament profile cannot be deleted because it is in use by a filament.");
+        }
+    }
 }

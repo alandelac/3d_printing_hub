@@ -22,4 +22,23 @@ public class MaterialTypeController(IMaterialTypeService materialTypeService) : 
         var materialTypes = await materialTypeService.GetAllMaterialTypesAsync(cancellationToken);
         return Ok(materialTypes);
     }
+
+    [HttpPut("{id:guid}")]
+    public async Task<IActionResult> Update(Guid id, [FromBody] MaterialTypeUpdateDto dto, CancellationToken cancellationToken)
+    {
+        if (id != dto.Id)
+        {
+            return BadRequest("The route id does not match the id in the request body.");
+        }
+
+        await materialTypeService.UpdateMaterialTypeAsync(dto, cancellationToken);
+        return NoContent();
+    }
+
+    [HttpDelete("{id:guid}")]
+    public async Task<IActionResult> Delete(Guid id, CancellationToken cancellationToken)
+    {
+        await materialTypeService.DeleteMaterialTypeAsync(id, cancellationToken);
+        return NoContent();
+    }
 }

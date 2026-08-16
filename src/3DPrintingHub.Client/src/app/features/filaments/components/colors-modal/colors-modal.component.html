@@ -2,18 +2,20 @@
   <div class="add-form">
     <input placeholder="Color name" [value]="name" (input)="name = $event.target?.value" />
     <input placeholder="#RRGGBB" [value]="code" (input)="code = $event.target?.value" />
-    <button class="primary" (click)="onAdd()">Add</button>
+    <button class="primary" (click)="onAdd()">{{ isEditing ? 'Save Changes' : 'Add' }}</button>
+    <button *ngIf="isEditing" class="secondary" (click)="cancelEdit()">Cancel</button>
   </div>
 
   <app-list-state [loading]="loading" [hasData]="colors.length > 0" emptyText="No colors found.">
     <table>
       <thead>
-        <tr><th>Name</th><th>Code</th></tr>
+        <tr><th>Name</th><th>Code</th><th>Actions</th></tr>
       </thead>
       <tbody>
         <tr *ngFor="let c of colors">
           <td>{{ c.color }}</td>
           <td><span class="swatch" [style.background]="c.colorCode"></span>{{ c.colorCode }}</td>
+          <td><app-table-actions (edit)="startEdit(c)" (delete)="onDelete(c)" /></td>
         </tr>
       </tbody>
     </table>

@@ -28,4 +28,29 @@ public class ModelPrintCategoriesController(IModelPrintCategoryService categoryS
         var categories = await categoryService.GetAllModelPrintCategoriesAsync(cancellationToken);
         return Ok(categories);
     }
+
+    /// <summary>
+    /// Updates the name of an existing model print category.
+    /// </summary>
+    [HttpPut("{id:guid}")]
+    public async Task<IActionResult> Update(Guid id, [FromBody] ModelPrintCategoryUpdateDto dto, CancellationToken cancellationToken)
+    {
+        if (id != dto.Id)
+        {
+            return BadRequest("The route id does not match the id in the request body.");
+        }
+
+        await categoryService.UpdateModelPrintCategoryAsync(dto, cancellationToken);
+        return NoContent();
+    }
+
+    /// <summary>
+    /// Deletes a model print category by its Id.
+    /// </summary>
+    [HttpDelete("{id:guid}")]
+    public async Task<IActionResult> Delete(Guid id, CancellationToken cancellationToken)
+    {
+        await categoryService.DeleteModelPrintCategoryAsync(id, cancellationToken);
+        return NoContent();
+    }
 }

@@ -9,6 +9,8 @@ import { FilamentProfile, FilamentProfileCreate, FilamentProfileUpdate } from '.
 import { Filament, FilamentCreate, FilamentUpdate, AdjustFilamentWeight } from '../../../domain/models/filament.model';
 import { ModalComponent } from '../../../shared/ui/modal/modal.component';
 import { ListStateComponent } from '../../../shared/ui/list-state/list-state.component';
+import { TableActionsComponent } from '../../../shared/ui/table-actions/table-actions.component';
+import { ConfirmDeleteComponent } from '../../../shared/ui/confirm-delete/confirm-delete.component';
 import { ColorsModalComponent } from '../components/colors-modal/colors-modal.component';
 import { BrandsModalComponent } from '../components/brands-modal/brands-modal.component';
 import { MaterialTypesModalComponent } from '../components/material-types-modal/material-types-modal.component';
@@ -16,7 +18,7 @@ import { MaterialTypesModalComponent } from '../components/material-types-modal/
 @Component({
   selector: 'app-filaments-page',
   standalone: true,
-  imports: [CommonModule, ModalComponent, ListStateComponent, ColorsModalComponent, BrandsModalComponent, MaterialTypesModalComponent],
+  imports: [CommonModule, ModalComponent, ListStateComponent, TableActionsComponent, ConfirmDeleteComponent, ColorsModalComponent, BrandsModalComponent, MaterialTypesModalComponent],
   templateUrl: './filaments-page.component.html',
   styleUrls: ['./filaments-page.component.css']
 })
@@ -201,11 +203,42 @@ export class FilamentsPageComponent implements OnInit {
   protected editLastPurchaseDate = signal('');
   protected editRemainingWeight = signal<number | null>(null);
 
-  // Delete Filament confirmation state
+  // Generic delete confirmation state (shared by filament, brand, color, material type and profile tables)
   protected deleteOpen = signal(false);
   protected deleteLoading = signal(false);
-  protected deleteFilamentId = signal('');
-  protected deleteFilamentName = signal('');
+  protected deleteName = signal('');
+  private pendingDelete: (() => Promise<void>) | null = null;
+
+  protected openDeleteConfirm(name: string, action: () => Promise<void>): void {
+    this.deleteName.set(name);
+    this.pendingDelete = action;
+    this.deleteOpen.set(true);
+  }
+
+  protected closeDeleteModal(): void {
+    this.deleteOpen.set(false);
+    this.deleteName.set('');
+    this.pendingDelete = null;
+  }
+
+  protected async confirmDelete(): Promise<void> {
+    const action = this.pendingDelete;
+    this.pendingDelete = null;
+    if (!action) {
+      this.closeDeleteModal();
+      return;
+    }
+    this.deleteLoading.set(true);
+    try {
+      await action();
+      this.closeDeleteModal();
+    } catch (error) {
+      console.error('Error deleting record:', error);
+      alert(`Error: ${error}`);
+    } finally {
+      this.deleteLoading.set(false);
+    }
+  }
 
   // Adjust Weight modal state
   protected adjustWeightOpen = signal(false);
@@ -298,6 +331,42 @@ export class FilamentsPageComponent implements OnInit {
   protected async createMaterialType(payload: { name: string }): Promise<void> {
     await firstValueFrom(this.filamentRepository.createMaterialType(payload));
     await this.loadMaterialTypes();
+  }
+
+  protected async updateColor(payload: { id: string; color: string; colorCode: string }): Promise<void> {
+    await firstValueFrom(this.filamentRepository.updateColor(payload));
+    await this.loadColors();
+  }
+
+  protected deleteColorConfirm(color: FilamentColor): void {
+    this.openDeleteConfirm(color.color, async () => {
+      await firstValueFrom(this.filamentRepository.deleteColor(color.id));
+      await this.loadColors();
+    });
+  }
+
+  protected async updateBrand(payload: { id: string; name: string }): Promise<void> {
+    await firstValueFrom(this.filamentRepository.updateBrand(payload));
+    await this.loadBrands();
+  }
+
+  protected deleteBrandConfirm(brand: FilamentBrand): void {
+    this.openDeleteConfirm(brand.name, async () => {
+      await firstValueFrom(this.filamentRepository.deleteBrand(brand.id));
+      await this.loadBrands();
+    });
+  }
+
+  protected async updateMaterialType(payload: { id: string; name: string }): Promise<void> {
+    await firstValueFrom(this.filamentRepository.updateMaterialType(payload));
+    await this.loadMaterialTypes();
+  }
+
+  protected deleteMaterialTypeConfirm(mt: FilamentMaterialType): void {
+    this.openDeleteConfirm(mt.name, async () => {
+      await firstValueFrom(this.filamentRepository.deleteMaterialType(mt.id));
+      await this.loadMaterialTypes();
+    });
   }
 
   // Filament Profile methods
@@ -415,6 +484,13 @@ export class FilamentsPageComponent implements OnInit {
     } else {
       void this.addProfile();
     }
+  }
+
+  protected deleteProfileConfirm(profile: FilamentProfile): void {
+    this.openDeleteConfirm(`${profile.brandName} - ${profile.materialTypeName}`, async () => {
+      await firstValueFrom(this.filamentRepository.deleteFilamentProfile(profile.id));
+      await this.loadProfiles();
+    });
   }
 
   private resetProfileForm(): void {
@@ -551,29 +627,13 @@ export class FilamentsPageComponent implements OnInit {
   }
 
   protected openDeleteModal(filament: Filament): void {
-    this.deleteFilamentId.set(filament.id);
-    this.deleteFilamentName.set(`${filament.filamentProfile.brandName} - ${filament.filamentProfile.materialTypeName}`);
-    this.deleteOpen.set(true);
-  }
-
-  protected closeDeleteModal(): void {
-    this.deleteOpen.set(false);
-    this.deleteFilamentId.set('');
-    this.deleteFilamentName.set('');
-  }
-
-  protected async confirmDelete(): Promise<void> {
-    this.deleteLoading.set(true);
-    try {
-      await firstValueFrom(this.filamentRepository.deleteFilament(this.deleteFilamentId()));
-      await this.loadFilaments();
-      this.closeDeleteModal();
-    } catch (error) {
-      console.error('Error deleting filament:', error);
-      alert(`Error: ${error}`);
-    } finally {
-      this.deleteLoading.set(false);
-    }
+    this.openDeleteConfirm(
+      `${filament.filamentProfile.brandName} - ${filament.filamentProfile.materialTypeName}`,
+      async () => {
+        await firstValueFrom(this.filamentRepository.deleteFilament(filament.id));
+        await this.loadFilaments();
+      }
+    );
   }
 
   protected openAdjustWeightModal(filament: Filament): void {

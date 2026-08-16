@@ -4,6 +4,7 @@ using _3DPrintingHub.Application.Dtos;
 using _3DPrintingHub.Application.Services;
 using _3DPrintingHub.Domain.Entities;
 using _3DPrintingHub.Infrastructure.Data;
+using Microsoft.EntityFrameworkCore;
 
 namespace _3DPrintingHub.Infrastructure.Services;
 
@@ -42,5 +43,41 @@ public class FilamentColorService(ApplicationDbContext dbContext) : IFilamentCol
             .ToList();
 
         return Task.FromResult<IEnumerable<FilamentColorDto>>(filamentColors);
+    }
+
+    public Task<Guid> UpdateFilamentColorAsync(FilamentColorUpdateDto dto, CancellationToken cancellationToken = default)
+    {
+        var filamentColor = dbContext.FilamentColors.FirstOrDefault(fc => fc.Id == dto.Id)
+            ?? throw new InvalidOperationException($"Filament color with ID {dto.Id} does not exist.");
+
+        var existing = dbContext.FilamentColors.FirstOrDefault(fc => fc.Name == dto.Color && fc.Id != dto.Id);
+        if (existing != null)
+        {
+            throw new InvalidOperationException("A filament color with the same name already exists.");
+        }
+
+        filamentColor.Name = dto.Color;
+        filamentColor.ColorCode = dto.ColorCode;
+        dbContext.SaveChanges();
+
+        return Task.FromResult(filamentColor.Id);
+    }
+
+    public Task DeleteFilamentColorAsync(Guid id, CancellationToken cancellationToken = default)
+    {
+        var filamentColor = dbContext.FilamentColors.FirstOrDefault(fc => fc.Id == id)
+            ?? throw new InvalidOperationException($"Filament color with ID {id} does not exist.");
+
+        dbContext.FilamentColors.Remove(filamentColor);
+        try
+        {
+            dbContext.SaveChanges();
+        }
+        catch (DbUpdateException)
+        {
+            throw new InvalidOperationException("This filament color cannot be deleted because it is in use by another record.");
+        }
+
+        return Task.CompletedTask;
     }
 }

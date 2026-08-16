@@ -18,6 +18,14 @@ export class FilamentRepository {
     return this.api.post('/filamentcolors', payload);
   }
 
+  updateColor(payload: { id: string; color: string; colorCode: string }) {
+    return this.api.put(`/filamentcolors/${payload.id}`, payload);
+  }
+
+  deleteColor(id: string) {
+    return this.api.delete(`/filamentcolors/${id}`);
+  }
+
   getBrands() {
     return this.api.get<FilamentBrand[]>('/brand');
   }
@@ -26,12 +34,28 @@ export class FilamentRepository {
     return this.api.post('/brand', payload);
   }
 
+  updateBrand(payload: { id: string; name: string }) {
+    return this.api.put(`/brand/${payload.id}`, payload);
+  }
+
+  deleteBrand(id: string) {
+    return this.api.delete(`/brand/${id}`);
+  }
+
   getMaterialTypes() {
     return this.api.get<FilamentMaterialType[]>('/materialtype');
   }
 
   createMaterialType(payload: { name: string }) {
     return this.api.post('/materialtype', payload);
+  }
+
+  updateMaterialType(payload: { id: string; name: string }) {
+    return this.api.put(`/materialtype/${payload.id}`, payload);
+  }
+
+  deleteMaterialType(id: string) {
+    return this.api.delete(`/materialtype/${id}`);
   }
 
   getFilamentProfiles() {
@@ -44,6 +68,10 @@ export class FilamentRepository {
 
   updateFilamentProfile(payload: FilamentProfileUpdate) {
     return this.api.put<FilamentProfile>(`/filamentprofiles/${payload.id}`, payload);
+  }
+
+  deleteFilamentProfile(id: string) {
+    return this.api.delete(`/filamentprofiles/${id}`);
   }
 
   getFilaments() {

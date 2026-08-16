@@ -20,4 +20,9 @@ public interface IFilamentProfileService
     /// Updates an existing FilamentProfile record and returns its Id.
     /// </summary>
     Task<Guid> UpdateFilamentProfileAsync(FilamentProfileUpdateDto dto, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Deletes a FilamentProfile record by its Id.
+    /// </summary>
+    Task DeleteFilamentProfileAsync(Guid id, CancellationToken cancellationToken = default);
 }

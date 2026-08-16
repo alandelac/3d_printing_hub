@@ -95,8 +95,7 @@
                 <span *ngIf="!f.buyLink">-</span>
               </td>
               <td>
-                <button class="secondary" (click)="openEditModal(f)">Edit</button>
-                <button class="danger" (click)="openDeleteModal(f)">Delete</button>
+                <app-table-actions (edit)="openEditModal(f)" (delete)="openDeleteModal(f)" />
               </td>
             </tr>
           </tbody>
@@ -151,15 +150,15 @@
     </div>
   </app-modal>
 
-  <!-- Delete Filament Confirmation Modal -->
-  <app-modal *ngIf="deleteOpen()" title="Delete Filament" (close)="closeDeleteModal()">
-    <div class="add-form">
-          <p>Are you sure you want to delete <strong>{{ deleteFilamentName() }}</strong>? This action cannot be undone.</p>
-
-          <button class="danger" (click)="confirmDelete()" [disabled]="deleteLoading()">Yes, Delete</button>
-          <button class="secondary" (click)="closeDeleteModal()" [disabled]="deleteLoading()">Cancel</button>
-    </div>
-  </app-modal>
+  <!-- Generic Delete Confirmation Modal (shared by filament, brand, color, material type and profile tables) -->
+  <app-confirm-delete
+    *ngIf="deleteOpen()"
+    title="Delete Record"
+    [entityName]="deleteName()"
+    [loading]="deleteLoading()"
+    (confirm)="confirmDelete()"
+    (cancel)="closeDeleteModal()"
+  />
 
   <!-- Colors Modal -->
   <app-colors-modal
@@ -167,6 +166,8 @@
     [colors]="colors()"
     [loading]="loading()"
     (addColor)="createColor($event)"
+    (updateColor)="updateColor($event)"
+    (deleteColor)="deleteColorConfirm($event)"
     (close)="closeModal()"
   />
 
@@ -176,6 +177,8 @@
     [brands]="brands()"
     [loading]="brandLoading()"
     (addBrand)="createBrand($event)"
+    (updateBrand)="updateBrand($event)"
+    (deleteBrand)="deleteBrandConfirm($event)"
     (close)="closeBrandModal()"
   />
 
@@ -185,6 +188,8 @@
     [materialTypes]="materialTypes()"
     [loading]="materialTypeLoading()"
     (addMaterialType)="createMaterialType($event)"
+    (updateMaterialType)="updateMaterialType($event)"
+    (deleteMaterialType)="deleteMaterialTypeConfirm($event)"
     (close)="closeMaterialTypeModal()"
   />
 
@@ -241,7 +246,7 @@
             <td>{{ p.slopeAngleForSupports }}</td>
             <td>{{ p.zSeparationForSupports }}</td>
             <td>
-              <button class="secondary" (click)="startEditProfile(p)">Edit</button>
+              <app-table-actions (edit)="startEditProfile(p)" (delete)="deleteProfileConfirm(p)" />
             </td>
           </tr>
         </tbody>

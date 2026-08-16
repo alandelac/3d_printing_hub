@@ -22,4 +22,23 @@ public class BrandController(IBrandService brandService) : ControllerBase
         var brands = await brandService.GetAllBrandsAsync(cancellationToken);
         return Ok(brands);
     }
+
+    [HttpPut("{id:guid}")]
+    public async Task<IActionResult> Update(Guid id, [FromBody] BrandUpdateDto dto, CancellationToken cancellationToken)
+    {
+        if (id != dto.Id)
+        {
+            return BadRequest("The route id does not match the id in the request body.");
+        }
+
+        await brandService.UpdateBrandAsync(dto, cancellationToken);
+        return NoContent();
+    }
+
+    [HttpDelete("{id:guid}")]
+    public async Task<IActionResult> Delete(Guid id, CancellationToken cancellationToken)
+    {
+        await brandService.DeleteBrandAsync(id, cancellationToken);
+        return NoContent();
+    }
 }

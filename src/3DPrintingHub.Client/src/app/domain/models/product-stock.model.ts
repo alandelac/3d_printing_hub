@@ -18,3 +18,11 @@ export interface ProductStockCreate {
   quantityInStock: number;
   salePrice: number;
 }
+
+export interface ProductStockUpdate {
+  id: string;
+  modelPrintId?: string;
+  filamentId?: string;
+  quantityInStock?: number;
+  salePrice?: number;
+}

@@ -116,8 +116,7 @@
           <td>{{ m.defaultCost | number:'1.2-2' }}</td>
                   <td>{{ m.defaultSalePrice | number:'1.2-2' }}</td>
           <td>
-            <button class="secondary" (click)="openEditModal(m)">Edit</button>
-            <button class="danger" (click)="openDeleteModal(m)">Delete</button>
+            <app-table-actions (edit)="openEditModal(m)" (delete)="openDeleteModal(m)" />
           </td>
         </tr>
       </tbody>
@@ -209,33 +208,33 @@
         </form>
   </app-modal>
 
-  <!-- Delete Model Confirmation Modal -->
-  <app-modal *ngIf="deleteOpen()" title="Delete Model" (close)="closeDeleteModal()">
-        <div class="add-form">
-          <p>Are you sure you want to delete <strong>{{ deleteModelName() }}</strong>? This action cannot be undone.</p>
-
-          <div class="modal-actions">
-            <button class="danger" (click)="confirmDelete()" [disabled]="deleteLoading()">Yes, Delete</button>
-            <button class="secondary" (click)="closeDeleteModal()" [disabled]="deleteLoading()">Cancel</button>
-          </div>
-      </div>
-  </app-modal>
+  <!-- Generic Delete Confirmation Modal (shared by model and category tables) -->
+  <app-confirm-delete
+    *ngIf="deleteOpen()"
+    title="Delete Record"
+    [entityName]="deleteName()"
+    [loading]="deleteLoading()"
+    (confirm)="confirmDelete()"
+    (cancel)="closeDeleteModal()"
+  />
 
   <!-- Category Modal -->
   <app-modal *ngIf="categoryOpen()" title="Categories" (close)="toggleCategoryOpen()">
         <div class="add-form">
           <input placeholder="Category name" [value]="categoryNameInput()" (input)="categoryNameInput.set($any($event.target).value)" />
-          <button class="primary" (click)="addCategory()" [disabled]="categoryLoading()">Add</button>
+          <button class="primary" (click)="addCategory()" [disabled]="categoryLoading()">{{ isEditingCategory() ? 'Save Changes' : 'Add' }}</button>
+          <button *ngIf="isEditingCategory()" class="secondary" (click)="cancelCategoryEdit()">Cancel</button>
         </div>
 
         <app-list-state [loading]="categoryLoading()" [hasData]="categories().length > 0" emptyText="No categories found.">
           <table>
             <thead>
-              <tr><th>Name</th></tr>
+              <tr><th>Name</th><th>Actions</th></tr>
             </thead>
             <tbody>
               <tr *ngFor="let c of categories()">
                 <td>{{ c.name }}</td>
+                <td><app-table-actions (edit)="startCategoryEdit(c)" (delete)="deleteCategoryConfirm(c)" /></td>
               </tr>
             </tbody>
           </table>

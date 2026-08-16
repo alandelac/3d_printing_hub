@@ -6,11 +6,13 @@ import { ModelPrintCategory } from '../../../domain/models/model-print-category.
 import { ModelPrint, ModelPrintCreate, ModelPrintUpdate } from '../../../domain/models/model-print.model';
 import { ModalComponent } from '../../../shared/ui/modal/modal.component';
 import { ListStateComponent } from '../../../shared/ui/list-state/list-state.component';
+import { TableActionsComponent } from '../../../shared/ui/table-actions/table-actions.component';
+import { ConfirmDeleteComponent } from '../../../shared/ui/confirm-delete/confirm-delete.component';
 
 @Component({
   selector: 'app-models-page',
   standalone: true,
-  imports: [CommonModule, ModalComponent, ListStateComponent],
+  imports: [CommonModule, ModalComponent, ListStateComponent, TableActionsComponent, ConfirmDeleteComponent],
   templateUrl: './models-page.component.html',
   styleUrls: ['./models-page.component.css']
 })
@@ -23,6 +25,11 @@ export class ModelsPageComponent implements OnInit {
   protected categories = signal<ModelPrintCategory[]>([]);
   protected categoryLoading = signal(false);
   protected categoryNameInput = signal('');
+  protected categoryEditingId = signal('');
+
+  protected isEditingCategory(): boolean {
+    return this.categoryEditingId() !== '';
+  }
 
   // Model creation functionality
   protected modelOpen = signal(false);
@@ -133,11 +140,42 @@ export class ModelsPageComponent implements OnInit {
   protected editFileLocationOrUrl = signal('');
   protected editNotes = signal('');
 
-  // Delete Model confirmation state
+  // Generic delete confirmation state (shared by model and category tables)
   protected deleteOpen = signal(false);
   protected deleteLoading = signal(false);
-  protected deleteModelId = signal('');
-  protected deleteModelName = signal('');
+  protected deleteName = signal('');
+  private pendingDelete: (() => Promise<void>) | null = null;
+
+  protected openDeleteConfirm(name: string, action: () => Promise<void>): void {
+    this.deleteName.set(name);
+    this.pendingDelete = action;
+    this.deleteOpen.set(true);
+  }
+
+  protected closeDeleteModal(): void {
+    this.deleteOpen.set(false);
+    this.deleteName.set('');
+    this.pendingDelete = null;
+  }
+
+  protected async confirmDelete(): Promise<void> {
+    const action = this.pendingDelete;
+    this.pendingDelete = null;
+    if (!action) {
+      this.closeDeleteModal();
+      return;
+    }
+    this.deleteLoading.set(true);
+    try {
+      await action();
+      this.closeDeleteModal();
+    } catch (error) {
+      console.error('Error deleting record:', error);
+      alert(`Error: ${error}`);
+    } finally {
+      this.deleteLoading.set(false);
+    }
+  }
 
   async ngOnInit(): Promise<void> {
     await Promise.all([
@@ -176,6 +214,7 @@ export class ModelsPageComponent implements OnInit {
     this.categoryOpen.set(!this.categoryOpen());
     if (!this.categoryOpen()) {
       this.categoryNameInput.set('');
+      this.categoryEditingId.set('');
     }
   }
 
@@ -187,15 +226,38 @@ export class ModelsPageComponent implements OnInit {
 
     this.categoryLoading.set(true);
     try {
-      await firstValueFrom(this.modelRepository.createCategory({ name }));
+      const editingId = this.categoryEditingId();
+      if (editingId) {
+        await firstValueFrom(this.modelRepository.updateCategory({ id: editingId, name }));
+      } else {
+        await firstValueFrom(this.modelRepository.createCategory({ name }));
+      }
       this.categoryNameInput.set('');
+      this.categoryEditingId.set('');
       await this.loadCategories();
     } catch (error) {
-      console.error('Error adding category:', error);
+      console.error('Error saving category:', error);
       alert(`Error: ${error}`);
     } finally {
       this.categoryLoading.set(false);
     }
+  }
+
+  protected startCategoryEdit(category: ModelPrintCategory): void {
+    this.categoryEditingId.set(category.id);
+    this.categoryNameInput.set(category.name);
+  }
+
+  protected cancelCategoryEdit(): void {
+    this.categoryEditingId.set('');
+    this.categoryNameInput.set('');
+  }
+
+  protected deleteCategoryConfirm(category: ModelPrintCategory): void {
+    this.openDeleteConfirm(category.name, async () => {
+      await firstValueFrom(this.modelRepository.deleteCategory(category.id));
+      await this.loadCategories();
+    });
   }
 
   protected toggleModelOpen(): void {
@@ -325,29 +387,9 @@ export class ModelsPageComponent implements OnInit {
   }
 
   protected openDeleteModal(model: ModelPrint): void {
-    this.deleteModelId.set(model.id);
-    this.deleteModelName.set(model.name);
-    this.deleteOpen.set(true);
-  }
-
-  protected closeDeleteModal(): void {
-    this.deleteOpen.set(false);
-    this.deleteModelId.set('');
-    this.deleteModelName.set('');
-  }
-
-  protected async confirmDelete(): Promise<void> {
-    this.deleteLoading.set(true);
-    try {
-      await firstValueFrom(this.modelRepository.deleteModelPrint(this.deleteModelId()));
+    this.openDeleteConfirm(model.name, async () => {
+      await firstValueFrom(this.modelRepository.deleteModelPrint(model.id));
       await this.loadModels();
-      this.closeDeleteModal();
-      alert('Model deleted successfully!');
-    } catch (error) {
-      console.error('Error deleting model:', error);
-      alert(`Error: ${error}`);
-    } finally {
-      this.deleteLoading.set(false);
-    }
+    });
   }
 }

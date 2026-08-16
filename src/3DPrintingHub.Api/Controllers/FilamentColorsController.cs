@@ -22,4 +22,23 @@ public class FilamentColorsController(IFilamentColorService filamentColorService
         var filamentColors = await filamentColorService.GetAllFilamentColorsAsync(cancellationToken);
         return Ok(filamentColors);
     }
+
+    [HttpPut("{id:guid}")]
+    public async Task<IActionResult> Update(Guid id, [FromBody] FilamentColorUpdateDto dto, CancellationToken cancellationToken)
+    {
+        if (id != dto.Id)
+        {
+            return BadRequest("The route id does not match the id in the request body.");
+        }
+
+        await filamentColorService.UpdateFilamentColorAsync(dto, cancellationToken);
+        return NoContent();
+    }
+
+    [HttpDelete("{id:guid}")]
+    public async Task<IActionResult> Delete(Guid id, CancellationToken cancellationToken)
+    {
+        await filamentColorService.DeleteFilamentColorAsync(id, cancellationToken);
+        return NoContent();
+    }
 }
