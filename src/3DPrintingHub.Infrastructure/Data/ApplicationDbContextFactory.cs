@@ -26,9 +26,9 @@ public class ApplicationDbContextFactory : IDesignTimeDbContextFactory<Applicati
 
         var optionsBuilder = new DbContextOptionsBuilder<ApplicationDbContext>();
         var connectionString = configuration.GetConnectionString("DefaultConnection") 
-            ?? "Host=localhost;Database=3DPrintingHub;Username=postgres;Password=postgres";
+            ?? "Data Source=printinghub.db";
 
-        optionsBuilder.UseNpgsql(connectionString);
+        optionsBuilder.UseSqlite(connectionString);
 
         return new ApplicationDbContext(optionsBuilder.Options);
     }

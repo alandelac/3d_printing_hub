@@ -5,10 +5,10 @@ using _3DPrintingHub.Api.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// 1. Configurar conexión a PostgreSQL
+// 1. Configurar conexión a SQLite
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseNpgsql(connectionString));
+    options.UseSqlite(connectionString));
 
 // 2. Controladores con soporte para Enums en texto
 builder.Services.AddControllers()

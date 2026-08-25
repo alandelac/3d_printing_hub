@@ -488,3 +488,5 @@ c o n t e x t . t a r 
  
 scripts/update-db.ps1
 scripts/run-program.ps1
+*.db-wal
+*.db-shm

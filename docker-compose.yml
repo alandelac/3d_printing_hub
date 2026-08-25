@@ -1,19 +1,4 @@
 services:
-  db:
-    image: postgres:16-alpine
-    container_name: 3dprintinghub-db
-    restart: always
-    environment:
-      POSTGRES_DB: printinghub
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: ${DB_PASSWORD}
-    ports:
-      - "5432:5432"
-    volumes:
-      - pgdata:/var/lib/postgresql/data
-    networks:
-      - app-net
-
   webapi:
     image: ghcr.io/alandelac/3d_printing_hub_api:latest
     build:
@@ -22,12 +7,12 @@ services:
     container_name: 3dprintinghub-api
     restart: always
     environment:
-      - ConnectionStrings__DefaultConnection=Host=db;Database=printinghub;Username=postgres;Password=${DB_PASSWORD}
+      - ConnectionStrings__DefaultConnection=Data Source=/data/printinghub.db
       - ASPNETCORE_ENVIRONMENT=Production
       - ASPNETCORE_URLS=http://+:8080
       - AllowedOrigin=${FRONTEND_URL:-http://localhost}
-    depends_on:
-      - db
+    volumes:
+      - printinghub-data:/data
     networks:
       - app-net
 
@@ -46,7 +31,7 @@ services:
       - app-net
 
 volumes:
-  pgdata:
+  printinghub-data:
 
 networks:
   app-net:

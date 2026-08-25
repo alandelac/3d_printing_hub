@@ -80,7 +80,6 @@ jobs:
           password: ${{ secrets.PI_PASSWORD }}
           script: |
             cd /home/${{ secrets.PI_USERNAME }}/3dprintinghub
-            echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" > .env
             echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin
             docker compose pull
             docker compose up -d --remove-orphans
