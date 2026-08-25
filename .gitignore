@@ -6,6 +6,8 @@
 # dotenv files
 .env
 
+.db
+
 # User-specific files
 *.rsuser
 *.suo
@@ -490,3 +492,5 @@ scripts/update-db.ps1
 scripts/run-program.ps1
 *.db-wal
 *.db-shm
+/src/3DPrintingHub.Api/printinghub.db
+*.db

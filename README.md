@@ -140,6 +140,30 @@ scripts/run-front.ps1     # runs `ng serve` for the client
 
 ---
 
+## 🔁 Migrating existing data from PostgreSQL to SQLite
+
+If you were already using the app with **PostgreSQL** and want to keep your data when switching
+to SQLite, use the one-time migration tool in `src/3DPrintingHub.DataMigration`. It reads every
+table from your PostgreSQL database and writes it into a fresh SQLite file, preserving the
+original IDs so all relationships stay intact.
+
+> ⚠️ Run this **before** shutting down (or deleting) the old PostgreSQL database.
+
+```bash
+dotnet run --project src/3DPrintingHub.DataMigration -- \
+  "Host=<host>;Port=5432;Database=printinghub;Username=postgres;Password=<password>;" \
+  "./printinghub.db"
+```
+
+After it finishes, place the resulting `printinghub.db` file where the app expects it:
+
+- **Local / Docker volume:** if you run the full Docker stack, the API reads from
+  `/data/printinghub.db` inside the `printinghub-data` volume (configurable via the
+  `ConnectionStrings__DefaultConnection` environment variable).
+- **Local (`dotnet run`)**: from the API project folder, the file is `printinghub.db`.
+
+---
+
 ## 🐳 Running the full stack with Docker
 
 The SQLite database is embedded, so no database container is needed. Just start every container:
@@ -172,15 +196,15 @@ The frontend container is published on **port `8081`** via the port mapping `808
 
 ## 🔄 CI/CD
 
-The repository includes a **GitHub Actions** workflow (`.github/workflows/deploy.yml`) that, on every push to `main`:
+The repository includes a **GitHub Actions** workflow (`.github/workflows/build-publish.yml`) that, on every push to `main`:
 
 1. Logs into the GitHub Container Registry (`ghcr.io`).
 2. Builds and pushes the **API** Docker image (`3d_printing_hub_api:latest`).
 3. Builds and pushes the **Frontend** Docker image (`3d_printing_hub_frontend:latest`).
-4. Copies `docker-compose.yml` to the target server (via SSH/SCP).
-5. Runs `docker compose pull` and `docker compose up -d` on the server.
 
-> ⚠️ Required repository secrets: `GITHUB_TOKEN`, `PI_HOST`, `PI_USERNAME`, `PI_PASSWORD`, `TS_OAUTH_CLIENT_ID`, `TS_OAUTH_SECRET`.
+It only **publishes** the images to the registry — it does not deploy or run them on any server.
+
+> ⚠️ Required repository secret: `GITHUB_TOKEN`.
 
 ---
 
