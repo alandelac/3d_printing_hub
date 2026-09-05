@@ -65,4 +65,15 @@ public class ProductStockController(IProductStockService productStockService) : 
         var updatedProductStock = await productStockService.AdjustProductStockQuantityAsync(dto.ProductStockId, dto.Quantity, cancellationToken);
         return Ok(updatedProductStock);
     }
+
+    /// <summary>
+    /// Stablish the quantity in stock to a specific value.
+    /// If the provided quantity is less than 0, it will be set to 0.
+    /// </summary>
+    [HttpPut("set-quantity")]
+    public async Task<IActionResult> SetQuantity(Guid id, [FromBody] AdjustProductStockQuantityDto dto, CancellationToken cancellationToken)
+    {
+        await productStockService.UpdateProductStockQuantityAsync(dto.ProductStockId, dto.Quantity, cancellationToken);
+        return Ok();
+    }
 }

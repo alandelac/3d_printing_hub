@@ -58,7 +58,7 @@ public class ProductStockService(ApplicationDbContext dbContext, IPrintPricingSe
                 .ThenInclude(f => f.Color)
             .ToListAsync(cancellationToken);
 
-                        var result = productStocks.Select(ps => ToDto(ps)).ToList();
+        var result = productStocks.Select(ps => ToDto(ps)).ToList();
 
         return result;
     }
@@ -164,6 +164,19 @@ public class ProductStockService(ApplicationDbContext dbContext, IPrintPricingSe
         await dbContext.SaveChangesAsync(cancellationToken);
 
         return ToDto(productStock);
+    }
+
+    public async Task UpdateProductStockQuantityAsync(Guid productStockId, int quantity, CancellationToken cancellationToken = default)
+    {
+        var rowsAffected = await dbContext.ProductStocks
+            .Where(ps => ps.Id == productStockId)
+            .ExecuteUpdateAsync(setters => setters
+                .SetProperty(ps => ps.QuantityInStock, Math.Max(0, quantity))
+                .SetProperty(ps => ps.LastUpdated, DateTime.UtcNow),
+                cancellationToken);
+
+        if (rowsAffected == 0)
+            throw new InvalidOperationException($"ProductStock with ID {productStockId} does not exist.");
     }
 
     private static ProductStockDto ToDto(ProductStock ps)

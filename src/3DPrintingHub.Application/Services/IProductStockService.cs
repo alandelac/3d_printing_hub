@@ -29,4 +29,10 @@ public interface IProductStockService
     /// If the resulting quantity is less than 0, it will be set to 0.
     /// </summary>
     Task<ProductStockDto> AdjustProductStockQuantityAsync(Guid productStockId, int quantity, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Stablish the quantity in stock to a specific value.
+    /// If the provided quantity is less than 0, it will be set to 0.
+    /// </summary>
+    Task UpdateProductStockQuantityAsync(Guid productStockId, int quantity, CancellationToken cancellationToken = default);
 }
