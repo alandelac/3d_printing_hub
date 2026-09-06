@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using _3DPrintingHub.Application;
 using _3DPrintingHub.Api.Data;
+using _3DPrintingHub.Api.Middleware;
 using _3DPrintingHub.Infrastructure.Data;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -18,6 +19,7 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 // Autenticación e Identity (NUEVO)
 builder.Services.AddAuthorization();
 builder.Services.AddAuthentication();
+builder.Services.AddProblemDetails();
 
 builder.Services.AddIdentityApiEndpoints<IdentityUser>()
     .AddEntityFrameworkStores<ApplicationDbContext>();
@@ -50,6 +52,8 @@ builder.Services.AddCors(options =>
 // ====================================================
 
 var app = builder.Build();
+
+app.UseGlobalExceptionHandler();
 
 // Migraciones automáticas y Seeding
 using (var scope = app.Services.CreateScope())
