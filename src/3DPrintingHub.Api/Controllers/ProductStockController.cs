@@ -70,9 +70,14 @@ public class ProductStockController(IProductStockService productStockService) : 
     /// Stablish the quantity in stock to a specific value.
     /// If the provided quantity is less than 0, it will be set to 0.
     /// </summary>
-    [HttpPut("set-quantity")]
+    [HttpPut("{id}/set-quantity")]
     public async Task<IActionResult> SetQuantity(Guid id, [FromBody] AdjustProductStockQuantityDto dto, CancellationToken cancellationToken)
     {
+        if (id != dto.ProductStockId)
+        {
+            return BadRequest(new { message = "The product stock id in the route does not match the one in the body." });
+        }
+
         await productStockService.UpdateProductStockQuantityAsync(dto.ProductStockId, dto.Quantity, cancellationToken);
         return Ok();
     }

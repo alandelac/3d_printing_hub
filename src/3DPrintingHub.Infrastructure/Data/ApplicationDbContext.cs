@@ -1,10 +1,11 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using _3DPrintingHub.Domain.Entities;
 
 namespace _3DPrintingHub.Infrastructure.Data;
 
-public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : DbContext(options)
-{
+public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : IdentityDbContext<IdentityUser>(options){
     public DbSet<Brand> Brands => Set<Brand>();
     public DbSet<MaterialType> MaterialTypes => Set<MaterialType>();
     public DbSet<Marketplace> Marketplaces => Set<Marketplace>();

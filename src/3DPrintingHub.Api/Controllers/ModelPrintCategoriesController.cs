@@ -1,9 +1,11 @@
 using Microsoft.AspNetCore.Mvc;
 using _3DPrintingHub.Application.Dtos;
 using _3DPrintingHub.Application.Services;
+using Microsoft.AspNetCore.Authorization;
 
 namespace _3DPrintingHub.Api.Controllers;
 
+[Authorize]
 [ApiController]
 [Route("api/[controller]")]
 public class ModelPrintCategoriesController(IModelPrintCategoryService categoryService) : ControllerBase
