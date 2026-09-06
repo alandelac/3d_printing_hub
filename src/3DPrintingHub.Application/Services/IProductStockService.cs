@@ -34,5 +34,5 @@ public interface IProductStockService
     /// Stablish the quantity in stock to a specific value.
     /// If the provided quantity is less than 0, it will be set to 0.
     /// </summary>
-    Task UpdateProductStockQuantityAsync(Guid productStockId, int quantity, CancellationToken cancellationToken = default);
+    Task<ProductStockDto> UpdateProductStockQuantityAsync(Guid productStockId, int quantity, int expectedVersion, CancellationToken cancellationToken = default);
 }

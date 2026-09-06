@@ -72,6 +72,11 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
             entity.Property(ps => ps.CostToProduce).HasPrecision(18, 2);
             entity.Property(ps => ps.RecommendedSalePrice).HasPrecision(18, 2);
             entity.Property(ps => ps.SalePrice).HasPrecision(18, 2);
+            entity.Property(ps => ps.Version).IsConcurrencyToken();
+            entity.ToTable(table => table.HasCheckConstraint(
+                "CK_ProductStocks_QuantityInStock_NonNegative",
+                "QuantityInStock >= 0"));
+            entity.HasIndex(ps => new { ps.ModelPrintId, ps.FilamentId }).IsUnique();
 
             entity.HasOne(ps => ps.ModelPrint)
                 .WithMany(mp => mp.ProductStocks)

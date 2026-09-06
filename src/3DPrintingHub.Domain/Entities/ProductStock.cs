@@ -11,6 +11,7 @@ public class ProductStock
     public Filament? Filament { get; set; }
 
     public int QuantityInStock { get; set; }
+    public int Version { get; set; }
     public decimal CostToProduce { get; set; }
     public decimal RecommendedSalePrice { get; set; }
     public decimal SalePrice { get; set; }

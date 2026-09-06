@@ -16,4 +16,9 @@ public class AdjustProductStockQuantityDto
     /// Must be a non-zero whole number.
     /// </summary>
     public int Quantity { get; set; }
+
+    /// <summary>
+    /// Required for absolute quantity updates; ignored for relative adjustments.
+    /// </summary>
+    public int? ExpectedVersion { get; set; }
 }

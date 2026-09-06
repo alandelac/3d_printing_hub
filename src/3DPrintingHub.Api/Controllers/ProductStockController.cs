@@ -78,7 +78,21 @@ public class ProductStockController(IProductStockService productStockService) : 
             return BadRequest(new { message = "The product stock id in the route does not match the one in the body." });
         }
 
-        await productStockService.UpdateProductStockQuantityAsync(dto.ProductStockId, dto.Quantity, cancellationToken);
-        return Ok();
+        if (!dto.ExpectedVersion.HasValue)
+        {
+            return BadRequest(new { message = "ExpectedVersion is required for set-quantity." });
+        }
+
+        if (dto.Quantity < 0)
+        {
+            return BadRequest(new { message = "Quantity cannot be negative." });
+        }
+
+        var updatedProductStock = await productStockService.UpdateProductStockQuantityAsync(
+            dto.ProductStockId,
+            dto.Quantity,
+            dto.ExpectedVersion.Value,
+            cancellationToken);
+        return Ok(updatedProductStock);
     }
 }

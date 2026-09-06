@@ -14,7 +14,8 @@ namespace _3DPrintingHub.Application.Validators
                 .NotEmpty().WithMessage("Filament is required.");
 
             RuleFor(x => x.QuantityInStock)
-                .GreaterThanOrEqualTo(0).WithMessage("Quantity in stock cannot be negative.");
+                .GreaterThanOrEqualTo(0).WithMessage("Quantity in stock cannot be negative.")
+                .LessThanOrEqualTo(int.MaxValue / 2).WithMessage("Quantity in stock is too large.");
 
             RuleFor(x => x.SalePrice)
                 .GreaterThanOrEqualTo(0).WithMessage("Sale price cannot be negative.");

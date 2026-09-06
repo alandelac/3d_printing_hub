@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using _3DPrintingHub.Application.Exceptions;
 
 namespace _3DPrintingHub.Api.Middleware;
@@ -29,7 +30,9 @@ public static class GlobalExceptionHandlerExtensions
                 {
                     Status = statusCode,
                     Title = title,
-                    Detail = statusCode == StatusCodes.Status500InternalServerError
+                    Detail = exception is DbUpdateConcurrencyException
+                        ? "The resource was changed by another request. Please reload it and try again."
+                        : statusCode == StatusCodes.Status500InternalServerError
                         ? "The server could not complete the request."
                         : exception?.Message,
                     Instance = context.Request.Path,
@@ -50,6 +53,7 @@ public static class GlobalExceptionHandlerExtensions
             ResourceNotFoundException => (StatusCodes.Status404NotFound, "Resource not found"),
             ResourceConflictException => (StatusCodes.Status409Conflict, "Resource conflict"),
             BusinessRuleException => (StatusCodes.Status422UnprocessableEntity, "Business rule violation"),
+            DbUpdateConcurrencyException => (StatusCodes.Status409Conflict, "Concurrency conflict"),
             InvalidOperationException legacyException when IsNotFoundMessage(legacyException.Message)
                 => (StatusCodes.Status404NotFound, "Resource not found"),
             InvalidOperationException => (StatusCodes.Status409Conflict, "Operation cannot be completed"),

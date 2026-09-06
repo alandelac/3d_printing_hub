@@ -135,6 +135,7 @@ public class ProductStockService(ApplicationDbContext dbContext, IPrintPricingSe
         }
 
         productStock.LastUpdated = DateTime.UtcNow;
+        productStock.Version++;
 
         await dbContext.SaveChangesAsync(cancellationToken);
 
@@ -151,32 +152,71 @@ public class ProductStockService(ApplicationDbContext dbContext, IPrintPricingSe
 
     public async Task<ProductStockDto> AdjustProductStockQuantityAsync(Guid productStockId, int quantity, CancellationToken cancellationToken = default)
     {
-        var productStock = await dbContext.ProductStocks
+        var now = DateTime.UtcNow;
+        var query = dbContext.ProductStocks.Where(ps => ps.Id == productStockId);
+
+        if (quantity < 0)
+        {
+            var reduction = -(long)quantity;
+            query = query.Where(ps => (long)ps.QuantityInStock >= reduction);
+        }
+        else
+        {
+            query = query.Where(ps => ps.QuantityInStock <= int.MaxValue - quantity);
+        }
+
+        var rowsAffected = await query.ExecuteUpdateAsync(setters => setters
+            .SetProperty(ps => ps.QuantityInStock, ps => ps.QuantityInStock + quantity)
+            .SetProperty(ps => ps.Version, ps => ps.Version + 1)
+            .SetProperty(ps => ps.LastUpdated, now), cancellationToken);
+
+        if (rowsAffected == 0)
+        {
+            var exists = await dbContext.ProductStocks.AnyAsync(ps => ps.Id == productStockId, cancellationToken);
+            if (!exists)
+                throw new InvalidOperationException($"ProductStock with ID {productStockId} does not exist.");
+
+            throw new _3DPrintingHub.Application.Exceptions.ResourceConflictException(
+                "The requested reduction exceeds the available stock.");
+        }
+
+        var updatedProductStock = await dbContext.ProductStocks
             .Include(ps => ps.ModelPrint)
             .Include(ps => ps.Filament)
                 .ThenInclude(f => f.Color)
-            .FirstOrDefaultAsync(ps => ps.Id == productStockId, cancellationToken)
-            ?? throw new InvalidOperationException($"ProductStock with ID {productStockId} does not exist.");
+            .FirstAsync(ps => ps.Id == productStockId, cancellationToken);
 
-        productStock.QuantityInStock = Math.Max(0, productStock.QuantityInStock + quantity);
-        productStock.LastUpdated = DateTime.UtcNow;
-
-        await dbContext.SaveChangesAsync(cancellationToken);
-
-        return ToDto(productStock);
+        return ToDto(updatedProductStock);
     }
 
-    public async Task UpdateProductStockQuantityAsync(Guid productStockId, int quantity, CancellationToken cancellationToken = default)
+    public async Task<ProductStockDto> UpdateProductStockQuantityAsync(Guid productStockId, int quantity, int expectedVersion, CancellationToken cancellationToken = default)
     {
         var rowsAffected = await dbContext.ProductStocks
-            .Where(ps => ps.Id == productStockId)
+            .Where(ps => ps.Id == productStockId && ps.Version == expectedVersion)
             .ExecuteUpdateAsync(setters => setters
-                .SetProperty(ps => ps.QuantityInStock, Math.Max(0, quantity))
+                .SetProperty(ps => ps.QuantityInStock, quantity)
+                .SetProperty(ps => ps.Version, ps => ps.Version + 1)
                 .SetProperty(ps => ps.LastUpdated, DateTime.UtcNow),
                 cancellationToken);
 
         if (rowsAffected == 0)
-            throw new InvalidOperationException($"ProductStock with ID {productStockId} does not exist.");
+        {
+            var productStock = await dbContext.ProductStocks
+                .AsNoTracking()
+                .FirstOrDefaultAsync(ps => ps.Id == productStockId, cancellationToken)
+                ?? throw new InvalidOperationException($"ProductStock with ID {productStockId} does not exist.");
+
+            throw new _3DPrintingHub.Application.Exceptions.ResourceConflictException(
+                $"ProductStock was changed by another request. Current version is {productStock.Version}.");
+        }
+
+        var updatedProductStock = await dbContext.ProductStocks
+            .Include(ps => ps.ModelPrint)
+            .Include(ps => ps.Filament)
+                .ThenInclude(f => f.Color)
+            .FirstAsync(ps => ps.Id == productStockId, cancellationToken);
+
+        return ToDto(updatedProductStock);
     }
 
     private static ProductStockDto ToDto(ProductStock ps)
@@ -190,6 +230,7 @@ public class ProductStockService(ApplicationDbContext dbContext, IPrintPricingSe
             FilamentColorName = ps.Filament?.Color != null ? ps.Filament.Color.Name : $"Unknown Color ({ps.FilamentId})",
             FilamentColorCode = ps.Filament?.Color?.ColorCode ?? string.Empty,
             QuantityInStock = ps.QuantityInStock,
+            Version = ps.Version,
             CostToProduce = ps.CostToProduce,
             RecommendedSalePrice = ps.RecommendedSalePrice,
             SalePrice = ps.SalePrice,

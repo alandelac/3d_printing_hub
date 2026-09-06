@@ -8,6 +8,11 @@ public class ProductStockUpdateDto
     public Guid Id { get; set; }
 
     /// <summary>
+    /// Version read by the client before editing the stock record.
+    /// </summary>
+    public int Version { get; set; }
+
+    /// <summary>
     /// Optional: The Id of the ModelPrint this stock item refers to.
     /// </summary>
     public Guid? ModelPrintId { get; set; }
