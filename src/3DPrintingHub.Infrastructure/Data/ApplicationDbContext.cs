@@ -24,6 +24,30 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     {
         base.OnModelCreating(modelBuilder);
 
+        modelBuilder.Entity<Brand>()
+            .HasIndex(b => b.Name)
+            .IsUnique();
+
+        modelBuilder.Entity<MaterialType>()
+            .HasIndex(mt => mt.Name)
+            .IsUnique();
+
+        modelBuilder.Entity<FilamentColor>()
+            .HasIndex(fc => fc.Name)
+            .IsUnique();
+
+        modelBuilder.Entity<Marketplace>()
+            .HasIndex(m => m.Name)
+            .IsUnique();
+
+        modelBuilder.Entity<ModelPrintCategory>()
+            .HasIndex(c => c.Name)
+            .IsUnique();
+
+        modelBuilder.Entity<Settings>()
+            .HasIndex(s => s.parameter)
+            .IsUnique();
+
         modelBuilder.Entity<FilamentProfile>(entity =>
         {
             entity.Property(p => p.IroningFlowPercentage).HasPrecision(5, 2);
