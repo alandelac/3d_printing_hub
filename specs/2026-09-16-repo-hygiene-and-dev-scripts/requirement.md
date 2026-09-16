@@ -6,7 +6,7 @@
 | **Branch** | `phase-1-repo-hygiene-dev-scripts` |
 | **Spec directory** | `specs/2026-09-16-repo-hygiene-and-dev-scripts/` |
 | **Date opened** | 2026-09-16 |
-| **Status** | Spec agreed — implementation not started |
+| **Status** | Implemented — Task Groups 1-7 done on this branch; validation evidence collected per `validation.md` |
 | **Depends on** | Nothing |
 | **Blocks** | Phase 2 (quickstart), Phase 3 (test foundation), Phase 4 (CI gates) — all assume a buildable, honestly-documented repository |
 
@@ -62,9 +62,13 @@ those lines is in scope because the accidental exclusions are part of the same b
 
 ### Findings that belong to other phases (recorded, not fixed here)
 
-- `src/3DPrintingHub.slnx` line 6 references `3DPrintingHub.DataMigration/3DPrintingHub.DataMigration.csproj`,
-  which **does not exist** on disk. Solution-wide `dotnet build` / `dotnet test` therefore fail, blocking
-  Phase 3's "`dotnet test` runs green from a clean checkout" and Phase 4's CI gates. See decision D6.
+- **Resolved in Phase 1 (D6).** `src/3DPrintingHub.slnx` referenced **two** projects that do not exist on disk:
+  `3DPrintingHub.DataMigration/3DPrintingHub.DataMigration.csproj` (line 6) and
+  `3DPrintingHub.Client/3DPrintingHub.Client.csproj` (line 7 — that folder is the Angular app, which has no
+  `.csproj`, so it can never be a valid solution entry). Both entries were removed, so solution-wide
+  `dotnet build` / `dotnet test` now work, unblocking Phase 3's "`dotnet test` runs green from a clean checkout"
+  and Phase 4's CI gates. Nothing was lost: neither project exists on disk or anywhere in the repository's
+  history.
 - `src/3DPrintingHub.Api/printinghub.db` exists locally, matching the deliberate
   `/src/3DPrintingHub.Api/printinghub.db` ignore rule — it must stay ignored.
 
@@ -105,7 +109,7 @@ those lines is in scope because the accidental exclusions are part of the same b
 | **D3** | The local dev database stays ignored (`*.db`, `*.db-wal`, `*.db-shm`, `/src/3DPrintingHub.Api/printinghub.db`). | Roadmap Phase 0 asks for exactly this; it is machine state, not source. |
 | **D4** | `/src/3DPrintingHub.Api/appsettings.Development.json` stays ignored. | Local override file; keeping it out of git is intended and it is unrelated to the corrupted block. |
 | **D5** | No git-history rewrite and no code change for the key. The Gap Register wording is corrected and rotation is recommended as a manual operator action. | `git log --all -- .env` is empty, so nothing leaked through this repository's history; the residual risk is that the key was shared out-of-band. Rotation cannot be performed from inside the repo. |
-| **D6** | **Open — needs owner decision.** The dead `3DPrintingHub.DataMigration` reference in `src/3DPrintingHub.slnx` is either removed now or left with the breakage documented. | Removing it makes solution-wide builds possible, clearing the way for Phase 3/4 acceptance. But if the project is meant to be restored, deleting the reference is churn. Task Group 6 is therefore marked optional and gated on this answer. |
+| **D6** | **Resolved — remove both dead entries.** `src/3DPrintingHub.slnx` no longer references `3DPrintingHub.DataMigration` or `3DPrintingHub.Client`; only the four real projects remain. | Owner decision, 2026-09-16. A `.slnx` entry must point at an existing `.csproj`, and neither did, so both were provably dead references causing MSB3202 on every solution-wide build — the exact blocker for Phase 3/4 acceptance. The `Client` entry is unusable by construction, since an Angular folder has no `.csproj`. Restoring either project is a future spec, not a reason to ship a broken solution file. |
 | **D7** | All script work follows the existing `run-all.ps1` conventions: comment-based help, `$ErrorActionPreference = 'Stop'`, repo root resolved as `Split-Path -Parent $PSScriptRoot`, `-LiteralPath` on every path test. | Consistency with the one script in the repository that is already correct — the mission's "layers are not negotiable" applied to tooling. |
 | **D8** | `.env.example` uses ASP.NET Core's double-underscore section separators. | Matches how `docker-compose.yml` already supplies `ConnectionStrings__DefaultConnection`; environment variables are the delivery mechanism for configuration (mission principle 3). |
 

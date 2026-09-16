@@ -30,6 +30,22 @@ The codebase follows a clean / layered architecture, split across four .NET proj
 ├── 3DPrintingHub.Api               # Controllers, HTTP layer, app settings
 └── 3DPrintingHub.Client            # Angular frontend
 ```
+
+---
+
+## 🧑‍💻 Development scripts
+
+Everything in `scripts/` is PowerShell and resolves the repository root from its own location, so each one works from any working directory.
+
+| Script | What it does | Port |
+|---|---|---|
+| `scripts/run-all.ps1` | Starts the API and the client, each in its own window (`-Wait` keeps the console attached). | API `5033`, client `4200` |
+| `scripts/run-program.ps1` | Starts the .NET API only. | API `5033` |
+| `scripts/run-front.ps1` | Starts the Angular client only (`ng serve`). | client `4200` |
+| `scripts/update-db.ps1` | Applies the EF Core migrations to the local SQLite database (`src/3DPrintingHub.Api/printinghub.db`). | — |
+
+Local configuration starts from the tracked template: `Copy-Item .env.example .env`. The published containers use different ports — frontend `8081` on the host and the API on `8080` inside the compose network — see `docker-compose.yml`.
+
 ---
 
 ## 🔄 CI/CD

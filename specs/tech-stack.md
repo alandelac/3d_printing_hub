@@ -87,8 +87,8 @@ Deltas between what the stack promises and what exists. Each gap is scheduled in
 | `PrintJob` entity is orphaned | Medium | No service, DTO or controller — print history is unreachable. |
 | No backend test project; CI runs no tests | **High** | No xUnit/NUnit/MSTest project exists at all. |
 | Vitest configured but only one client spec (`app.spec.ts`) | Medium | Tooling present, unused. |
-| `.env` committed with a live `OPENROUTERKEY` (plus a stale `DB_PASSWORD`) | **High** | Secret exposure; must be rotated and untracked. |
-| `scripts/update-db.ps1` still passes a **PostgreSQL** connection string | Medium | Leftover from the Postgres era; the app is SQLite now. |
+| `.env` holds a live `OPENROUTERKEY` (plus a stale `DB_PASSWORD`) **locally** — it was never committed | **Low** | Corrected 2026-09-16 (Phase 0): `git log --all -- .env` is empty and `.gitignore:7` ignores it, so nothing leaked through this repository. Rotating both values on the provider side stays a manual operator action. The tracked template is `.env.example` (placeholders only). |
+| `scripts/update-db.ps1` passed a **PostgreSQL** connection string | **Resolved** | Rewritten for SQLite in Phase 1: the script resolves `src/3DPrintingHub.Api/printinghub.db` from the repository root and fails loudly instead of silently doing nothing. |
 | No pagination on list endpoints | Medium | Every list returns the full table. |
 | No roles or authorization policies | Medium | Any authenticated user has full access. |
 | No structured logging and no health endpoint | Low | Only the global exception handler exists. |

@@ -67,7 +67,7 @@ git status --short
 
 **Expected:**
 - `.env` → matched by `.gitignore:7` (the file is untouched and still not tracked).
-- `printinghub.db` → matched by `.gitignore:496:*.db`.
+- `printinghub.db` → matched by `.gitignore:487:*.db` (the line number moved because Group 2 removed nine lines).
 - `git status --short` shows only the intended spec, `.env.example`, `.gitignore` and script changes. **No**
   `.db`, `.db-wal`, `.db-shm` or `appsettings.Development.json` entries.
 
@@ -146,13 +146,18 @@ two `scripts/` entries and the bare `.db` entry — i.e. **490 or fewer**. Note 
 (`c\0o\0n\0t...`), so it never matched as a literal string even before the fix. The NUL-byte test above is the
 real assertion.
 
+**Measured after implementation:** `contains NUL: False`, `lines: 487`, no line starts with `scripts/`. The nine
+removed lines are the five corrupted ones (two NUL-interleaved `context.tar` lines plus three NUL-only lines),
+the two accidental `scripts/*.ps1` exclusions, and the stray bare `.db` entry together with its orphan blank
+line. The `.gitignore` commit records exactly `0 insertions / 9 deletions`.
+
 ---
 
 ## 3. Regression checks (nothing else broke)
 
 | # | Command | Expected |
 |---|---|---|
-| R1 | `dotnet build src/3DPrintingHub.Api/3DPrintingHub.Api.csproj` | Succeeds. Project-scoped on purpose: a solution-wide build currently fails on the dead `3DPrintingHub.DataMigration` reference (see `requirement.md` D6) and that failure is pre-existing, not caused by this branch. |
+| R1 | `dotnet build src/3DPrintingHub.slnx` | Succeeds. The two dead references (`3DPrintingHub.DataMigration`, `3DPrintingHub.Client`) were removed under D6, so the solution-wide build that used to fail with MSB3202 now passes. `dotnet build src/3DPrintingHub.Api/3DPrintingHub.Api.csproj` must pass too. Both require the locally running API dev server to be stopped first: it locks `src/3DPrintingHub.Api/bin/Debug/net10.0/*.dll`, and MSBuild then fails with MSB3021/MSB3027 — an environment condition, not a code defect. |
 | R2 | `Push-Location src/3DPrintingHub.Client; npm test; Pop-Location` | Green, same as before the change (the `app.spec.ts` baseline). |
 | R3 | `./scripts/run-all.ps1` | Two windows open; API answers on `http://localhost:5033`, client on `http://localhost:4200`; the login page loads and an authenticated page still renders. |
 | R4 | `git diff --stat` | Only `specs/2026-09-16-repo-hygiene-and-dev-scripts/*`, `.env.example`, `.gitignore`, the four `scripts/*.ps1`, `CHANGELOG.md` and (if D6 says remove) `src/3DPrintingHub.slnx`. **No** application source files. |
@@ -180,8 +185,8 @@ anything locally.
 - [ ] `specs/tech-stack.md` Gap Register no longer claims `.env` was committed, and its Postgres script row is
       closed.
 - [ ] CHANGELOG entry added for the implementation SHAs.
-- [ ] Decision D6 is resolved one way or the other (remove the dead `.slnx` reference, or record it as a known
-      Phase 3/4 blocker).
+- [x] Decision D6 is resolved: both dead `.slnx` references (`3DPrintingHub.DataMigration`,
+      `3DPrintingHub.Client`) were removed, so the solution-wide build passes.
 
 ---
 
@@ -199,3 +204,12 @@ nothing to unwind outside version control.
 - The 5-minute quickstart, the health/readiness endpoint and compose readiness — Phase 2.
 - `dotnet test` (no test project exists yet) and client test coverage beyond the existing smoke spec — Phase 3.
 - CI gating of image publishing — Phase 4. The workflow file is intentionally untouched (R5).
+- **`.gitignore`'s stored line endings.** Its committed blob is CRLF while every other tracked blob in this
+  repository is LF (`core.autocrlf=true` writes CRLF working copies on checkout). It is therefore staged with
+  `git -c core.autocrlf=false add .gitignore`, so the commit carries the nine deletions and no end-of-line
+  churn. Renormalizing the repository needs a `.gitattributes` policy, which is out of scope here; expect
+  `git status` to list `.gitignore` as modified whenever git's stat cache is invalidated, exactly as it did
+  before this branch.
+- **Building while the dev servers run.** `./scripts/update-db.ps1`, R1 and the D6 solution build all need
+  `src/3DPrintingHub.Api/bin/Debug/net10.0/*.dll` unlocked, so the API started by `scripts/run-all.ps1` has to be
+  stopped first. MSB3021/MSB3027 while it is running is an environment condition, not a code defect.
