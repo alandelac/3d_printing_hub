@@ -23,3 +23,10 @@ create
 refer to `specs/mission.md` and `specs/tech-stack.md` for guidance
 
 Important: you must use your askUserqQestion tool, grouped on these 3, before writing to disk
+
+## Update the CHANGELOG before merging
+
+Run the `changelog` skill (`/changelog` in the Cline chat, or follow
+`.cline/skills/changelog/SKILL.md`): group the branch's commits by author date into the
+root `CHANGELOG.md`, one bullet per commit with its short SHA, review the generated
+output, then validate the file with `test-changelog.ps1` before merging.
