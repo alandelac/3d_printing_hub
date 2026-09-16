@@ -86,7 +86,7 @@ Deltas between what the stack promises and what exists. Each gap is scheduled in
 | No `Client` and no `Sale` entity, DTO, service or controller | **High** | `README.md` advertises both; neither exists. |
 | `PrintJob` entity is orphaned | Medium | No service, DTO or controller — print history is unreachable. |
 | No backend test project; CI runs no tests | **High** | No xUnit/NUnit/MSTest project exists at all. |
-| Vitest configured but only one client spec (`app.spec.ts`) | Medium | Tooling present, unused. |
+| Vitest configured but only one client spec (`app.spec.ts`), and that spec is stale — 1 of its 2 assertions fails | Medium | Measured 2026-09-16 (Phase 1): `should render title` expects an `h1` the shell never renders; the failure predates this branch and no client file changed. Repairing it and adding real coverage is Phase 3. |
 | `.env` holds a live `OPENROUTERKEY` (plus a stale `DB_PASSWORD`) **locally** — it was never committed | **Low** | Corrected 2026-09-16 (Phase 0): `git log --all -- .env` is empty and `.gitignore:7` ignores it, so nothing leaked through this repository. Rotating both values on the provider side stays a manual operator action. The tracked template is `.env.example` (placeholders only). |
 | `scripts/update-db.ps1` passed a **PostgreSQL** connection string | **Resolved** | Rewritten for SQLite in Phase 1: the script resolves `src/3DPrintingHub.Api/printinghub.db` from the repository root and fails loudly instead of silently doing nothing. |
 | No pagination on list endpoints | Medium | Every list returns the full table. |
