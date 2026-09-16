@@ -6,8 +6,6 @@
 # dotenv files
 .env
 
-.db
-
 # User-specific files
 *.rsuser
 *.suo
@@ -483,13 +481,6 @@ $RECYCLE.BIN/
 # Vim temporary swap files
 *.swp
 /src/3DPrintingHub.Api/appsettings.Development.json
-c o n t e x t . t a r 
- 
- c o n t e x t . t a r 
- 
- 
-scripts/update-db.ps1
-scripts/run-program.ps1
 *.db-wal
 *.db-shm
 /src/3DPrintingHub.Api/printinghub.db
