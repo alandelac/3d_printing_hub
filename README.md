@@ -136,6 +136,8 @@ You can also use the included helper script:
 
 ```bash
 scripts/run-front.ps1     # runs `ng serve` for the client
+scripts/run-program.ps1   # runs `dotnet run` for the API
+scripts/run-all.ps1       # runs both at once, each in its own PowerShell window
 ```
 
 ---
