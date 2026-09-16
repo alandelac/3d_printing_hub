@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { RouterModule } from '@angular/router';
+import { AuthService } from '../../auth/auth.service';
 
 @Component({
   selector: 'app-nav-bar',
@@ -8,4 +9,6 @@ import { RouterModule } from '@angular/router';
   templateUrl: './nav-bar.html',
   styleUrls: ['./nav-bar.css']
 })
-export class NavBar {}
+export class NavBar {
+  constructor(protected readonly authService: AuthService) {}
+}

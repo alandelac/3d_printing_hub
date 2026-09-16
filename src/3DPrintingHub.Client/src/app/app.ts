@@ -1,5 +1,6 @@
-import { Component, signal } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
+import { AuthService } from './core/auth/auth.service';
 import { NavBar } from './core/ui/nav-bar/nav-bar';
 
 @Component({
@@ -9,5 +10,6 @@ import { NavBar } from './core/ui/nav-bar/nav-bar';
   styleUrl: './app.css'
 })
 export class App {
-  protected readonly title = signal('frontend-app');
+  private readonly authService = inject(AuthService);
+  protected readonly isAuthenticated = this.authService.isAuthenticated;
 }

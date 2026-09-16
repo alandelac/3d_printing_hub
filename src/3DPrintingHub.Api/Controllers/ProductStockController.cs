@@ -1,9 +1,11 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 using _3DPrintingHub.Application.Dtos;
 using _3DPrintingHub.Application.Services;
 
 namespace _3DPrintingHub.Api.Controllers;
 
+[Authorize]
 [ApiController]
 [Route("api/[controller]")]
 public class ProductStockController(IProductStockService productStockService) : ControllerBase
