@@ -93,8 +93,13 @@ git grep -n -E '5432|supersecretpassword|Username=postgres' -- scripts
 ### V6 — The script is working-directory independent (D1)
 
 ```powershell
-Push-Location $env:TEMP; & "$(git rev-parse --show-toplevel)\scripts\update-db.ps1"; Pop-Location
+$updateDb = Join-Path (Get-Location).Path 'scripts/update-db.ps1'   # resolve BEFORE changing directory
+Push-Location $env:TEMP; & $updateDb; Pop-Location
 ```
+
+> Resolve the script path first. `"$(git rev-parse --show-toplevel)\scripts\update-db.ps1"` inside the same
+> statement is evaluated *after* `Push-Location` has already changed the working directory, where git can no
+> longer find the repository and the expression yields an empty path.
 
 **Expected:** identical output to V5, and no new `printinghub.db` appears in `$env:TEMP`:
 
@@ -170,6 +175,38 @@ line. The `.gitignore` commit records exactly `0 insertions / 9 deletions`.
 Paste the raw output of V1, V5, V6 (including the `Test-Path` line), V8 and R1-R3 into the PR description, plus
 `git diff --stat`. That is enough for a reviewer to confirm both roadmap acceptance lines without re-running
 anything locally.
+
+### Recorded run — 2026-09-16, branch `phase-1-repo-hygiene-dev-scripts`
+
+```
+git log --oneline main..HEAD
+70a78ec docs: record the pre-existing client spec failure
+79a167b docs: close phase 0 and 1 gaps in the register
+ce25010 chore: remove dead solution project references
+25abb1d fix: developer scripts on SQLite and the real ports
+1ba4c04 chore: env template and gitignore hygiene
+a89a75a docs: spec phase 0 remainder and phase 1 dev scripts
+```
+
+| Check | Measured result |
+|---|---|
+| V1 | Nothing matching `\.env$`/`\.db$`/`\.db-wal$`/`\.db-shm$` is tracked; `git ls-files \| Select-String '\.env'` returns exactly `.env.example`. |
+| V2 | `Test-Path .env.example` → `True`; no match for `OPENROUTERKEY\|DB_PASSWORD\|sk-\|Password=`. |
+| V3 | Matches at `Program.cs:15`, `Program.cs:38`, `docker-compose.yml:11`, `:12` and `:13` — every documented key has a consumer. |
+| V4 | `.env` → `.gitignore:7`; `printinghub.db` → `.gitignore:487:*.db`. Nothing else exposed. |
+| V5 | `Applying migrations to SQLite database: <repo>\src\3DPrintingHub.Api\printinghub.db` → `Build succeeded.` → `No migrations were applied. The database is already up to date.` → exit `0`. No `Npgsql`, no `5432`, no `Host=`. |
+| V6 | Identical output when invoked from `$env:TEMP`; `Test-Path (Join-Path $env:TEMP 'printinghub.db')` → `False`. |
+| V7 | `Project folder not found: <repo>\src\NoSuchProject`, with no `Applying migrations to SQLite database:` line before it. |
+| V8 | `git ls-files scripts` → `run-all.ps1`, `run-front.ps1`, `run-program.ps1`, `update-db.ps1`. |
+| V9 | `contains NUL: False`, `lines: 487`, no line matches `^scripts/`; the commit records `0 insertions / 9 deletions`. |
+| R1 | `dotnet build src/3DPrintingHub.slnx` → `0 Advertencia(s) / 0 Errores` (Debug and Release). |
+| R2 | 1 of 2 specs fails — pre-existing; `git diff main..HEAD -- src/3DPrintingHub.Client` is empty. |
+| R3 | `run-all.ps1` opens both windows; `http://localhost:4200/` → HTTP 200 with `app-root` in the document; `POST http://localhost:5033/login` with bad credentials → HTTP 401. |
+| R4 | `git diff main..HEAD --stat` → 11 files (`.env.example`, `.gitignore`, `README.md`, the four `scripts/*.ps1`, four spec files, `src/3DPrintingHub.slnx`) and **no** application source. |
+| R5 | Empty. |
+
+The "authenticated page still renders" half of R3 needs real credentials, so it is not automated here; the client
+source is untouched on this branch (empty `git diff`), so the rendered UI cannot have changed.
 
 ---
 
