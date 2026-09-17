@@ -216,5 +216,5 @@ This is the **single source of truth for planned work**. `TODO.md` has been reti
 
 1. **Sequencing.** `TODO.md` originally marked the frontend cleanup as "Now", but the mission front-loads the foundations (Phases 0–4). The order above follows the mission. If you would rather do Phase 6 first and move Phases 0–4 later, say so and this file gets reordered.
 2. **Test framework.** No backend test project exists, so Phase 3 defaults to **xUnit** (the .NET default) with a project per layer, e.g. `src/3DPrintingHub.Domain.Tests`. Confirm or override before Phase 3 starts.
-3. **First-run account model.** For a single-operator self-hosted install, does `/register` stay open, or should the seed create one account and close public registration? Phase 2 needs this answer to document it accurately.
+3. **First-run account model.** `/register` stays open for the single-operator self-hosted install. Phase 2 provides a discoverable register page that creates the operator account and signs it in immediately.
 4. **Single user vs. several.** This constitution assumes one operator per instance. If fork owners are expected to host several people, roles (Phase 13) moves up in priority.

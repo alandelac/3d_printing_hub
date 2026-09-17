@@ -9,6 +9,11 @@ export interface LoginRequest {
   password: string;
 }
 
+export interface RegisterRequest {
+  email: string;
+  password: string;
+}
+
 export interface LoginResponse {
   tokenType: string;
   accessToken: string;
@@ -34,6 +39,10 @@ export class AuthService {
         this.isAuthenticated.set(true);
       })
     );
+  }
+
+  register(payload: RegisterRequest): Observable<void> {
+    return this.http.post<void>(`${this.identityUrl}/register`, payload);
   }
 
   logout(): void {

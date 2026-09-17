@@ -74,6 +74,7 @@ shared/ui/     # modal, list-state, table-actions, confirm-delete
 
 - `Dockerfile.api` and `Dockerfile.frontend`, both multi-stage. The client is served by **Nginx**, which also acts as the reverse proxy via `nginx.conf`.
 - `docker-compose.yml`: the API listens internally on `8080` with SQLite at `/data/printinghub.db` on the named volume `printinghub-data`; the frontend is published on host port `8081`. `AllowedOrigin` is supplied through `FRONTEND_URL`.
+- Liveness: the API exposes anonymous `GET /health`; Compose probes the API on port `8080` and the frontend with Nginx, with the frontend gated on API health.
 - `.github/workflows/build-publish.yml`: on push to `main` it builds and pushes `ghcr.io/alandelac/3d_printing_hub_api:latest` and `ghcr.io/alandelac/3d_printing_hub_frontend:latest`. **It publishes images only — it does not deploy or run them.**
 - Local development: `scripts/run-all.ps1`, `run-program.ps1`, `run-front.ps1`, `update-db.ps1`. Ports: **API `5033`, client `4200`**.
 
@@ -91,7 +92,9 @@ Deltas between what the stack promises and what exists. Each gap is scheduled in
 | `scripts/update-db.ps1` passed a **PostgreSQL** connection string | **Resolved** | Rewritten for SQLite in Phase 1: the script resolves `src/3DPrintingHub.Api/printinghub.db` from the repository root and fails loudly instead of silently doing nothing. |
 | No pagination on list endpoints | Medium | Every list returns the full table. |
 | No roles or authorization policies | Medium | Any authenticated user has full access. |
-| No structured logging and no health endpoint | Low | Only the global exception handler exists. |
+| No structured logging | Low | The global exception handler exists, and the liveness-only `/health` endpoint was added in Phase 2; deep readiness checks remain deferred to Phase 13. |
+| Identity routes were mapped at the API root while nginx only proxied `/api` | **Resolved** | Phase 2 adds nginx proxy locations for `/login`, `/register`, refresh/confirmation/password routes and `/manage/*`. |
+| Images were published for `linux/arm64` only | **Resolved** | Phase 2 publishes both `linux/amd64` and `linux/arm64` so the Docker quickstart works on common hosts. |
 | No date/currency formatting utility and no i18n | Low | Formatting logic is duplicated per component. |
 
 ## Dependency decisions
