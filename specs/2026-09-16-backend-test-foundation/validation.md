@@ -80,9 +80,9 @@ If coverage is below 80%, the branch is not merge-ready.
 
 ## 4. Merge checklist
 
-- [ ] V1-V4 all pass from a clean checkout.
-- [ ] The backend suite is real xUnit coverage, not a placeholder.
-- [ ] The temporary SQLite integration path is operating correctly.
-- [ ] The stale frontend spec issue is resolved.
+- [x] V1-V4 all pass from a clean checkout.
+- [x] The backend suite is real xUnit coverage, not a placeholder.
+- [x] The temporary SQLite integration path is operating correctly.
+- [x] The stale frontend spec issue is resolved.
 - [ ] Coverage is at least 80% globally.
 - [ ] `dotnet test` and `npm test` are both green before merge.
