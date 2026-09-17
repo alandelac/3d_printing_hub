@@ -55,12 +55,16 @@ Inventory and records for a 3D printing business:
 4. **Boring, upgradeable data.** Schema changes ship as EF Core migrations that run automatically on boot.
 5. **Layers are not negotiable.** Domain → Application → Infrastructure → Api, and the documented client layering, are the map for where code belongs.
 6. **Discoverable features.** A feature nobody can find is not finished: it needs a route, a place in the nav, and a README line.
-7. **Verified by tests.** A green `dotnet test` and `npm test` are the definition of done, not a nice-to-have.
+7. **Verified by tests.** Every change includes relevant automated tests. Backend changes use xUnit unit tests,
+   adding SQLite-temporary-database and `WebApplicationFactory` integration tests when they affect API, EF Core or
+   service integration. Frontend changes use Vitest with jsdom, including unit and component-integration tests.
+   A change is not ready to merge until the required tests pass.
 
 ## Success signals
 
 - A new user reaches a working instance and registers their own account in under 5 minutes using only the README.
 - `dotnet test` and `npm test` run in CI and are green on `main`.
+- Frontend coverage stays at or above 80% globally, and CI blocks merges when required tests or coverage fail.
 - Adding a domain concept predictably touches Domain → Application → Infrastructure → Api, plus `domain/models` and a repository on the client.
 - The repository contains no credentials, no personal data and no machine-specific paths.
 - Every feature named in `README.md` exists and is reachable from the UI.
