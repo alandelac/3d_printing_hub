@@ -64,3 +64,13 @@ Inventory and records for a 3D printing business:
 - Adding a domain concept predictably touches Domain → Application → Infrastructure → Api, plus `domain/models` and a repository on the client.
 - The repository contains no credentials, no personal data and no machine-specific paths.
 - Every feature named in `README.md` exists and is reachable from the UI.
+
+---
+
+## Working agreement
+
+How this repository is changed — including by an AI assistant. These rules sit above convenience: they exist so the owner stays the author of the history.
+
+1. **No automatic commits.** An assistant must never run `git commit`, `git commit --amend`, `git rebase`, `git reset` or any other command that creates or rewrites history on its own initiative. Editing files, running builds, tests, migrations and validation scripts is free; changing history is not.
+2. **The owner declares the commit.** A commit happens only when the owner asks for one, explicitly and per change ("commit this", "make the commit"). A request to *implement*, *fix* or *finish* something is **not** a request to commit it, and approval of a written plan that contains a "sequencing and commit plan" does not authorise the commits either — that section is a proposal, not permission.
+3. **Hand back a proposal instead.** When the work is finished and uncommitted, report what changed, what was verified, and the exact commit message(s) that would be used — then stop and wait for the owner's word.
