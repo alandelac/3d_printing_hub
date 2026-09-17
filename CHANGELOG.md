@@ -16,6 +16,11 @@ to the commit that produced it.
 - docs: record the pre-existing client spec failure (70a78ec)
 - docs: record the validation evidence and fix the V6 command (a60d5ad)
 - docs: declare the no-automatic-commits working agreement (fa20080)
+- feat: add liveness health endpoint (0f033d2)
+- feat: proxy identity routes and gate compose on health (f229616)
+- feat: add first-run registration page (bb06b15)
+- docs: document the five-minute Docker quickstart (df125a1)
+- docs: close phase 2 traceability gaps (698dd31)
 
 ## 2026-09-06
 - fix: indices en tablas que no tenian (d847611)
