@@ -3,7 +3,7 @@
   min-height: calc(100vh - 4rem);
 }
 
-.login-page {
+.register-page {
   min-height: inherit;
   display: grid;
   place-items: center;
@@ -11,7 +11,7 @@
   background: linear-gradient(135deg, #fff7ed 0%, #fef2f2 52%, #f0fdf4 100%);
 }
 
-.login-panel {
+.register-panel {
   width: min(100%, 26rem);
   padding: 2.25rem;
   background: #ffffff;
@@ -90,7 +90,7 @@ button:disabled {
   opacity: 0.65;
 }
 
-.register-link {
+.login-link {
   margin-top: 0.7rem;
   color: #9a3412;
   text-align: center;
@@ -99,7 +99,7 @@ button:disabled {
   text-decoration: none;
 }
 
-.register-link:hover {
+.login-link:hover {
   text-decoration: underline;
 }
 
