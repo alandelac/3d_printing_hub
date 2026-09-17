@@ -24,6 +24,10 @@ refer to `specs/mission.md` and `specs/tech-stack.md` for guidance
 
 Important: you must use your askUserqQestion tool, grouped on these 3, before writing to disk
 
+## run implemention
+
+Implement the remaining task groups
+
 ## Update the CHANGELOG before merging
 
 Run the `changelog` skill (`/changelog` in the Cline chat, or follow
