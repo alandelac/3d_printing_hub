@@ -30,6 +30,10 @@ Four projects, one direction of dependency:
 
 **Validation:** FluentValidation, with validators colocated in `Application/Validators`.
 
+**Backend testing:** xUnit is the required test framework. Unit tests cover pure domain and application behavior;
+changes that cross the API, EF Core or service-integration boundary add integration tests using a temporary SQLite
+database and `WebApplicationFactory`.
+
 **Errors:** `AddProblemDetails()` plus a global exception middleware (`app.UseGlobalExceptionHandler()`), registered before routing.
 
 **Security:** ASP.NET Core Identity with the built-in `IdentityUser` and `AddIdentityApiEndpoints<IdentityUser>()`; routes come from `MapIdentityApi<IdentityUser>()` (`/login`, `/register`, `/manage/*`). Bearer-token authentication, `AddAuthorization()` registered. CORS policy `AllowFrontend`, origin read from the `AllowedOrigin` configuration key (default `http://localhost:4200`).
@@ -42,7 +46,8 @@ Angular **22.1** with standalone components (no NgModules), TypeScript `~6.0.2`,
 |---|---|
 | Framework | `@angular/core`, `common`, `compiler`, `forms`, `platform-browser`, `router` — all 22.1.x |
 | Build | `@angular/build` + `@angular/cli` 22.1.2 |
-| Test | **Vitest 4** + jsdom 28 (already configured) |
+| Test | **Vitest 4** + jsdom 28 (already configured); unit and component-integration tests are required for frontend changes |
+| Coverage | Global frontend coverage must remain at or above **80%** |
 | Formatting | Prettier 3.8 |
 | UI library | **None** — hand-rolled CSS. No Angular Material, no Tailwind. |
 | State management | **None** — RxJS streams plus component state. No NgRx, no Signals store. |
@@ -86,7 +91,7 @@ Deltas between what the stack promises and what exists. Each gap is scheduled in
 |---|---|---|
 | No `Client` and no `Sale` entity, DTO, service or controller | **High** | `README.md` advertises both; neither exists. |
 | `PrintJob` entity is orphaned | Medium | No service, DTO or controller — print history is unreachable. |
-| No backend test project; CI runs no tests | **High** | No xUnit/NUnit/MSTest project exists at all. |
+| No backend test project; CI runs no tests | **High** | Phase 3 establishes the shared xUnit test project, unit/integration conventions and the first meaningful tests; Phase 4 makes them blocking CI gates. |
 | Vitest configured but only one client spec (`app.spec.ts`), and that spec is stale — 1 of its 2 assertions fails | Medium | Measured 2026-09-16 (Phase 1): `should render title` expects an `h1` the shell never renders; the failure predates this branch and no client file changed. Repairing it and adding real coverage is Phase 3. |
 | `.env` holds a live `OPENROUTERKEY` (plus a stale `DB_PASSWORD`) **locally** — it was never committed | **Low** | Corrected 2026-09-16 (Phase 0): `git log --all -- .env` is empty and `.gitignore:7` ignores it, so nothing leaked through this repository. Rotating both values on the provider side stays a manual operator action. The tracked template is `.env.example` (placeholders only). |
 | `scripts/update-db.ps1` passed a **PostgreSQL** connection string | **Resolved** | Rewritten for SQLite in Phase 1: the script resolves `src/3DPrintingHub.Api/printinghub.db` from the repository root and fails loudly instead of silently doing nothing. |

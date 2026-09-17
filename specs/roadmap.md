@@ -54,11 +54,13 @@ This is the **single source of truth for planned work**. `TODO.md` has been reti
 **Objective:** The backend can be tested at all.
 
 **Deliverables**
-- A test project (xUnit by default — see Open Questions) named in the repository convention, e.g. `src/3DPrintingHub.Domain.Tests`.
-- First meaningful tests against one existing layer — pure domain logic or a service with an in-memory/SQLite provider.
-- `npm test` smoke test baseline confirmed on the client.
+- A shared xUnit test project named `src/3DPrintingHub.Tests`.
+- First meaningful unit tests against existing domain/application behavior.
+- Integration-test support using a temporary SQLite database and `WebApplicationFactory` for API, EF Core and service-integration changes.
+- Frontend unit and component-integration tests using Vitest + jsdom, including repair of the stale baseline spec.
+- Global frontend coverage at or above 80%.
 
-**Acceptance:** `dotnet test` runs green from a clean checkout; `npm test` runs green.
+**Acceptance:** `dotnet test` and `npm test` run green from a clean checkout, and frontend coverage is at least 80%.
 
 ---
 
@@ -67,9 +69,10 @@ This is the **single source of truth for planned work**. `TODO.md` has been reti
 **Objective:** Broken builds cannot reach `ghcr.io`.
 
 **Deliverables**
-- `.github/workflows/build-publish.yml` gains build + `dotnet test` + `npm test` steps that gate the image publish jobs.
+- `.github/workflows/build-publish.yml` gains build + `dotnet test` + `npm test` + frontend coverage steps.
+- Pull requests and merges to `main` are blocked when required tests or the 80% frontend coverage threshold fail.
 
-**Acceptance:** A workflow run with a failing test stops before publishing images.
+**Acceptance:** A workflow run with a failing test or insufficient frontend coverage stops before publishing images and cannot merge to `main`.
 
 ---
 
@@ -215,6 +218,6 @@ This is the **single source of truth for planned work**. `TODO.md` has been reti
 ## Open Questions
 
 1. **Sequencing.** `TODO.md` originally marked the frontend cleanup as "Now", but the mission front-loads the foundations (Phases 0–4). The order above follows the mission. If you would rather do Phase 6 first and move Phases 0–4 later, say so and this file gets reordered.
-2. **Test framework.** No backend test project exists, so Phase 3 defaults to **xUnit** (the .NET default) with a project per layer, e.g. `src/3DPrintingHub.Domain.Tests`. Confirm or override before Phase 3 starts.
+2. **Test framework.** Phase 3 uses **xUnit** in one shared `src/3DPrintingHub.Tests` project. API/EF/service-integration tests use a temporary SQLite database and `WebApplicationFactory`; frontend tests use Vitest + jsdom with an 80% global coverage floor.
 3. **First-run account model.** `/register` stays open for the single-operator self-hosted install. Phase 2 provides a discoverable register page that creates the operator account and signs it in immediately.
 4. **Single user vs. several.** This constitution assumes one operator per instance. If fork owners are expected to host several people, roles (Phase 13) moves up in priority.
