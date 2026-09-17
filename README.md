@@ -6,6 +6,31 @@ There are no external integrations yet, but connecting to different tools to boo
 
 ---
 
+## 🚀 Getting started
+
+Docker with Compose is the only prerequisite for the published quickstart.
+
+1. Clone the repository and enter its directory.
+2. Create the local environment file: `Copy-Item .env.example .env`.
+3. Start the published images: `docker compose up -d`.
+4. Wait until both services report `healthy`, then open [http://localhost:8081](http://localhost:8081).
+5. Select **Create an account**, register the operator account, and sign in.
+
+Registration is intentionally open because each instance is intended for one operator. Passwords must contain at
+least 6 characters, including a digit, lowercase letter, uppercase letter and non-alphanumeric character.
+
+The `printinghub-data` volume stores the SQLite database at `/data/printinghub.db`. To reset the local instance,
+run `docker compose down -v` and start it again. For forks or offline machines, use `docker compose up -d --build`;
+this is slower because it builds both images locally.
+
+### Troubleshooting
+
+- If port `8081` is already in use, change the host side of `8081:80` in `docker-compose.yml`.
+- The first boot may stay `starting` while SQLite migrations run; wait for the API to become `healthy`.
+- Inspect API startup problems with `docker compose logs -f webapi`.
+
+---
+
 ## ✨ Features
 
 - **Inventory management** for filaments, models and product stock.
@@ -15,7 +40,6 @@ There are no external integrations yet, but connecting to different tools to boo
 - **REST API** built with .NET.
 - **Modern Angular** frontend.
 - **Dockerized** deployment with Nginx static serving and reverse proxy.
-- 
 ---
 
 ## 🗂️ Project Structure
