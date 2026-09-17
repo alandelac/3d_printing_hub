@@ -20,6 +20,7 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 builder.Services.AddAuthorization();
 builder.Services.AddAuthentication();
 builder.Services.AddProblemDetails();
+builder.Services.AddHealthChecks();
 
 builder.Services.AddIdentityApiEndpoints<IdentityUser>()
     .AddEntityFrameworkStores<ApplicationDbContext>();
@@ -75,6 +76,8 @@ app.UseAuthorization();
 
 // Mapeo de Endpoints
 app.MapControllers();
+// Liveness probe consumed by docker-compose.yml.
+app.MapHealthChecks("/health");
 app.MapIdentityApi<IdentityUser>(); // <-- Genera las rutas /login, /register, /manage/info, etc.
 
 app.Run();
