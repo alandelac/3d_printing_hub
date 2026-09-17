@@ -8,6 +8,14 @@ to the commit that produced it.
 - add login (41b8345)
 - add a ps1 script to run both projects the same time (a458b89)
 - Create the consitution of the project (802c887)
+- docs: spec phase 0 remainder and phase 1 dev scripts (a89a75a)
+- chore: env template and gitignore hygiene (1ba4c04)
+- fix: developer scripts on SQLite and the real ports (25abb1d)
+- chore: remove dead solution project references (ce25010)
+- docs: close phase 0 and 1 gaps in the register (79a167b)
+- docs: record the pre-existing client spec failure (70a78ec)
+- docs: record the validation evidence and fix the V6 command (a60d5ad)
+- docs: declare the no-automatic-commits working agreement (fa20080)
 
 ## 2026-09-06
 - fix: indices en tablas que no tenian (d847611)
