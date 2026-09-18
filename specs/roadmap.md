@@ -13,6 +13,8 @@ This is the **single source of truth for planned work**. `TODO.md` has been reti
 
 ## Phase 0 — Purge secrets and repo hygiene
 
+- [x] Covered
+
 **Objective:** No credential, personal datum or machine-specific path is tracked by git.
 
 **Deliverables**
@@ -26,6 +28,8 @@ This is the **single source of truth for planned work**. `TODO.md` has been reti
 
 ## Phase 1 — Fix the developer scripts
 
+- [x] Covered
+
 **Objective:** Local tooling matches the SQLite reality.
 
 **Deliverables**
@@ -37,6 +41,8 @@ This is the **single source of truth for planned work**. `TODO.md` has been reti
 ---
 
 ## Phase 2 — Five-minute quickstart
+
+- [x] Covered
 
 **Objective:** A stranger can install the app from the README alone.
 
@@ -50,6 +56,8 @@ This is the **single source of truth for planned work**. `TODO.md` has been reti
 ---
 
 ## Phase 3 — Backend test foundation
+
+- [x] Covered
 
 **Objective:** The backend can be tested at all.
 
@@ -66,6 +74,8 @@ This is the **single source of truth for planned work**. `TODO.md` has been reti
 
 ## Phase 4 — CI gates
 
+- [ ] Covered
+
 **Objective:** Broken builds cannot reach `ghcr.io`.
 
 **Deliverables**
@@ -78,6 +88,8 @@ This is the **single source of truth for planned work**. `TODO.md` has been reti
 
 ## Phase 5 — Sign-out button styling *(was TODO.md → Next)*
 
+- [ ] Covered
+
 **Objective:** The sign-out button matches the other navbar buttons.
 
 **Deliverables**
@@ -88,6 +100,8 @@ This is the **single source of truth for planned work**. `TODO.md` has been reti
 ---
 
 ## Phase 6 — Frontend architecture consolidation *(was TODO.md → **Now**)*
+
+- [ ] Covered
 
 **Objective:** The client is DRY, organised predictably, and free of repeated code.
 
@@ -103,6 +117,8 @@ This is the **single source of truth for planned work**. `TODO.md` has been reti
 
 ## Phase 7 — Global timestamp formatter *(was TODO.md → Next)*
 
+- [ ] Covered
+
 **Objective:** ISO timestamps render as `YYYY-MM-DD` everywhere, defined once.
 
 **Deliverables**
@@ -115,6 +131,8 @@ This is the **single source of truth for planned work**. `TODO.md` has been reti
 
 ## Phase 8 — Global table component *(was TODO.md → Next)*
 
+- [ ] Covered
+
 **Objective:** One table component with sorting and filtering, used app-wide.
 
 **Deliverables**
@@ -126,6 +144,8 @@ This is the **single source of truth for planned work**. `TODO.md` has been reti
 ---
 
 ## Phase 9 — Filament remaining-weight adjuster *(was TODO.md → Next)*
+
+- [ ] Covered
 
 **Objective:** Adjust a spool's remaining weight from the filament table.
 
@@ -140,6 +160,8 @@ This is the **single source of truth for planned work**. `TODO.md` has been reti
 
 ## Phase 10a — Clients backend *(was TODO.md → Next)*
 
+- [ ] Covered
+
 **Objective:** The `Client` domain concept exists end to end on the server.
 
 **Deliverables**
@@ -150,6 +172,8 @@ This is the **single source of truth for planned work**. `TODO.md` has been reti
 ---
 
 ## Phase 10b — Clients frontend *(was TODO.md → Next)*
+
+- [ ] Covered
 
 **Objective:** A client page where basic info is gathered.
 
@@ -163,6 +187,8 @@ This is the **single source of truth for planned work**. `TODO.md` has been reti
 
 ## Phase 11a — Sales backend
 
+- [ ] Covered
+
 **Objective:** Sales are recorded and tied to clients and stock.
 
 **Deliverables**
@@ -174,6 +200,8 @@ This is the **single source of truth for planned work**. `TODO.md` has been reti
 ---
 
 ## Phase 11b — Sales and money-owed frontend
+
+- [ ] Covered
 
 **Objective:** A sales registry, plus per-client selling history and who owes money.
 
@@ -187,6 +215,8 @@ This is the **single source of truth for planned work**. `TODO.md` has been reti
 ---
 
 ## Phase 12 — Print job registry *(was TODO.md → Next)*
+
+- [ ] Covered
 
 **Objective:** The orphaned `PrintJob` entity becomes usable: finishing a job adds the printed quantity to stock and consumes the filament it used.
 
@@ -202,6 +232,8 @@ This is the **single source of truth for planned work**. `TODO.md` has been reti
 ---
 
 ## Phase 13 — Hardening backlog *(optional, as needed)*
+
+- [ ] Covered
 
 **Objective:** Address remaining Gap Register items when a real need appears.
 
