@@ -80,7 +80,8 @@ shared/ui/     # modal, list-state, table-actions, confirm-delete
 - `Dockerfile.api` and `Dockerfile.frontend`, both multi-stage. The client is served by **Nginx**, which also acts as the reverse proxy via `nginx.conf`.
 - `docker-compose.yml`: the API listens internally on `8080` with SQLite at `/data/printinghub.db` on the named volume `printinghub-data`; the frontend is published on host port `8081`. `AllowedOrigin` is supplied through `FRONTEND_URL`.
 - Liveness: the API exposes anonymous `GET /health`; Compose probes the API on port `8080` and the frontend with Nginx, with the frontend gated on API health.
-- `.github/workflows/build-publish.yml`: on push to `main` it builds and pushes `ghcr.io/alandelac/3d_printing_hub_api:latest` and `ghcr.io/alandelac/3d_printing_hub_frontend:latest`. **It publishes images only — it does not deploy or run them.**
+- `.github/workflows/build-publish.yml`: GitHub Actions runs validation on pull requests to `main` and on pushes to `main`. The required status checks are `build`, `backend-tests`, `frontend-tests`, and `frontend-coverage`; image publication only occurs after those checks succeed on `main`. The workflow publishes `ghcr.io/alandelac/3d_printing_hub_api:latest` and `ghcr.io/alandelac/3d_printing_hub_frontend:latest` and **does not deploy or run them**.
+- GitHub branch protection on `main` must require the successful CI checks above and prevent ordinary pull requests from bypassing them.
 - Local development: `scripts/run-all.ps1`, `run-program.ps1`, `run-front.ps1`, `update-db.ps1`. Ports: **API `5033`, client `4200`**.
 
 ## Gap Register
@@ -108,4 +109,4 @@ Record additions here **before** using them.
 
 | Date | Decision | Justification |
 |---|---|---|
-| — | *None yet beyond the stack listed above.* | — |
+| 2026-09-18 | Enforce CI gates via GitHub Actions and branch protection | Required checks (`build`, `backend-tests`, `frontend-tests`, `frontend-coverage`) prevent broken or under-tested changes from merging or publishing images. |

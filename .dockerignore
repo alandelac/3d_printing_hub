@@ -1,0 +1,17 @@
+# Git
+.git
+.gitignore
+
+# Local build artifacts
+src/3DPrintingHub.Client/node_modules/
+src/3DPrintingHub.Client/dist/
+src/3DPrintingHub.Client/.angular/
+src/3DPrintingHub.Client/coverage/
+
+# Environment files
+.env
+.env.*
+
+# OS/editor churn
+.DS_Store
+Thumbs.db
