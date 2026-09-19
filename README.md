@@ -29,6 +29,30 @@ this is slower because it builds both images locally.
 - The first boot may stay `starting` while SQLite migrations run; wait for the API to become `healthy`.
 - Inspect API startup problems with `docker compose logs -f webapi`.
 
+#### Recovery and verification commands
+
+```powershell
+# 1) Rebuild stale images and restart the stack
+# (use this when a local image is stale or drifts from the source tree)
+docker compose down --remove-orphans
+docker compose up -d --build
+
+# 2) Reset the database when migrations or seed data are stale
+# WARNING: this deletes the SQLite volume and recreates it from scratch
+docker compose down -v
+docker compose up -d --build
+
+# 3) Verify the API is ready before checking the frontend chain
+docker compose ps
+docker compose logs -f webapi
+curl.exe -i http://localhost:8080/health
+
+# 4) Verify the nginx proxy forwards auth traffic through the API
+curl.exe -i -X POST http://localhost:8081/register -H "Content-Type: application/json" -d '{"email":"user@example.com","password":"P@ssword123"}'
+```
+
+The API health endpoint returns `200 Healthy`, and the frontend health check is wired to `http://localhost/health` so nginx only reports healthy after the backend is ready.
+
 ---
 
 ## ✨ Features
