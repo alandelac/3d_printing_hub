@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using _3DPrintingHub.Application;
 using _3DPrintingHub.Api.Data;
+using _3DPrintingHub.Api.HealthChecks;
 using _3DPrintingHub.Api.Middleware;
 using _3DPrintingHub.Infrastructure.Data;
 
@@ -20,7 +21,8 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 builder.Services.AddAuthorization();
 builder.Services.AddAuthentication();
 builder.Services.AddProblemDetails();
-builder.Services.AddHealthChecks();
+builder.Services.AddHealthChecks()
+    .AddCheck<DatabaseHealthCheck>("database");
 
 builder.Services.AddIdentityApiEndpoints<IdentityUser>()
     .AddEntityFrameworkStores<ApplicationDbContext>();
