@@ -74,7 +74,7 @@ This is the **single source of truth for planned work**. `TODO.md` has been reti
 
 ## Phase 4 — CI gates
 
-- [ ] Covered
+- [x] Covered
 
 **Objective:** Broken builds cannot reach `ghcr.io`.
 

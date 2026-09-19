@@ -59,12 +59,14 @@ Inventory and records for a 3D printing business:
    adding SQLite-temporary-database and `WebApplicationFactory` integration tests when they affect API, EF Core or
    service integration. Frontend changes use Vitest with jsdom, including unit and component-integration tests.
    A change is not ready to merge until the required tests pass.
+8. **CI is the gate, not a suggestion.** Pull requests must pass the required backend, frontend, and coverage checks before merge. The workflow blocks publish actions until the required jobs succeed, and the repository enforces those checks through GitHub branch protection on `main`.
 
 ## Success signals
 
 - A new user reaches a working instance and registers their own account in under 5 minutes using only the README.
 - `dotnet test` and `npm test` run in CI and are green on `main`.
 - Frontend coverage stays at or above 80% globally, and CI blocks merges when required tests or coverage fail.
+- Required GitHub status checks for `build`, `backend-tests`, `frontend-tests`, and `frontend-coverage` must pass on `main` before merge and before image publication.
 - Adding a domain concept predictably touches Domain → Application → Infrastructure → Api, plus `domain/models` and a repository on the client.
 - The repository contains no credentials, no personal data and no machine-specific paths.
 - Every feature named in `README.md` exists and is reachable from the UI.
