@@ -86,7 +86,23 @@ This is the **single source of truth for planned work**. `TODO.md` has been reti
 
 ---
 
-## Phase 5 — Sign-out button styling *(was TODO.md → Next)*
+## Phase 5 — Docker API startup and proxy reliability
+
+- [ ] Covered
+
+**Objective:** A compose deployment does not serve a `502 Connection refused` when nginx forwards requests to the API.
+
+**Deliverables**
+- Reproduce the failure with the published and locally built compose images, capturing `docker compose ps` and `docker compose logs webapi`.
+- Ensure the API container reaches a healthy, listening state on `0.0.0.0:8080` after migrations and seeding, or fails with an actionable startup error instead of appearing available to nginx.
+- Verify the frontend proxy resolves `webapi:8080`, forwards `POST /register`, and only becomes reachable after the API healthcheck passes.
+- Document the recovery and verification commands for stale images, failed migrations and unhealthy containers.
+
+**Acceptance:** From a clean `docker compose up -d` (and after a local rebuild), both services become `healthy`, `POST /register` receives an API response through `http://localhost:8081`, and the API logs contain no upstream-startup failure.
+
+---
+
+## Phase 6 — Sign-out button styling *(was TODO.md → Next)*
 
 - [ ] Covered
 
@@ -99,7 +115,7 @@ This is the **single source of truth for planned work**. `TODO.md` has been reti
 
 ---
 
-## Phase 6 — Frontend architecture consolidation *(was TODO.md → **Now**)*
+## Phase 7 — Frontend architecture consolidation *(was TODO.md → **Now**)*
 
 - [ ] Covered
 
@@ -115,7 +131,7 @@ This is the **single source of truth for planned work**. `TODO.md` has been reti
 
 ---
 
-## Phase 7 — Global timestamp formatter *(was TODO.md → Next)*
+## Phase 8 — Global timestamp formatter *(was TODO.md → Next)*
 
 - [ ] Covered
 
@@ -129,7 +145,7 @@ This is the **single source of truth for planned work**. `TODO.md` has been reti
 
 ---
 
-## Phase 8 — Global table component *(was TODO.md → Next)*
+## Phase 9 — Global table component *(was TODO.md → Next)*
 
 - [ ] Covered
 
@@ -143,7 +159,7 @@ This is the **single source of truth for planned work**. `TODO.md` has been reti
 
 ---
 
-## Phase 9 — Filament remaining-weight adjuster *(was TODO.md → Next)*
+## Phase 10 — Filament remaining-weight adjuster *(was TODO.md → Next)*
 
 - [ ] Covered
 
@@ -158,7 +174,7 @@ This is the **single source of truth for planned work**. `TODO.md` has been reti
 
 ---
 
-## Phase 10a — Clients backend *(was TODO.md → Next)*
+## Phase 11a — Clients backend *(was TODO.md → Next)*
 
 - [ ] Covered
 
@@ -171,7 +187,7 @@ This is the **single source of truth for planned work**. `TODO.md` has been reti
 
 ---
 
-## Phase 10b — Clients frontend *(was TODO.md → Next)*
+## Phase 11b — Clients frontend *(was TODO.md → Next)*
 
 - [ ] Covered
 
@@ -185,7 +201,7 @@ This is the **single source of truth for planned work**. `TODO.md` has been reti
 
 ---
 
-## Phase 11a — Sales backend
+## Phase 12a — Sales backend
 
 - [ ] Covered
 
@@ -199,7 +215,7 @@ This is the **single source of truth for planned work**. `TODO.md` has been reti
 
 ---
 
-## Phase 11b — Sales and money-owed frontend
+## Phase 12b — Sales and money-owed frontend
 
 - [ ] Covered
 
@@ -214,7 +230,7 @@ This is the **single source of truth for planned work**. `TODO.md` has been reti
 
 ---
 
-## Phase 12 — Print job registry *(was TODO.md → Next)*
+## Phase 13 — Print job registry *(was TODO.md → Next)*
 
 - [ ] Covered
 
@@ -222,16 +238,16 @@ This is the **single source of truth for planned work**. `TODO.md` has been reti
 
 **Deliverables**
 - DTOs, service, controller and wiring for `PrintJob`, with material cost calculated from the filament's cost per gram.
-- Completing a job **adds the produced quantity to product stock** and **reduces the filament's remaining weight** by the grams used, atomically — reusing the stock-decrement pattern established in Phase 11a.
+- Completing a job **adds the produced quantity to product stock** and **reduces the filament's remaining weight** by the grams used, atomically — reusing the stock-decrement pattern established in Phase 12a.
 - A UI surface for print history.
 
 **Acceptance:** Completing a job against a filament is recorded, listed, increases stock by the produced quantity, lowers the filament's remaining weight by the grams used, and its material cost reflects the filament's cost per gram. A job that would drive the filament weight negative is rejected without side effects.
 
-**Note:** This phase sits after Phase 11a deliberately, because it reuses the atomic stock-adjustment pattern introduced there rather than inventing a second one.
+**Note:** This phase sits after Phase 12a deliberately, because it reuses the atomic stock-adjustment pattern introduced there rather than inventing a second one.
 
 ---
 
-## Phase 13 — Hardening backlog *(optional, as needed)*
+## Phase 14 — Hardening backlog *(optional, as needed)*
 
 - [ ] Covered
 
@@ -249,7 +265,7 @@ This is the **single source of truth for planned work**. `TODO.md` has been reti
 
 ## Open Questions
 
-1. **Sequencing.** `TODO.md` originally marked the frontend cleanup as "Now", but the mission front-loads the foundations (Phases 0–4). The order above follows the mission. If you would rather do Phase 6 first and move Phases 0–4 later, say so and this file gets reordered.
+1. **Sequencing.** `TODO.md` originally marked the frontend cleanup as "Now", but the mission front-loads the foundations (Phases 0–4). The order above follows the mission. If you would rather do Phase 7 first and move Phases 0–4 later, say so and this file gets reordered.
 2. **Test framework.** Phase 3 uses **xUnit** in one shared `src/3DPrintingHub.Tests` project. API/EF/service-integration tests use a temporary SQLite database and `WebApplicationFactory`; frontend tests use Vitest + jsdom with an 80% global coverage floor.
 3. **First-run account model.** `/register` stays open for the single-operator self-hosted install. Phase 2 provides a discoverable register page that creates the operator account and signs it in immediately.
-4. **Single user vs. several.** This constitution assumes one operator per instance. If fork owners are expected to host several people, roles (Phase 13) moves up in priority.
+4. **Single user vs. several.** This constitution assumes one operator per instance. If fork owners are expected to host several people, roles (Phase 14) moves up in priority.
