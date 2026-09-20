@@ -133,7 +133,7 @@ This is the **single source of truth for planned work**. `TODO.md` has been reti
 
 ## Phase 8 — Global timestamp formatter *(was TODO.md → Next)*
 
-- [ ] Covered
+- [x] Covered
 
 **Objective:** ISO timestamps render as `YYYY-MM-DD` everywhere, defined once.
 

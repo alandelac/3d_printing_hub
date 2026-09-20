@@ -10,6 +10,7 @@ import { Filament, FilamentCreate, FilamentUpdate, AdjustFilamentWeight } from '
 import { ModalComponent } from '../../../shared/ui/modal/modal.component';
 import { TableCellDirective, TableColumn, TableComponent, TableHeaderDirective } from '../../../shared/ui/table/table.component';
 import { ConfirmDeleteComponent } from '../../../shared/ui/confirm-delete/confirm-delete.component';
+import { DateFormatPipe } from '../../../shared/pipes/date-format.pipe';
 import { ColorsModalComponent } from '../components/colors-modal/colors-modal.component';
 import { BrandsModalComponent } from '../components/brands-modal/brands-modal.component';
 import { MaterialTypesModalComponent } from '../components/material-types-modal/material-types-modal.component';
@@ -17,7 +18,7 @@ import { MaterialTypesModalComponent } from '../components/material-types-modal/
 @Component({
   selector: 'app-filaments-page',
   standalone: true,
-  imports: [CommonModule, ModalComponent, TableComponent, TableCellDirective, TableHeaderDirective, ConfirmDeleteComponent, ColorsModalComponent, BrandsModalComponent, MaterialTypesModalComponent],
+  imports: [CommonModule, ModalComponent, TableComponent, TableCellDirective, TableHeaderDirective, ConfirmDeleteComponent, DateFormatPipe, ColorsModalComponent, BrandsModalComponent, MaterialTypesModalComponent],
   templateUrl: './filaments-page.component.html',
   styleUrls: ['./filaments-page.component.css']
 })
