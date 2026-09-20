@@ -6,18 +6,10 @@
     <button *ngIf="isEditing" class="secondary" (click)="cancelEdit()">Cancel</button>
   </div>
 
-  <app-list-state [loading]="loading" [hasData]="colors.length > 0" emptyText="No colors found.">
-    <table>
-      <thead>
-        <tr><th>Name</th><th>Code</th><th>Actions</th></tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let c of colors">
-          <td>{{ c.color }}</td>
-          <td><span class="swatch" [style.background]="c.colorCode"></span>{{ c.colorCode }}</td>
-          <td><app-table-actions (edit)="startEdit(c)" (delete)="onDelete(c)" /></td>
-        </tr>
-      </tbody>
-    </table>
-  </app-list-state>
+  <app-table [columns]="columns" [rows]="colors" [loading]="loading" emptyText="No colors found."
+    (edit)="startEdit($event)" (delete)="onDelete($event)">
+    <ng-template appTableCell="colorCode" let-color>
+      <span class="swatch" [style.background]="color.colorCode"></span>{{ color.colorCode }}
+    </ng-template>
+  </app-table>
 </app-modal>

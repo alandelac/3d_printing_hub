@@ -2,16 +2,19 @@ import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FilamentBrand } from '../../../../domain/models/filament-brand.model';
 import { ModalComponent } from '../../../../shared/ui/modal/modal.component';
-import { ListStateComponent } from '../../../../shared/ui/list-state/list-state.component';
-import { TableActionsComponent } from '../../../../shared/ui/table-actions/table-actions.component';
+import { TableComponent, TableColumn } from '../../../../shared/ui/table/table.component';
 
 @Component({
   selector: 'app-brands-modal',
   standalone: true,
-  imports: [CommonModule, ModalComponent, ListStateComponent, TableActionsComponent],
+  imports: [CommonModule, ModalComponent, TableComponent],
   templateUrl: './brands-modal.component.html'
 })
 export class BrandsModalComponent {
+  readonly columns: TableColumn<FilamentBrand>[] = [
+    { key: 'name', header: 'Name', value: brand => brand.name }
+  ];
+
   @Input() brands: FilamentBrand[] = [];
   @Input() loading = false;
   @Output() addBrand = new EventEmitter<{ name: string }>();

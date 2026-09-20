@@ -4,15 +4,28 @@ import { firstValueFrom } from 'rxjs';
 import { ModelRepository } from '../../../data/repositories/model.repository';
 import { ModelPrintCategory } from '../../../domain/models/model-print-category.model';
 import { ModelPrint, ModelPrintCreate, ModelPrintUpdate } from '../../../domain/models/model-print.model';
-import { ModalComponent } from '../../../shared/ui/modal/modal.component';
-import { ListStateComponent } from '../../../shared/ui/list-state/list-state.component';
-import { TableActionsComponent } from '../../../shared/ui/table-actions/table-actions.component';
 import { ConfirmDeleteComponent } from '../../../shared/ui/confirm-delete/confirm-delete.component';
+import {
+  TableCellDirective,
+  TableColumn,
+  TableComponent,
+  TableHeaderDirective
+} from '../../../shared/ui/table/table.component';
+import { CategoryFormValue, CategoryModalComponent } from '../components/category-modal/category-modal.component';
+import { ModelFormModalComponent, ModelFormValue } from '../components/model-form-modal/model-form-modal.component';
 
 @Component({
   selector: 'app-models-page',
   standalone: true,
-  imports: [CommonModule, ModalComponent, ListStateComponent, TableActionsComponent, ConfirmDeleteComponent],
+  imports: [
+    CommonModule,
+    TableComponent,
+    TableCellDirective,
+    TableHeaderDirective,
+    ConfirmDeleteComponent,
+    CategoryModalComponent,
+    ModelFormModalComponent
+  ],
   templateUrl: './models-page.component.html',
   styleUrls: ['./models-page.component.css']
 })
@@ -20,26 +33,23 @@ export class ModelsPageComponent implements OnInit {
   private modelRepository = inject(ModelRepository);
   protected readonly title = signal('Models');
 
+  protected readonly columns: TableColumn<ModelPrint>[] = [
+    { key: 'name', header: 'Name', value: model => model.name },
+    { key: 'category', header: 'Category', value: model => model.categoryName },
+    { key: 'weight', header: 'Weight (g)', value: model => model.estimatedWeightGrams },
+    { key: 'time', header: 'Time (min)', value: model => model.estimatedTimeMinutes },
+    { key: 'defaultCost', header: 'Default Cost' },
+    { key: 'defaultSalePrice', header: 'Sale Price' }
+  ];
+
   // Category functionality
   protected categoryOpen = signal(false);
   protected categories = signal<ModelPrintCategory[]>([]);
   protected categoryLoading = signal(false);
-  protected categoryNameInput = signal('');
-  protected categoryEditingId = signal('');
-
-  protected isEditingCategory(): boolean {
-    return this.categoryEditingId() !== '';
-  }
 
   // Model creation functionality
   protected modelOpen = signal(false);
   protected modelLoading = signal(false);
-  protected modelForm = signal<ModelPrintCreate>({
-    name: '',
-    categoryId: '',
-    estimatedWeightGrams: 0,
-    estimatedTimeMinutes: 0
-  });
 
   // Models list functionality
   protected models = signal<ModelPrint[]>([]);
@@ -132,13 +142,7 @@ export class ModelsPageComponent implements OnInit {
   // Edit Model modal state
   protected editOpen = signal(false);
   protected editLoading = signal(false);
-  protected editModelId = signal('');
-  protected editName = signal('');
-  protected editCategoryId = signal('');
-  protected editEstimatedWeightGrams = signal<number | null>(null);
-  protected editEstimatedTimeMinutes = signal<number | null>(null);
-  protected editFileLocationOrUrl = signal('');
-  protected editNotes = signal('');
+  protected editModel = signal<ModelPrint | null>(null);
 
   // Generic delete confirmation state (shared by model and category tables)
   protected deleteOpen = signal(false);
@@ -212,28 +216,21 @@ export class ModelsPageComponent implements OnInit {
 
   protected toggleCategoryOpen(): void {
     this.categoryOpen.set(!this.categoryOpen());
-    if (!this.categoryOpen()) {
-      this.categoryNameInput.set('');
-      this.categoryEditingId.set('');
-    }
   }
 
-  protected async addCategory(): Promise<void> {
-    const name = this.categoryNameInput().trim();
+  protected async saveCategory(value: CategoryFormValue): Promise<void> {
+    const name = value.name.trim();
     if (!name) {
       return;
     }
 
     this.categoryLoading.set(true);
     try {
-      const editingId = this.categoryEditingId();
-      if (editingId) {
-        await firstValueFrom(this.modelRepository.updateCategory({ id: editingId, name }));
+      if (value.id) {
+        await firstValueFrom(this.modelRepository.updateCategory({ id: value.id, name }));
       } else {
         await firstValueFrom(this.modelRepository.createCategory({ name }));
       }
-      this.categoryNameInput.set('');
-      this.categoryEditingId.set('');
       await this.loadCategories();
     } catch (error) {
       console.error('Error saving category:', error);
@@ -241,16 +238,6 @@ export class ModelsPageComponent implements OnInit {
     } finally {
       this.categoryLoading.set(false);
     }
-  }
-
-  protected startCategoryEdit(category: ModelPrintCategory): void {
-    this.categoryEditingId.set(category.id);
-    this.categoryNameInput.set(category.name);
-  }
-
-  protected cancelCategoryEdit(): void {
-    this.categoryEditingId.set('');
-    this.categoryNameInput.set('');
   }
 
   protected deleteCategoryConfirm(category: ModelPrintCategory): void {
@@ -262,13 +249,9 @@ export class ModelsPageComponent implements OnInit {
 
   protected toggleModelOpen(): void {
     this.modelOpen.set(!this.modelOpen());
-    if (!this.modelOpen()) {
-      this.resetModelForm();
-    }
   }
 
-  protected async createModel(): Promise<void> {
-    const form = this.modelForm();
+  protected async createModel(form: ModelFormValue): Promise<void> {
     const errors: string[] = [];
 
     // Validaciones detalladas
@@ -278,10 +261,10 @@ export class ModelsPageComponent implements OnInit {
     if (!form.categoryId) {
       errors.push('Category is required');
     }
-    if (form.estimatedWeightGrams <= 0) {
+    if ((form.estimatedWeightGrams ?? 0) <= 0) {
       errors.push('Weight must be greater than 0');
     }
-    if (form.estimatedTimeMinutes <= 0) {
+    if ((form.estimatedTimeMinutes ?? 0) <= 0) {
       errors.push('Time must be greater than 0');
     }
 
@@ -289,16 +272,24 @@ export class ModelsPageComponent implements OnInit {
     if (errors.length > 0) {
       console.warn('❌ Form Validation Failed:', errors);
       console.table(errors.map(err => ({ error: err }))); // Esto crea una tablita en la consola
-      
+
       // Opcional: Si quieres que el alert también sea útil:
       alert(`Validation Error:\n- ${errors.join('\n- ')}`);
       return;
     }
 
+    const payload: ModelPrintCreate = {
+      name: form.name,
+      categoryId: form.categoryId,
+      estimatedWeightGrams: form.estimatedWeightGrams ?? 0,
+      estimatedTimeMinutes: form.estimatedTimeMinutes ?? 0,
+      fileLocationOrUrl: form.fileLocationOrUrl,
+      notes: form.notes
+    };
+
     this.modelLoading.set(true);
     try {
-      await firstValueFrom(this.modelRepository.createModelPrint(form));
-      this.resetModelForm();
+      await firstValueFrom(this.modelRepository.createModelPrint(payload));
       this.modelOpen.set(false);
       await this.loadModels();
       alert('Model created successfully!');
@@ -310,56 +301,30 @@ export class ModelsPageComponent implements OnInit {
     }
   }
 
-  protected onCategoryChange(categoryId: string): void {
-    this.modelForm.update(form => ({
-      ...form,
-      categoryId
-    }));
-  }
-
-  protected onModelInputChange(field: keyof ModelPrintCreate, value: string | number): void {
-    this.modelForm.update(form => ({
-      ...form,
-      [field]: value
-    }));
-  }
-
-  private resetModelForm(): void {
-    this.modelForm.set({
-      name: '',
-      categoryId: this.categories().length > 0 ? this.categories()[0].id : '',
-      estimatedWeightGrams: 0,
-      estimatedTimeMinutes: 0,
-      fileLocationOrUrl: '',
-      notes: ''
-    });
-  }
-
   protected openEditModal(model: ModelPrint): void {
-    this.editModelId.set(model.id);
-    this.editName.set(model.name);
-    this.editCategoryId.set(model.categoryId);
-    this.editEstimatedWeightGrams.set(model.estimatedWeightGrams);
-    this.editEstimatedTimeMinutes.set(model.estimatedTimeMinutes);
-    this.editFileLocationOrUrl.set(model.fileLocationOrUrl ?? '');
-    this.editNotes.set(model.notes ?? '');
+    this.editModel.set(model);
     this.editOpen.set(true);
   }
 
   protected closeEditModal(): void {
     this.editOpen.set(false);
-    this.resetEditForm();
+    this.editModel.set(null);
   }
 
-  protected async updateModel(): Promise<void> {
+  protected async updateModel(form: ModelFormValue): Promise<void> {
+    const current = this.editModel();
+    if (!current) {
+      return;
+    }
+
     const payload: ModelPrintUpdate = {
-      id: this.editModelId(),
-      name: this.editName() || undefined,
-      categoryId: this.editCategoryId() || undefined,
-      estimatedWeightGrams: this.editEstimatedWeightGrams() ?? undefined,
-      estimatedTimeMinutes: this.editEstimatedTimeMinutes() ?? undefined,
-      fileLocationOrUrl: this.editFileLocationOrUrl() || undefined,
-      notes: this.editNotes() || undefined,
+      id: current.id,
+      name: form.name || undefined,
+      categoryId: form.categoryId || undefined,
+      estimatedWeightGrams: form.estimatedWeightGrams ?? undefined,
+      estimatedTimeMinutes: form.estimatedTimeMinutes ?? undefined,
+      fileLocationOrUrl: form.fileLocationOrUrl || undefined,
+      notes: form.notes || undefined
     };
 
     this.editLoading.set(true);
@@ -374,16 +339,6 @@ export class ModelsPageComponent implements OnInit {
     } finally {
       this.editLoading.set(false);
     }
-  }
-
-  private resetEditForm(): void {
-    this.editModelId.set('');
-    this.editName.set('');
-    this.editCategoryId.set('');
-    this.editEstimatedWeightGrams.set(null);
-    this.editEstimatedTimeMinutes.set(null);
-    this.editFileLocationOrUrl.set('');
-    this.editNotes.set('');
   }
 
   protected openDeleteModal(model: ModelPrint): void {

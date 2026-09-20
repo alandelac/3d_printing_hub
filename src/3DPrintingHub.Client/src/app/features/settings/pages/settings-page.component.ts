@@ -3,11 +3,16 @@ import { CommonModule } from '@angular/common';
 import { firstValueFrom } from 'rxjs';
 import { SettingRepository } from '../../../data/repositories/setting.repository';
 import { Setting } from '../../../domain/models/setting.model';
+import { TableCellDirective, TableColumn, TableComponent } from '../../../shared/ui/table/table.component';
+import {
+  SettingFormModalComponent,
+  SettingFormValue
+} from '../components/setting-form-modal/setting-form-modal.component';
 
 @Component({
   selector: 'app-settings-page',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, TableComponent, TableCellDirective, SettingFormModalComponent],
   templateUrl: './settings-page.component.html',
   styleUrls: ['./settings-page.component.css']
 })
@@ -15,15 +20,19 @@ export class SettingsPageComponent implements OnInit {
   private settingRepository = inject(SettingRepository);
   protected readonly title = signal('Settings');
 
+  protected readonly columns: TableColumn<Setting>[] = [
+    { key: 'parameter', header: 'Parameter', value: setting => setting.parameter },
+    { key: 'value', header: 'Value', value: setting => setting.value },
+    { key: 'actions', header: 'Actions' }
+  ];
+
   protected settings = signal<Setting[]>([]);
   protected loading = signal(false);
 
   // Edit modal state
   protected editOpen = signal(false);
   protected editLoading = signal(false);
-  protected editSettingId = signal('');
-  protected editParameter = signal('');
-  protected editValue = signal<number | null>(null);
+  protected editSetting = signal<Setting | null>(null);
 
   ngOnInit(): void {
     void this.loadSettings();
@@ -43,30 +52,27 @@ export class SettingsPageComponent implements OnInit {
   }
 
   protected openEditModal(setting: Setting): void {
-    this.editSettingId.set(setting.id);
-    this.editParameter.set(setting.parameter);
-    this.editValue.set(setting.value);
+    this.editSetting.set(setting);
     this.editOpen.set(true);
   }
 
   protected closeEditModal(): void {
     this.editOpen.set(false);
-    this.editSettingId.set('');
-    this.editParameter.set('');
-    this.editValue.set(null);
+    this.editSetting.set(null);
   }
 
-  protected async updateSetting(): Promise<void> {
-    if (!this.editSettingId() || this.editValue() === null) {
+  protected async updateSetting(form: SettingFormValue): Promise<void> {
+    const setting = this.editSetting();
+    if (!setting || form.value === null) {
       return;
     }
 
     this.editLoading.set(true);
     try {
       await firstValueFrom(
-        this.settingRepository.updateSetting(this.editSettingId(), {
-          parameter: this.editParameter(),
-          value: this.editValue()!
+        this.settingRepository.updateSetting(setting.id, {
+          parameter: form.parameter,
+          value: form.value
         })
       );
 

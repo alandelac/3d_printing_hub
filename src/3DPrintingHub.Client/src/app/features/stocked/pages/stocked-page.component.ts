@@ -7,13 +7,14 @@ import { FilamentRepository } from '../../../data/repositories/filament.reposito
 import { ModelPrint } from '../../../domain/models/model-print.model';
 import { Filament } from '../../../domain/models/filament.model';
 import { ProductStock, ProductStockCreate } from '../../../domain/models/product-stock.model';
-import { TableActionsComponent } from '../../../shared/ui/table-actions/table-actions.component';
 import { ConfirmDeleteComponent } from '../../../shared/ui/confirm-delete/confirm-delete.component';
+import { TableCellDirective, TableColumn, TableComponent } from '../../../shared/ui/table/table.component';
+import { StockFormModalComponent, StockFormValue } from '../components/stock-form-modal/stock-form-modal.component';
 
 @Component({
   selector: 'app-stocked-page',
   standalone: true,
-  imports: [CommonModule, TableActionsComponent, ConfirmDeleteComponent],
+  imports: [CommonModule, TableComponent, TableCellDirective, ConfirmDeleteComponent, StockFormModalComponent],
   templateUrl: './stocked-page.component.html',
   styleUrls: ['./stocked-page.component.css']
 })
@@ -24,26 +25,25 @@ export class StockedPageComponent implements OnInit {
 
   protected readonly title = signal('Stock');
 
-  // Create modal state
+  protected readonly columns: TableColumn<ProductStock>[] = [
+    { key: 'id', header: 'ID', value: stock => stock.id },
+    { key: 'modelPrintName', header: 'Model', value: stock => stock.modelPrintName },
+    { key: 'filamentColorName', header: 'Filament', value: stock => stock.filamentColorName },
+    { key: 'quantity', header: 'Quantity' },
+    { key: 'costToProduce', header: 'Cost To Produce', value: stock => stock.costToProduce },
+    { key: 'recommendedSalePrice', header: 'Recommended Sale Price', value: stock => stock.recommendedSalePrice },
+    { key: 'salePrice', header: 'Sale Price', value: stock => stock.salePrice },
+    { key: 'lastUpdated', header: 'Last Updated', value: stock => stock.lastUpdated }
+  ];
+
+  // Create / edit modal state
   protected open = signal(false);
   protected loading = signal(false);
-  protected form = signal<ProductStockCreate>({
-    modelPrintId: '',
-    filamentId: '',
-    quantityInStock: 0,
-    salePrice: 0
-  });
+  protected editingStock = signal<ProductStock | null>(null);
 
   // Reference data for the dropdowns
   protected models = signal<ModelPrint[]>([]);
   protected filaments = signal<Filament[]>([]);
-
-  // Edit mode for the create modal
-  protected editingStockId = signal('');
-
-  protected isEditingStock(): boolean {
-    return this.editingStockId() !== '';
-  }
 
   // Existing stock list
   protected productStocks = signal<ProductStock[]>([]);
@@ -121,7 +121,6 @@ export class StockedPageComponent implements OnInit {
     }
   }
 
-
   async ngOnInit(): Promise<void> {
     await Promise.all([
       this.loadModels(),
@@ -130,39 +129,29 @@ export class StockedPageComponent implements OnInit {
     ]);
   }
 
-  protected toggleOpen(): void {
-    if (!this.open()) {
-      this.resetForm();
-    }
-    this.open.set(!this.open());
-    if (!this.open()) {
-      this.editingStockId.set('');
-    }
-  }
-
-  protected onFormChange(field: keyof ProductStockCreate, value: string | number): void {
-    this.form.update(form => ({ ...form, [field]: value }));
-  }
-
-  protected openEditStock(stock: ProductStock): void {
-    this.editingStockId.set(stock.id);
-    this.form.set({
-      modelPrintId: stock.modelPrintId,
-      filamentId: stock.filamentId,
-      quantityInStock: stock.quantityInStock,
-      salePrice: stock.salePrice
-    });
+  protected openCreateModal(): void {
+    this.editingStock.set(null);
     this.open.set(true);
   }
 
-  protected cancelEditStock(): void {
-    this.editingStockId.set('');
-    this.resetForm();
+  protected closeStockModal(): void {
     this.open.set(false);
+    this.editingStock.set(null);
   }
 
-  protected async createProductStock(): Promise<void> {
-    const payload = this.form();
+  protected openEditStock(stock: ProductStock): void {
+    this.editingStock.set(stock);
+    this.open.set(true);
+  }
+
+  protected async saveStock(value: StockFormValue): Promise<void> {
+    const payload: ProductStockCreate = {
+      modelPrintId: value.modelPrintId,
+      filamentId: value.filamentId,
+      quantityInStock: value.quantityInStock,
+      salePrice: value.salePrice
+    };
+
     if (!payload.modelPrintId || !payload.filamentId) {
       alert('Please select a model and a filament.');
       return;
@@ -170,16 +159,15 @@ export class StockedPageComponent implements OnInit {
 
     this.loading.set(true);
     try {
-      const editingId = this.editingStockId();
-      if (editingId) {
-        await firstValueFrom(this.productStockRepository.updateProductStock({ id: editingId, ...payload }));
+      const editing = this.editingStock();
+      if (editing) {
+        await firstValueFrom(this.productStockRepository.updateProductStock({ id: editing.id, ...payload }));
       } else {
         await firstValueFrom(this.productStockRepository.createProductStock(payload));
       }
-      this.toggleOpen();
-      this.editingStockId.set('');
+      this.closeStockModal();
       await this.loadProductStocks();
-      alert(editingId ? 'Product stock updated successfully!' : 'Product stock created successfully!');
+      alert(editing ? 'Product stock updated successfully!' : 'Product stock created successfully!');
     } catch (error) {
       console.error('Error saving product stock:', error);
       alert(`Error: ${error}`);
@@ -193,16 +181,6 @@ export class StockedPageComponent implements OnInit {
       await firstValueFrom(this.productStockRepository.deleteProductStock(stock.id));
       await this.loadProductStocks();
     });
-  }
-
-  private resetForm(): void {
-    this.form.set({
-      modelPrintId: this.models().length ? this.models()[0].id : '',
-      filamentId: this.filaments().length ? this.filaments()[0].id : '',
-      quantityInStock: 0,
-      salePrice: 0
-    });
-    this.editingStockId.set('');
   }
 
   private async loadModels(): Promise<void> {

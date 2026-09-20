@@ -2,16 +2,19 @@ import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FilamentMaterialType } from '../../../../domain/models/filament-material-type.model';
 import { ModalComponent } from '../../../../shared/ui/modal/modal.component';
-import { ListStateComponent } from '../../../../shared/ui/list-state/list-state.component';
-import { TableActionsComponent } from '../../../../shared/ui/table-actions/table-actions.component';
+import { TableComponent, TableColumn } from '../../../../shared/ui/table/table.component';
 
 @Component({
   selector: 'app-material-types-modal',
   standalone: true,
-  imports: [CommonModule, ModalComponent, ListStateComponent, TableActionsComponent],
+  imports: [CommonModule, ModalComponent, TableComponent],
   templateUrl: './material-types-modal.component.html'
 })
 export class MaterialTypesModalComponent {
+  readonly columns: TableColumn<FilamentMaterialType>[] = [
+    { key: 'name', header: 'Name', value: materialType => materialType.name }
+  ];
+
   @Input() materialTypes: FilamentMaterialType[] = [];
   @Input() loading = false;
   @Output() addMaterialType = new EventEmitter<{ name: string }>();

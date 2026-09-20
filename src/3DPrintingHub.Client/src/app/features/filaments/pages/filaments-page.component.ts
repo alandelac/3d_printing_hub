@@ -8,8 +8,7 @@ import { FilamentMaterialType } from '../../../domain/models/filament-material-t
 import { FilamentProfile, FilamentProfileCreate, FilamentProfileUpdate } from '../../../domain/models/filament-profile.model';
 import { Filament, FilamentCreate, FilamentUpdate, AdjustFilamentWeight } from '../../../domain/models/filament.model';
 import { ModalComponent } from '../../../shared/ui/modal/modal.component';
-import { ListStateComponent } from '../../../shared/ui/list-state/list-state.component';
-import { TableActionsComponent } from '../../../shared/ui/table-actions/table-actions.component';
+import { TableCellDirective, TableColumn, TableComponent, TableHeaderDirective } from '../../../shared/ui/table/table.component';
 import { ConfirmDeleteComponent } from '../../../shared/ui/confirm-delete/confirm-delete.component';
 import { ColorsModalComponent } from '../components/colors-modal/colors-modal.component';
 import { BrandsModalComponent } from '../components/brands-modal/brands-modal.component';
@@ -18,7 +17,7 @@ import { MaterialTypesModalComponent } from '../components/material-types-modal/
 @Component({
   selector: 'app-filaments-page',
   standalone: true,
-  imports: [CommonModule, ModalComponent, ListStateComponent, TableActionsComponent, ConfirmDeleteComponent, ColorsModalComponent, BrandsModalComponent, MaterialTypesModalComponent],
+  imports: [CommonModule, ModalComponent, TableComponent, TableCellDirective, TableHeaderDirective, ConfirmDeleteComponent, ColorsModalComponent, BrandsModalComponent, MaterialTypesModalComponent],
   templateUrl: './filaments-page.component.html',
   styleUrls: ['./filaments-page.component.css']
 })
@@ -73,6 +72,27 @@ export class FilamentsPageComponent implements OnInit {
   // Filament main data (displayed directly on page)
   protected filaments = signal<Filament[]>([]);
   protected filamentLoading = signal(false);
+
+  protected readonly filamentColumns: TableColumn<Filament>[] = [
+    { key: 'profile', header: 'Profile' },
+    { key: 'color', header: 'Color' },
+    { key: 'remainingWeight', header: 'Remaining Weight' },
+    { key: 'minCost', header: 'Min Cost' },
+    { key: 'maxCost', header: 'Max Cost' },
+    { key: 'lastCost', header: 'Last Cost' },
+    { key: 'lastPurchaseDate', header: 'Last Purchase' },
+    { key: 'buyAgain', header: 'Buy Again' },
+    { key: 'buyLink', header: 'Buy URL' }
+  ];
+
+  protected readonly profileColumns: TableColumn<FilamentProfile>[] = [
+    { key: 'brand', header: 'Brand', value: profile => profile.brandName },
+    { key: 'materialType', header: 'Material Type', value: profile => profile.materialTypeName },
+    { key: 'ironingFlow', header: 'Ironing Flow %', value: profile => profile.ironingFlowPercentage },
+    { key: 'ironingSpeed', header: 'Ironing Speed', value: profile => profile.ironingSpeedMmS },
+    { key: 'slopeAngle', header: 'Slope Angle', value: profile => profile.slopeAngleForSupports },
+    { key: 'zSeparation', header: 'Z Separation', value: profile => profile.zSeparationForSupports }
+  ];
 
   // Sorting state
   protected sortColumn = signal<string>('');
@@ -374,9 +394,6 @@ export class FilamentsPageComponent implements OnInit {
     const newState = !this.profileOpen();
     this.profileOpen.set(newState);
     if (newState) {
-      console.log('Opening profile modal. Brands:', this.brands().length, 'MaterialTypes:', this.materialTypes().length);
-      console.log('Brands:', this.brands());
-      console.log('MaterialTypes:', this.materialTypes());
       await this.loadProfiles();
     } else {
       this.resetProfileForm();
@@ -401,14 +418,6 @@ export class FilamentsPageComponent implements OnInit {
   }
 
   protected async addProfile(): Promise<void> {
-    console.log('Adding profile with:', {
-      brandId: this.profileBrandId(),
-      materialTypeId: this.profileMaterialTypeId(),
-      ironingFlowPercentage: this.profileIroningFlow(),
-      ironingSpeedMmS: this.profileIroningSpeed(),
-      slopeAngleForSupports: this.profileSlopeAngle(),
-      zSeparationForSupports: this.profileZSeparation()
-    });
 
     // Validate that brand and material type are selected
     if (!this.profileBrandId() || this.profileBrandId() === '') {
@@ -430,7 +439,6 @@ export class FilamentsPageComponent implements OnInit {
       zSeparationForSupports: this.profileZSeparation() ?? undefined,
     };
 
-    console.log('Payload being sent:', payload);
 
     try {
       await firstValueFrom(this.filamentRepository.createFilamentProfile(payload));

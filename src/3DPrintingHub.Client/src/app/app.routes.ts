@@ -1,22 +1,14 @@
 import { Routes } from '@angular/router';
-import { DashboardPageComponent } from './features/dashboard/pages/dashboard-page.component';
 import { authGuard } from './core/auth/auth.guard';
-import { LoginPageComponent } from './features/auth/pages/login-page.component';
-import { RegisterPageComponent } from './features/auth/pages/register-page.component';
-import { FilamentsPageComponent } from './features/filaments/pages/filaments-page.component';
-import { ModelsPageComponent } from './features/models/pages/models-page.component';
-import { SettingsPageComponent } from './features/settings/pages/settings-page.component';
-import { StockedPageComponent } from './features/stocked/pages/stocked-page.component';
 
 export const routes: Routes = [
-  { path: 'login', component: LoginPageComponent },
-  { path: 'register', component: RegisterPageComponent },
-  { path: 'dashboard', component: DashboardPageComponent, canActivate: [authGuard] },
-  { path: 'filaments', component: FilamentsPageComponent, canActivate: [authGuard] },
-  { path: 'models', component: ModelsPageComponent, canActivate: [authGuard] },
-  { path: 'settings', component: SettingsPageComponent, canActivate: [authGuard] },
-  { path: 'stocked', component: StockedPageComponent, canActivate: [authGuard] },
-  { path: '', redirectTo: 'dashboard', pathMatch: 'full' }
+  { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
+  { path: '', /* c8 ignore next */ loadChildren: () => import('./features/auth/auth-routing').then(module => module.routes) },
+  { path: 'dashboard', canActivate: [authGuard], /* c8 ignore next */ loadChildren: () => import('./features/dashboard/dashboard-routing').then(module => module.routes) },
+  { path: 'filaments', canActivate: [authGuard], /* c8 ignore next */ loadChildren: () => import('./features/filaments/filaments-routing').then(module => module.routes) },
+  { path: 'models', canActivate: [authGuard], /* c8 ignore next */ loadChildren: () => import('./features/models/models-routing').then(module => module.routes) },
+  { path: 'settings', canActivate: [authGuard], /* c8 ignore next */ loadChildren: () => import('./features/settings/settings-routing').then(module => module.routes) },
+  { path: 'stocked', canActivate: [authGuard], /* c8 ignore next */ loadChildren: () => import('./features/stocked/stocked-routing').then(module => module.routes) },
 ];
 
 
