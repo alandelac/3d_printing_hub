@@ -149,13 +149,14 @@ This is the **single source of truth for planned work**. `TODO.md` has been reti
 
 - [ ] Covered
 
-**Objective:** One table component with sorting and filtering, used app-wide.
+**Objective:** One reusable table component with sorting and filtering, used app-wide across both page tables and modal tables.
 
 **Deliverables**
 - Shared sortable/filterable table component in `shared/ui`.
-- Adopted by the filament, model and stock tables; per-feature sorting/filtering code deleted.
+- Adopted by the main feature tables (filament, model and stock) and by modal tables such as colors, brands, material types and similar list UIs; per-feature sorting/filtering code deleted where duplicated.
+- A single shared table pattern that can later be customized for more specialized tables without re-implementing the list shell each time.
 
-**Acceptance:** The three existing tables lose their bespoke sort/filter logic and behave identically or better.
+**Acceptance:** All list-based tables in the app, including modal tables, lose their bespoke sort/filter logic and behave identically or better under one shared component.
 
 ---
 
