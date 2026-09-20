@@ -88,7 +88,7 @@ This is the **single source of truth for planned work**. `TODO.md` has been reti
 
 ## Phase 5 — Docker API startup and proxy reliability
 
-- [ ] Covered
+- [x] Covered
 
 **Objective:** A compose deployment does not serve a `502 Connection refused` when nginx forwards requests to the API.
 
