@@ -88,7 +88,7 @@ This is the **single source of truth for planned work**. `TODO.md` has been reti
 
 ## Phase 5 — Docker API startup and proxy reliability
 
-- [ ] Covered
+- [x] Covered
 
 **Objective:** A compose deployment does not serve a `502 Connection refused` when nginx forwards requests to the API.
 
@@ -104,7 +104,7 @@ This is the **single source of truth for planned work**. `TODO.md` has been reti
 
 ## Phase 6 — Sign-out button styling *(was TODO.md → Next)*
 
-- [ ] Covered
+- [x] Covered
 
 **Objective:** The sign-out button matches the other navbar buttons.
 
