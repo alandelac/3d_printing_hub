@@ -4,6 +4,32 @@ All notable changes to **3D Printing Hub** are recorded here, grouped by the dat
 landed. Every bullet keeps its commit subject and short SHA, so any line can be traced back
 to the commit that produced it.
 
+## 2026-09-20
+- docs: add phase 6 sign-out styling spec (369eee1)
+- feat(nav-bar): apply shared nav-link convention to sign-out control (2317fbd)
+- merge: phase-6 sign-out button styling (cd4f25f)
+- docs: specify Phase 7 frontend architecture consolidation (49e85ea)
+- feat: consolidate frontend architecture (b252743)
+- merge: phase 7 frontend architecture consolidation (2819d1c)
+
+## 2026-09-19
+- docs: spec for nginx docker error created (71ed63e)
+- fix: stabilize docker startup and health checks (a0cc761)
+- merge: dev into main (b1cf31f)
+- merge: phase-5 docker startup reliability (9d06a5a)
+- docs: pahase 5 completed (dd2b922)
+
+## 2026-09-18
+- Add CI validation gates and document results (ff9163b)
+- Align Angular versions for npm ci (f51e81f)
+- Sync frontend lockfile with Angular versions (ec5c8c4)
+- Document CI gates and coverage policy (1cd6bb3)
+- docs: update roadmap to add an error fix (5678be1)
+
+## 2026-09-17
+- docs: add checkbox to roadmap.md (e2d7760)
+- docs: specify Phase 4 CI gates (e229be6)
+
 ## 2026-09-16
 - add login (41b8345)
 - add a ps1 script to run both projects the same time (a458b89)
@@ -21,6 +47,13 @@ to the commit that produced it.
 - feat: add first-run registration page (bb06b15)
 - docs: document the five-minute Docker quickstart (df125a1)
 - docs: close phase 2 traceability gaps (698dd31)
+- docs: add five-minute quickstart phase plan (6456917)
+- docs: record phase 2 implementation commits (f02357c)
+- merge: phase 2 five-minute quickstart (34dcffb)
+- docs: define mandatory testing policy (e2cd822)
+- merge: testing policy constitution (a48fbfb)
+- docs: add phase 3 backend test foundation spec (97ad6ee)
+- Add backend test foundation and frontend validation baseline (d27bdb0)
 
 ## 2026-09-06
 - fix: indices en tablas que no tenian (d847611)
