@@ -2,12 +2,12 @@
   <div class="nav-inner">
     <a class="brand" routerLink="/">3DPrintingHub</a>
     <div class="links">
-      <a routerLink="/dashboard">Dashboard</a>
-      <a routerLink="/filaments">Filaments</a>
-      <a routerLink="/models">Models</a>
-      <a routerLink="/settings">Settings</a>
-      <a routerLink="/stocked">Stocked</a>
-      <button type="button" (click)="authService.logout()">Sign out</button>
+      <a class="nav-link" routerLink="/dashboard">Dashboard</a>
+      <a class="nav-link" routerLink="/filaments">Filaments</a>
+      <a class="nav-link" routerLink="/models">Models</a>
+      <a class="nav-link" routerLink="/settings">Settings</a>
+      <a class="nav-link" routerLink="/stocked">Stocked</a>
+      <button class="nav-link" type="button" (click)="authService.logout()">Sign Out</button>
     </div>
   </div>
 </nav>
