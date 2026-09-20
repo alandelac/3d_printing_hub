@@ -26,7 +26,9 @@ Important: you must use your askUserqQuestion tool, grouped on these 3, before w
 
 ## run implemention
 
-Implement the remaining task groups
+Implement the remaining task groups on folder _____
+
+Mark each checkbox on the validation.md as they are being completed
 
 ## Update the CHANGELOG before merging
 
