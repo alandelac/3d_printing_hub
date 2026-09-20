@@ -27,28 +27,5 @@
     <button class="primary" (click)="onAdd()">Add Filament Profile</button>
   </div>
 
-  <app-list-state [loading]="loading" [hasData]="profiles.length > 0" emptyText="No filament profiles found.">
-    <table>
-      <thead>
-        <tr>
-          <th>Brand</th>
-          <th>Material Type</th>
-          <th>Ironing Flow %</th>
-          <th>Ironing Speed</th>
-          <th>Slope Angle</th>
-          <th>Z Separation</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let p of profiles">
-          <td>{{ p.brandName }}</td>
-          <td>{{ p.materialTypeName }}</td>
-          <td>{{ p.ironingFlowPercentage }}</td>
-          <td>{{ p.ironingSpeedMmS }}</td>
-          <td>{{ p.slopeAngleForSupports }}</td>
-          <td>{{ p.zSeparationForSupports }}</td>
-        </tr>
-      </tbody>
-    </table>
-  </app-list-state>
+  <app-table [columns]="columns" [rows]="profiles" [loading]="loading" emptyText="No filament profiles found." />
 </app-modal>

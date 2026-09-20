@@ -38,7 +38,7 @@ import { ModalComponent } from '../../../../shared/ui/modal/modal.component';
           <input type="date" [value]="lastPurchaseDate" (input)="lastPurchaseDate = $any($event.target).value" />
 
           <label>Buy Link:</label>
-          <input type="text" [value]="buyLink" (input)="buyLink = $any($event.target).value" placeholder="https://..." />
+          <input type="text" [value]="buyLink" (input)="buyLink = $any($event.target).value" placeholder="Buy link" />
 
           <label class="checkbox-label">
             <input type="checkbox" [checked]="buyAgain" (change)="buyAgain = $any($event.target).checked" />

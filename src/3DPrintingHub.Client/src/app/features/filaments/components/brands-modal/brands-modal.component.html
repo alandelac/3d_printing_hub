@@ -5,17 +5,6 @@
     <button *ngIf="isEditing" class="secondary" (click)="cancelEdit()">Cancel</button>
   </div>
 
-  <app-list-state [loading]="loading" [hasData]="brands.length > 0" emptyText="No brands found.">
-    <table>
-      <thead>
-        <tr><th>Name</th><th>Actions</th></tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let b of brands">
-          <td>{{ b.name }}</td>
-          <td><app-table-actions (edit)="startEdit(b)" (delete)="onDelete(b)" /></td>
-        </tr>
-      </tbody>
-    </table>
-  </app-list-state>
+  <app-table [columns]="columns" [rows]="brands" [loading]="loading" emptyText="No brands found."
+    (edit)="startEdit($event)" (delete)="onDelete($event)" />
 </app-modal>

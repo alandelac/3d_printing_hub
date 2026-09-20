@@ -2,114 +2,47 @@
   <h2>{{ title() }}</h2>
 
   <div class="actions">
-    <button class="primary" (click)="toggleOpen()">Add New Product Stock</button>
+    <button class="primary" (click)="openCreateModal()">Add New Product Stock</button>
   </div>
 
-  <!-- Product Stock Creation Modal -->
-  <div *ngIf="open()" class="modal">
-    <div class="modal-backdrop" (click)="toggleOpen()"></div>
-    <div class="modal-content">
-      <header>
-        <h3>{{ isEditingStock() ? 'Edit Product Stock' : 'Add New Product Stock' }}</h3>
-        <button class="close" (click)="toggleOpen()">✕</button>
-      </header>
-
-      <div class="body">
-        <div class="add-form">
-          <label>Model Print:</label>
-          <select [value]="form().modelPrintId" (change)="onFormChange('modelPrintId', $any($event.target).value)">
-            <option value="">Select Model</option>
-            <option *ngFor="let m of models()" [value]="m.id">{{ m.name }}</option>
-          </select>
-
-          <label>Filament:</label>
-          <select [value]="form().filamentId" (change)="onFormChange('filamentId', $any($event.target).value)">
-            <option value="">Select Filament</option>
-            <option *ngFor="let f of filaments()" [value]="f.id">
-              {{ f.filamentProfile.brandName }} - {{ f.filamentProfile.materialTypeName }} - {{ f.colorName }}
-            </option>
-          </select>
-
-          <label>Quantity In Stock:</label>
-          <input
-            type="number"
-            min="0"
-            placeholder="Quantity"
-            [value]="form().quantityInStock"
-            (input)="onFormChange('quantityInStock', $any($event.target).value ? +$any($event.target).value : 0)"
-          />
-
-          <label>Sale Price (per unit, optional):</label>
-          <input
-            type="number"
-            min="0"
-            step="0.01"
-            placeholder="0.00 (uses recommended)"
-            [value]="form().salePrice"
-            (input)="onFormChange('salePrice', $any($event.target).value ? +$any($event.target).value : 0)"
-          />
-          <span class="form-hint">Leave at 0 to automatically use the recommended sale price (double the cost).</span>
-
-          <div class="modal-actions">
-            <button class="primary" (click)="createProductStock()" [disabled]="loading()">
-              {{ loading() ? 'Saving...' : (isEditingStock() ? 'Update' : 'Add Product Stock') }}
-            </button>
-            <button class="secondary" (click)="isEditingStock() ? cancelEditStock() : toggleOpen()" [disabled]="loading()">Cancel</button>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
+  <!-- Product Stock Creation / Edition Modal -->
+  <app-stock-form-modal
+    *ngIf="open()"
+    [models]="models()"
+    [filaments]="filaments()"
+    [stock]="editingStock()"
+    [loading]="loading()"
+    (save)="saveStock($event)"
+    (cancel)="closeStockModal()"
+  />
 
   <!-- Product Stocks Table -->
   <div class="table-section">
     <h3>Product Stock</h3>
-    <div *ngIf="productStocksLoading()">Loading...</div>
-    <div *ngIf="!productStocksLoading() && !productStocks().length">No product stock found.</div>
-    <div class="table-scroll" *ngIf="!productStocksLoading() && productStocks().length">
-      <table>
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>Model</th>
-            <th>Filament</th>
-            <th>Quantity</th>
-            <th>Cost To Produce</th>
-            <th>Recommended Sale Price</th>
-            <th>Sale Price</th>
-            <th>Last Updated</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let s of productStocks()">
-            <td>{{ s.id }}</td>
-            <td>{{ s.modelPrintName }}</td>
-            <td>{{ s.filamentColorName }}</td>
-            <td>
-              <span class="qty-display">{{ s.quantityInStock }}</span>
-              <span class="qty-adjust">
-                <input
-                  type="number"
-                  min="1"
-                  placeholder="0"
-                  [value]="getAdjustInput(s.id)"
-                  (input)="setAdjustInput(s.id, $any($event.target).value)"
-                  [disabled]="adjustingId() === s.id"
-                />
-                <button class="secondary" (click)="adjustQuantity(s, 'add')" [disabled]="adjustingId() === s.id">+</button>
-                <button class="secondary" (click)="adjustQuantity(s, 'subtract')" [disabled]="adjustingId() === s.id">−</button>
-              </span>
-            </td>
-            <td>{{ s.costToProduce }}</td>
-            <td>{{ s.recommendedSalePrice }}</td>
-            <td>{{ s.salePrice }}</td>
-            <td>{{ s.lastUpdated }}</td>
-            <td><app-table-actions (edit)="openEditStock(s)" (delete)="deleteStockConfirm(s)" /></td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
+    <app-table
+      [columns]="columns"
+      [rows]="productStocks()"
+      [loading]="productStocksLoading()"
+      emptyText="No product stock found."
+      (edit)="openEditStock($event)"
+      (delete)="deleteStockConfirm($event)"
+    >
+      <ng-template appTableCell="quantity" let-stock>
+        <span class="qty-display">{{ stock.quantityInStock }}</span>
+        <span class="qty-adjust">
+          <input
+            type="number"
+            min="1"
+            placeholder="0"
+            [value]="getAdjustInput(stock.id)"
+            (input)="setAdjustInput(stock.id, $any($event.target).value)"
+            [disabled]="adjustingId() === stock.id"
+          />
+          <button class="secondary" (click)="adjustQuantity(stock, 'add')" [disabled]="adjustingId() === stock.id">+</button>
+          <button class="secondary" (click)="adjustQuantity(stock, 'subtract')" [disabled]="adjustingId() === stock.id">−</button>
+        </span>
+      </ng-template>
+    </app-table>
   </div>
 
   <!-- Generic Delete Confirmation Modal (product stock table) -->
@@ -122,4 +55,3 @@
     (cancel)="closeDeleteModal()"
   />
 </section>
-

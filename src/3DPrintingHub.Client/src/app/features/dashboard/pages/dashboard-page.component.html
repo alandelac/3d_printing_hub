@@ -7,17 +7,11 @@
       <h3>Filament by type</h3>
       <p class="total">Total: <strong>{{ totalKg() | number: '1.1-2' }} kg</strong></p>
 
-      <div *ngIf="loading()">Loading...</div>
       <div *ngIf="!loading() && error()" class="error">{{ error() }}</div>
 
-      <app-pie-chart
-        *ngIf="!loading() && !error() && typeSlices().length"
-        [data]="typeSlices()"
-        [size]="280"
-        unit="kg"
-      ></app-pie-chart>
-
-      <p *ngIf="!loading() && !error() && !typeSlices().length">No filaments found.</p>
+      <app-list-state [loading]="loading()" [hasData]="typeSlices().length > 0" emptyText="No filaments found.">
+        <app-pie-chart [data]="typeSlices()" [size]="280" unit="kg"></app-pie-chart>
+      </app-list-state>
     </div>
 
     <!-- Dashboard 2: Models by category -->
@@ -25,14 +19,9 @@
       <h3>Models by category</h3>
       <p class="total">Total: <strong>{{ totalModels() }} models</strong></p>
 
-      <app-pie-chart
-        *ngIf="!loading() && categorySlices().length"
-        [data]="categorySlices()"
-        [size]="280"
-        unit="models"
-      ></app-pie-chart>
-
-      <p *ngIf="!loading() && !categorySlices().length">No models found.</p>
+      <app-list-state [loading]="loading()" [hasData]="categorySlices().length > 0" emptyText="No models found.">
+        <app-pie-chart [data]="categorySlices()" [size]="280" unit="models"></app-pie-chart>
+      </app-list-state>
     </div>
 
     <!-- More dashboards can be added here as additional .dashboard-card blocks -->

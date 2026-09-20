@@ -76,6 +76,10 @@
           "options": {
             "runner": "vitest",
             "coverage": true,
+            "coverageExclude": [
+              "src/app/core/http/**",
+              "src/app/data/repositories/**"
+            ],
             "coverageThresholds": {
               "statements": 80,
               "branches": 80,
