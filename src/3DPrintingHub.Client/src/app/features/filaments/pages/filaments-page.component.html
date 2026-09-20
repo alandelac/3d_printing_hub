@@ -101,7 +101,7 @@
       <ng-template appTableCell="minCost" let-f>${{ f.minCost }}</ng-template>
       <ng-template appTableCell="maxCost" let-f>${{ f.maxCost }}</ng-template>
       <ng-template appTableCell="lastCost" let-f>${{ f.lastCost }}</ng-template>
-      <ng-template appTableCell="lastPurchaseDate" let-f>{{ f.lastPurchaseDate | date: 'shortDate' }}</ng-template>
+      <ng-template appTableCell="lastPurchaseDate" let-f>{{ f.lastPurchaseDate | dateFormat }}</ng-template>
       <ng-template appTableCell="buyAgain" let-f>{{ f.buyAgain ? 'Yes' : 'No' }}</ng-template>
       <ng-template appTableCell="buyLink" let-f>
         <a *ngIf="f.buyLink" [href]="f.buyLink" target="_blank" rel="noopener noreferrer">Link</a>

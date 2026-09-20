@@ -9,12 +9,13 @@ import { Filament } from '../../../domain/models/filament.model';
 import { ProductStock, ProductStockCreate } from '../../../domain/models/product-stock.model';
 import { ConfirmDeleteComponent } from '../../../shared/ui/confirm-delete/confirm-delete.component';
 import { TableCellDirective, TableColumn, TableComponent } from '../../../shared/ui/table/table.component';
+import { DateFormatPipe } from '../../../shared/pipes/date-format.pipe';
 import { StockFormModalComponent, StockFormValue } from '../components/stock-form-modal/stock-form-modal.component';
 
 @Component({
   selector: 'app-stocked-page',
   standalone: true,
-  imports: [CommonModule, TableComponent, TableCellDirective, ConfirmDeleteComponent, StockFormModalComponent],
+  imports: [CommonModule, TableComponent, TableCellDirective, ConfirmDeleteComponent, DateFormatPipe, StockFormModalComponent],
   templateUrl: './stocked-page.component.html',
   styleUrls: ['./stocked-page.component.css']
 })
