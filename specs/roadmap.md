@@ -117,7 +117,7 @@ This is the **single source of truth for planned work**. `TODO.md` has been reti
 
 ## Phase 7 — Frontend architecture consolidation *(was TODO.md → **Now**)*
 
-- [ ] Covered
+- [x] Covered
 
 **Objective:** The client is DRY, organised predictably, and free of repeated code.
 
