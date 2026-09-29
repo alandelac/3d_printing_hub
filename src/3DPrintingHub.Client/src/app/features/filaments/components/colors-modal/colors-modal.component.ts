@@ -13,7 +13,7 @@ import { TableComponent, TableColumn } from '../../../../shared/ui/table/table.c
 export class ColorsModalComponent {
   readonly columns: TableColumn<FilamentColor>[] = [
     { key: 'color', header: 'Name', value: color => color.color },
-    { key: 'colorCode', header: 'Code' }
+    { key: 'colorCode', header: 'Code', value: color => color.colorCode }
   ];
 
   @Input() colors: FilamentColor[] = [];

@@ -6,5 +6,6 @@
   </div>
 
   <app-table [columns]="columns" [rows]="materialTypes" [loading]="loading" emptyText="No material types found."
+    filterPlaceholder="Filter material types…"
     (edit)="startEdit($event)" (delete)="onDelete($event)" />
 </app-modal>

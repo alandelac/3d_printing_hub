@@ -10,6 +10,7 @@
       [loading]="loading()"
       [showActions]="false"
       emptyText="No settings found."
+      filterPlaceholder="Filter settings…"
     >
       <ng-template appTableCell="actions" let-setting>
         <button class="secondary" (click)="openEditModal(setting)">Edit</button>

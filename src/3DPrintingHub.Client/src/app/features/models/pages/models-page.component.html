@@ -14,37 +14,16 @@
     (cancel)="toggleModelOpen()"
   />
 
-  <!-- Models List -->
-  <div class="filter-bar">
-    <input type="text" placeholder="Filter models…" [value]="modelFilter()" (input)="modelFilter.set($any($event.target).value)" class="filter-input" />
-  </div>
+  <!-- Models List (filtering, ordering and the empty/loading states come from the shared table) -->
   <app-table
     [columns]="columns"
-    [rows]="filteredSortedModels()"
+    [rows]="models()"
     [loading]="modelsLoading()"
     emptyText="No models found. Create your first model above."
+    filterPlaceholder="Filter models…"
     (edit)="openEditModal($event)"
     (delete)="openDeleteModal($event)"
   >
-    <ng-template appTableHeader="name" let-column>
-      <th class="sortable" (click)="toggleSort('name')">{{ column.header }}{{ sortIndicator('name') }}</th>
-    </ng-template>
-    <ng-template appTableHeader="category" let-column>
-      <th class="sortable" (click)="toggleSort('category')">{{ column.header }}{{ sortIndicator('category') }}</th>
-    </ng-template>
-    <ng-template appTableHeader="weight" let-column>
-      <th class="sortable" (click)="toggleSort('weight')">{{ column.header }}{{ sortIndicator('weight') }}</th>
-    </ng-template>
-    <ng-template appTableHeader="time" let-column>
-      <th class="sortable" (click)="toggleSort('time')">{{ column.header }}{{ sortIndicator('time') }}</th>
-    </ng-template>
-    <ng-template appTableHeader="defaultCost" let-column>
-      <th class="sortable" (click)="toggleSort('defaultCost')">{{ column.header }}{{ sortIndicator('defaultCost') }}</th>
-    </ng-template>
-    <ng-template appTableHeader="defaultSalePrice" let-column>
-      <th class="sortable" (click)="toggleSort('salePrice')">{{ column.header }}{{ sortIndicator('salePrice') }}</th>
-    </ng-template>
-
     <ng-template appTableCell="defaultCost" let-model>
       {{ model.defaultCost | number:'1.2-2' }}
     </ng-template>

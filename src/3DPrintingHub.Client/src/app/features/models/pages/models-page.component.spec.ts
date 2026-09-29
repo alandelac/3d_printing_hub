@@ -105,7 +105,7 @@ describe('ModelsPageComponent', () => {
     expect(modelRows()[0].textContent).toContain('2.50');
   });
 
-  it('filters the rows through the page-level filter input', async () => {
+  it('filters the rows through the shared filter input', async () => {
     fixture.detectChanges();
     await flush();
 
@@ -116,6 +116,19 @@ describe('ModelsPageComponent', () => {
 
     expect(modelRows().length).toBe(1);
     expect(modelRows()[0].textContent).toContain('Vase');
+  });
+
+  it('falls back to the shared no-match message when the filter matches nothing', async () => {
+    fixture.detectChanges();
+    await flush();
+
+    const filter = compiled().querySelector('input.filter-input') as HTMLInputElement;
+    filter.value = 'nothing-like-this';
+    filter.dispatchEvent(new Event('input'));
+    fixture.detectChanges();
+
+    expect(modelRows().length).toBe(0);
+    expect(compiled().textContent).toContain('No results match the current filter.');
   });
 
   it('sorts the rows from the sortable headers', async () => {

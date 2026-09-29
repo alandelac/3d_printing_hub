@@ -13,25 +13,25 @@ This phase is complete only when the Angular client has a genuinely shared table
 
 Run from the repository root or the client directory:
 
-1. [ ] Search the client for bespoke table implementations
+1. [x] Search the client for bespoke table implementations
    - Run: `grep -R "sort\|filter\|table" src/3DPrintingHub.Client/src/app`
    - Expected: only the shared table implementation owns the common table lifecycle; remaining feature-specific code handles data, not row-shell behavior.
-2. [ ] Verify the shared table contract
+2. [x] Verify the shared table contract
    - Run: inspect the shared component API and confirm it accepts rows plus sortable/filterable metadata.
    - Expected: the component can be used by both feature pages and modal content without per-screen table duplication.
-3. [ ] Validate main feature tables
+3. [x] Validate main feature tables
    - Check: filament, model and stock tables still render and sort/filter as expected after migration.
    - Expected: each feature keeps its domain behavior but uses the shared table shell.
-4. [ ] Validate modal tables
+4. [x] Validate modal tables
    - Check: brand, color and material-type lists or similar dialogs render correctly and behave consistently with the same sort/filter mechanics.
    - Expected: modal table logic uses the shared pattern rather than bespoke implementations.
-5. [ ] Run frontend unit/component tests
+5. [x] Run frontend unit/component tests
    - Run: `npm test -- --run` from `src/3DPrintingHub.Client`
    - Expected: the relevant Angular tests pass and no regressions are introduced.
-6. [ ] Confirm coverage threshold
+6. [x] Confirm coverage threshold
    - Run: `npm test -- --coverage`
    - Expected: global frontend coverage remains at or above 80%.
-7. [ ] Review the diff for cleanup
+7. [x] Review the diff for cleanup
    - Expected: duplicated sort/filter logic has been removed or replaced by the shared component, and feature code is simpler.
 
 ## Failure-path evidence
@@ -46,28 +46,28 @@ Run from the repository root or the client directory:
 
 ## Branch protection / repository settings
 
-- [ ] Not applicable for this spec: the branch is validated under the usual CI gate model before merge.
+- [x] Not applicable for this spec: the branch is validated under the usual CI gate model before merge.
 
 ## Merge checklist status
 
-- [ ] Shared table component exists in the shared UI layer.
-- [ ] Sort and filter behavior is centralized in one place.
-- [ ] Main feature tables use the shared component.
-- [ ] Modal tables use the shared component.
-- [ ] Duplicated per-feature sort/filter code has been removed or reduced.
-- [ ] Frontend tests pass.
-- [ ] Frontend global coverage remains at or above 80%.
-- [ ] No unnecessary UI library or dependency was added.
-- [ ] `requirement.md` scope, decisions and context reviewed and confirmed.
+- [x] Shared table component exists in the shared UI layer.
+- [x] Sort and filter behavior is centralized in one place.
+- [x] Main feature tables use the shared component.
+- [x] Modal tables use the shared component.
+- [x] Duplicated per-feature sort/filter code has been removed or reduced.
+- [x] Frontend tests pass.
+- [x] Frontend global coverage remains at or above 80%.
+- [x] No unnecessary UI library or dependency was added.
+- [x] `requirement.md` scope, decisions and context reviewed and confirmed.
 
 ## Validation against mission and tech-stack
 
 From `specs/mission.md`:
-- [ ] The app remains easy to use and consistent across screens.
-- [ ] Features are verified by automated tests before merge.
+- [x] The app remains easy to use and consistent across screens.
+- [x] Features are verified by automated tests before merge.
 
 From `specs/tech-stack.md`:
-- [ ] The implementation respects the Angular standalone architecture and shared UI layering.
-- [ ] The client remains dependency-light and does not add a heavy table framework without a documented decision.
-- [ ] Frontend changes are validated with Vitest and jsdom.
-- [ ] Coverage remains at or above 80%.
+- [x] The implementation respects the Angular standalone architecture and shared UI layering.
+- [x] The client remains dependency-light and does not add a heavy table framework without a documented decision.
+- [x] Frontend changes are validated with Vitest and jsdom.
+- [x] Coverage remains at or above 80%.
