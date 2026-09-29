@@ -69,8 +69,20 @@
       <ng-template appTableCell="profile" let-f>{{ f.filamentProfile.brandName }} - {{ f.filamentProfile.materialTypeName }}</ng-template>
       <ng-template appTableCell="color" let-f><span class="swatch" [style.background]="f.colorCode"></span> {{ f.colorName }}</ng-template>
       <ng-template appTableCell="remainingWeight" let-f>
-        {{ f.remainingWeightGrams }}g
-        <button class="secondary" (click)="openAdjustWeightModal(f)">Update</button>
+        <div class="weight-adjuster">
+          <span>{{ f.remainingWeightGrams }}g</span>
+          <input
+            type="number"
+            min="0"
+            step="1"
+            [value]="getInlineWeightAdjustment(f.id) ?? ''"
+            (input)="setInlineWeightAdjustment(f.id, $any($event.target).value)"
+            aria-label="Adjust remaining weight for {{ f.filamentProfile.brandName }} {{ f.filamentProfile.materialTypeName }}"
+          />
+          <button class="secondary" type="button" (click)="applyInlineWeightAdjustment(f, 'add')">+</button>
+          <button class="secondary" type="button" (click)="applyInlineWeightAdjustment(f, 'subtract')">−</button>
+          <button class="secondary" type="button" (click)="applyInlineWeightAdjustment(f, 'set')">Update</button>
+        </div>
       </ng-template>
       <ng-template appTableCell="minCost" let-f>${{ f.minCost }}</ng-template>
       <ng-template appTableCell="maxCost" let-f>${{ f.maxCost }}</ng-template>

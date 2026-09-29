@@ -171,6 +171,7 @@ export class FilamentsPageComponent implements OnInit {
   protected adjustWeightLoading = signal(false);
   protected adjustWeightFilamentId = signal('');
   protected adjustWeightGrams = signal<number | null>(null);
+  private readonly inlineWeightAdjustments = signal<Record<string, number | null>>({});
 
   ngOnInit(): void {
     void this.loadColors();
@@ -551,6 +552,18 @@ export class FilamentsPageComponent implements OnInit {
     );
   }
 
+  protected getInlineWeightAdjustment(filamentId: string): number | null {
+    return this.inlineWeightAdjustments()[filamentId] ?? null;
+  }
+
+  protected setInlineWeightAdjustment(filamentId: string, value: string): void {
+    const parsed = value === '' ? null : Number(value);
+    this.inlineWeightAdjustments.update(current => ({
+      ...current,
+      [filamentId]: Number.isFinite(parsed) ? parsed : null,
+    }));
+  }
+
   protected openAdjustWeightModal(filament: Filament): void {
     this.adjustWeightFilamentId.set(filament.id);
     this.adjustWeightGrams.set(null);
@@ -563,17 +576,49 @@ export class FilamentsPageComponent implements OnInit {
     this.adjustWeightGrams.set(null);
   }
 
-  protected async adjustWeight(action: 'add' | 'subtract'): Promise<void> {
+  protected async applyInlineWeightAdjustment(filament: Filament, action: 'add' | 'subtract' | 'set'): Promise<void> {
+    const amount = this.getInlineWeightAdjustment(filament.id);
+    if (amount === null || Number.isNaN(amount) || amount <= 0) {
+      alert('Please enter a valid quantity greater than 0.');
+      return;
+    }
+
+    await this.submitWeightAdjustment(filament.id, action, amount, filament.remainingWeightGrams);
+  }
+
+  protected async adjustWeight(action: 'add' | 'subtract' | 'set'): Promise<void> {
     const grams = this.adjustWeightGrams();
     if (grams === null || grams <= 0) {
       alert('Please enter a valid quantity greater than 0.');
       return;
     }
 
+    const currentWeight = this.filaments().find(f => f.id === this.adjustWeightFilamentId())?.remainingWeightGrams ?? 0;
+    await this.submitWeightAdjustment(this.adjustWeightFilamentId(), action, grams, currentWeight);
+  }
+
+  private async submitWeightAdjustment(
+    filamentId: string,
+    action: 'add' | 'subtract' | 'set',
+    amount: number,
+    currentWeight: number
+  ): Promise<void> {
     const payload: AdjustFilamentWeight = {
-      filamentId: this.adjustWeightFilamentId(),
-      grams: action === 'add' ? grams : -grams,
+      filamentId,
+      amount,
+      reason: 'Manual weight adjustment',
     };
+
+    if (action === 'add') {
+      payload.grams = amount;
+    } else if (action === 'subtract') {
+      payload.grams = -amount;
+      payload.amount = -amount;
+    } else {
+      payload.grams = amount - currentWeight;
+      payload.amount = amount;
+      payload.reason = 'Set remaining weight';
+    }
 
     this.adjustWeightLoading.set(true);
     try {
@@ -581,7 +626,7 @@ export class FilamentsPageComponent implements OnInit {
       await this.loadFilaments();
       this.closeAdjustWeightModal();
     } catch (error) {
-      console.error(`Error ${action === 'add' ? 'adding' : 'subtracting'} weight:`, error);
+      console.error(`Error ${action === 'add' ? 'adding' : action === 'subtract' ? 'subtracting' : 'updating'} weight:`, error);
       alert(`Error: ${error}`);
     } finally {
       this.adjustWeightLoading.set(false);

@@ -1,4 +1,5 @@
 using _3DPrintingHub.Application.Dtos;
+using _3DPrintingHub.Application.Exceptions;
 using _3DPrintingHub.Application.Services;
 using _3DPrintingHub.Domain.Entities;
 using _3DPrintingHub.Infrastructure.Data;
@@ -246,18 +247,24 @@ public class FilamentService(
         };
     }
 
-    public async Task<FilamentDto> AdjustFilamentWeightAsync(Guid filamentId, int grams, CancellationToken cancellationToken = default)
+    public async Task<FilamentDto> AdjustFilamentWeightAsync(Guid filamentId, decimal amount, string? reason = null, string? userId = null, CancellationToken cancellationToken = default)
     {
+        if (amount == 0m)
+        {
+            throw new BusinessRuleException("Adjustment amount must not be zero.");
+        }
+
         var filament = await dbContext.Filaments
             .Include(f => f.Profile)
                 .ThenInclude(p => p!.BrandName)
             .Include(f => f.Profile)
                 .ThenInclude(p => p!.MaterialType)
             .Include(f => f.Color)
+            .Include(f => f.WeightAdjustmentLogs)
             .FirstOrDefaultAsync(f => f.Id == filamentId, cancellationToken)
             ?? throw new InvalidOperationException($"Filament with ID {filamentId} does not exist.");
 
-        filament.RemainingWeightGrams = Math.Max(0, filament.RemainingWeightGrams + grams);
+        filament.AdjustRemainingWeight(amount, reason ?? "Manual weight adjustment", userId);
 
         await dbContext.SaveChangesAsync(cancellationToken);
 

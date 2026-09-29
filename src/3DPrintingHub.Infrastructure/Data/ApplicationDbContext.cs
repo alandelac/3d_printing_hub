@@ -15,6 +15,7 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     public DbSet<FilamentProfile> FilamentProfiles => Set<FilamentProfile>();
     public DbSet<FilamentColor> FilamentColors => Set<FilamentColor>();
     public DbSet<Filament> Filaments => Set<Filament>();
+    public DbSet<WeightAdjustmentLog> WeightAdjustmentLogs => Set<WeightAdjustmentLog>();
     public DbSet<ModelPrint> ModelPrints => Set<ModelPrint>();
     public DbSet<ProductStock> ProductStocks => Set<ProductStock>();
     public DbSet<PublishedModels> PublishedModels => Set<PublishedModels>();
@@ -81,6 +82,17 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
                 .WithMany(c => c.Filaments)
                 .HasForeignKey(f => f.FilamentColorId)
                 .OnDelete(DeleteBehavior.Restrict);
+        });
+
+        modelBuilder.Entity<WeightAdjustmentLog>(entity =>
+        {
+            entity.Property(log => log.UserId).HasMaxLength(128);
+            entity.Property(log => log.Reason).HasMaxLength(500);
+
+            entity.HasOne(log => log.Filament)
+                .WithMany(f => f.WeightAdjustmentLogs)
+                .HasForeignKey(log => log.FilamentId)
+                .OnDelete(DeleteBehavior.Cascade);
         });
 
         modelBuilder.Entity<ModelPrint>(entity =>

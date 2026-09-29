@@ -374,36 +374,54 @@ describe('FilamentsPageComponent', () => {
     expect(compiled().textContent).toContain('No filaments found.');
   });
 
-  it('adjusts the filament weight and refuses an empty amount', async () => {
+  it('adjusts the filament weight via the inline row controls and rejects empty input', async () => {
     fixture.detectChanges();
     await flush();
 
-    buttonWithText(tableRows()[0], 'Update')?.click();
-    await flush();
+    const row = tableRows()[0];
+    const input = row.querySelector('input[type="number"]') as HTMLInputElement;
+    const addButton = buttonWithText(row, '+')!;
+    const subtractButton = buttonWithText(row, '−')!;
+    const updateButton = buttonWithText(row, 'Update')!;
 
-    const adjustForm = modal('app-modal')!;
-    buttonWithText(adjustForm, 'Add')?.click();
+    addButton.click();
     await flush();
 
     expect(alert).toHaveBeenCalledWith('Please enter a valid quantity greater than 0.');
     expect(adjustFilamentWeight).not.toHaveBeenCalled();
 
-    typeInto(inputWithPlaceholder(adjustForm, 'Enter grams'), '250');
-    buttonWithText(adjustForm, 'Add')?.click();
+    typeInto(input, '250');
+    addButton.click();
     await flush();
 
-    expect(adjustFilamentWeight).toHaveBeenCalledWith({ filamentId: 'f1', grams: 250 });
-    expect(modal('app-modal')).toBeNull();
+    expect(adjustFilamentWeight).toHaveBeenCalledWith({
+      filamentId: 'f1',
+      grams: 250,
+      amount: 250,
+      reason: 'Manual weight adjustment'
+    });
 
-    buttonWithText(tableRows()[0], 'Update')?.click();
+    typeInto(input, '100');
+    subtractButton.click();
     await flush();
 
-    const subtractForm = modal('app-modal')!;
-    typeInto(inputWithPlaceholder(subtractForm, 'Enter grams'), '100');
-    buttonWithText(subtractForm, 'Subtract')?.click();
+    expect(adjustFilamentWeight).toHaveBeenLastCalledWith({
+      filamentId: 'f1',
+      grams: -100,
+      amount: -100,
+      reason: 'Manual weight adjustment'
+    });
+
+    typeInto(input, '400');
+    updateButton.click();
     await flush();
 
-    expect(adjustFilamentWeight).toHaveBeenLastCalledWith({ filamentId: 'f1', grams: -100 });
+    expect(adjustFilamentWeight).toHaveBeenLastCalledWith({
+      filamentId: 'f1',
+      grams: 300,
+      amount: 400,
+      reason: 'Set remaining weight'
+    });
   });
 
   it('manages the colors modal on the shared table', async () => {
