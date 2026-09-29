@@ -147,7 +147,7 @@ This is the **single source of truth for planned work**. `TODO.md` has been reti
 
 ## Phase 9 — Global table component *(was TODO.md → Next)*
 
-- [ ] Covered
+- [x] Covered
 
 **Objective:** One reusable table component with sorting and filtering, used app-wide across both page tables and modal tables.
 
