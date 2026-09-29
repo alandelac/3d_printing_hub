@@ -27,5 +27,6 @@
     <button class="primary" (click)="onAdd()">Add Filament Profile</button>
   </div>
 
-  <app-table [columns]="columns" [rows]="profiles" [loading]="loading" emptyText="No filament profiles found." />
+  <app-table [columns]="columns" [rows]="profiles" [loading]="loading" emptyText="No filament profiles found."
+    filterPlaceholder="Filter profiles…" />
 </app-modal>

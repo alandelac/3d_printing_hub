@@ -1,4 +1,4 @@
-import { Component, signal, computed, inject, OnInit } from '@angular/core';
+import { Component, signal, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { firstValueFrom } from 'rxjs';
 import { FilamentRepository } from '../../../data/repositories/filament.repository';
@@ -8,7 +8,7 @@ import { FilamentMaterialType } from '../../../domain/models/filament-material-t
 import { FilamentProfile, FilamentProfileCreate, FilamentProfileUpdate } from '../../../domain/models/filament-profile.model';
 import { Filament, FilamentCreate, FilamentUpdate, AdjustFilamentWeight } from '../../../domain/models/filament.model';
 import { ModalComponent } from '../../../shared/ui/modal/modal.component';
-import { TableCellDirective, TableColumn, TableComponent, TableHeaderDirective } from '../../../shared/ui/table/table.component';
+import { TableCellDirective, TableColumn, TableComponent } from '../../../shared/ui/table/table.component';
 import { ConfirmDeleteComponent } from '../../../shared/ui/confirm-delete/confirm-delete.component';
 import { DateFormatPipe } from '../../../shared/pipes/date-format.pipe';
 import { ColorsModalComponent } from '../components/colors-modal/colors-modal.component';
@@ -18,7 +18,7 @@ import { MaterialTypesModalComponent } from '../components/material-types-modal/
 @Component({
   selector: 'app-filaments-page',
   standalone: true,
-  imports: [CommonModule, ModalComponent, TableComponent, TableCellDirective, TableHeaderDirective, ConfirmDeleteComponent, DateFormatPipe, ColorsModalComponent, BrandsModalComponent, MaterialTypesModalComponent],
+  imports: [CommonModule, ModalComponent, TableComponent, TableCellDirective, ConfirmDeleteComponent, DateFormatPipe, ColorsModalComponent, BrandsModalComponent, MaterialTypesModalComponent],
   templateUrl: './filaments-page.component.html',
   styleUrls: ['./filaments-page.component.css']
 })
@@ -74,16 +74,26 @@ export class FilamentsPageComponent implements OnInit {
   protected filaments = signal<Filament[]>([]);
   protected filamentLoading = signal(false);
 
+  /**
+   * Column metadata only. Every cell is rendered by a custom template, so the
+   * `value` functions exist to feed the shared table's filter and its ordering:
+   * the shared component owns both, and the page keeps no list state.
+   */
   protected readonly filamentColumns: TableColumn<Filament>[] = [
-    { key: 'profile', header: 'Profile' },
-    { key: 'color', header: 'Color' },
-    { key: 'remainingWeight', header: 'Remaining Weight' },
-    { key: 'minCost', header: 'Min Cost' },
-    { key: 'maxCost', header: 'Max Cost' },
-    { key: 'lastCost', header: 'Last Cost' },
-    { key: 'lastPurchaseDate', header: 'Last Purchase' },
-    { key: 'buyAgain', header: 'Buy Again' },
-    { key: 'buyLink', header: 'Buy URL' }
+    {
+      key: 'profile',
+      header: 'Profile',
+      value: filament => `${filament.filamentProfile.brandName} ${filament.filamentProfile.materialTypeName}`,
+      sortValue: filament => filament.filamentProfile.brandName
+    },
+    { key: 'color', header: 'Color', value: filament => filament.colorName },
+    { key: 'remainingWeight', header: 'Remaining Weight', value: filament => filament.remainingWeightGrams },
+    { key: 'minCost', header: 'Min Cost', value: filament => filament.minCost },
+    { key: 'maxCost', header: 'Max Cost', value: filament => filament.maxCost },
+    { key: 'lastCost', header: 'Last Cost', value: filament => filament.lastCost },
+    { key: 'lastPurchaseDate', header: 'Last Purchase', value: filament => filament.lastPurchaseDate ?? '' },
+    { key: 'buyAgain', header: 'Buy Again', value: filament => (filament.buyAgain ? 'Yes' : 'No') },
+    { key: 'buyLink', header: 'Buy URL', value: filament => filament.buyLink ?? '' }
   ];
 
   protected readonly profileColumns: TableColumn<FilamentProfile>[] = [
@@ -95,112 +105,7 @@ export class FilamentsPageComponent implements OnInit {
     { key: 'zSeparation', header: 'Z Separation', value: profile => profile.zSeparationForSupports }
   ];
 
-  // Sorting state
-  protected sortColumn = signal<string>('');
-  protected sortDirection = signal<'asc' | 'desc'>('asc');
-
-  // Filter state
-  protected filamentFilter = signal('');
-
-  // Combined filter + sort
-  protected filteredSortedFilaments = computed(() => {
-    const data = this.filaments();
-    const filterText = this.filamentFilter().toLowerCase().trim();
-    const column = this.sortColumn();
-    const direction = this.sortDirection();
-
-    // Step 1: filter
-    const filtered = !filterText
-      ? data
-      : data.filter(f =>
-          `${f.filamentProfile.brandName} ${f.filamentProfile.materialTypeName}`.toLowerCase().includes(filterText) ||
-          f.colorName.toLowerCase().includes(filterText) ||
-          String(f.remainingWeightGrams).includes(filterText) ||
-          String(f.minCost).includes(filterText) ||
-          String(f.maxCost).includes(filterText) ||
-          String(f.lastCost).includes(filterText) ||
-          (f.lastPurchaseDate || '').toLowerCase().includes(filterText) ||
-          (f.buyAgain ? 'yes' : 'no').includes(filterText) ||
-          (f.buyLink || '').toLowerCase().includes(filterText)
-        );
-
-    // Step 2: sort
-    if (!column) return filtered;
-
-    return [...filtered].sort((a, b) => {
-      let valA: string | number | boolean;
-      let valB: string | number | boolean;
-
-      switch (column) {
-        case 'profile':
-          valA = `${a.filamentProfile.brandName} ${a.filamentProfile.materialTypeName}`.toLowerCase();
-          valB = `${b.filamentProfile.brandName} ${b.filamentProfile.materialTypeName}`.toLowerCase();
-          break;
-        case 'color':
-          valA = a.colorName.toLowerCase();
-          valB = b.colorName.toLowerCase();
-          break;
-        case 'remainingWeight':
-          valA = a.remainingWeightGrams;
-          valB = b.remainingWeightGrams;
-          break;
-        case 'minCost':
-          valA = a.minCost;
-          valB = b.minCost;
-          break;
-        case 'maxCost':
-          valA = a.maxCost;
-          valB = b.maxCost;
-          break;
-        case 'lastCost':
-          valA = a.lastCost;
-          valB = b.lastCost;
-          break;
-        case 'lastPurchaseDate':
-          valA = a.lastPurchaseDate || '';
-          valB = b.lastPurchaseDate || '';
-          break;
-        case 'buyAgain':
-          valA = a.buyAgain ?? false;
-          valB = b.buyAgain ?? false;
-          break;
-        default:
-          return 0;
-      }
-
-      if (typeof valA === 'string' && typeof valB === 'string') {
-        return direction === 'asc' ? valA.localeCompare(valB) : valB.localeCompare(valA);
-      }
-
-      if (typeof valA === 'number' && typeof valB === 'number') {
-        return direction === 'asc' ? valA - valB : valB - valA;
-      }
-
-      if (typeof valA === 'boolean' && typeof valB === 'boolean') {
-        return direction === 'asc'
-          ? (valA === valB ? 0 : valA ? 1 : -1)
-          : (valA === valB ? 0 : valA ? -1 : 1);
-      }
-
-      return 0;
-    });
-  });
-
-  protected toggleSort(column: string): void {
-    if (this.sortColumn() === column) {
-      this.sortDirection.set(this.sortDirection() === 'asc' ? 'desc' : 'asc');
-    } else {
-      this.sortColumn.set(column);
-      this.sortDirection.set('asc');
-    }
-  }
-
-  protected sortIndicator(column: string): string {
-    if (this.sortColumn() !== column) return '';
-    return this.sortDirection() === 'asc' ? ' ▲' : ' ▼';
-  }
   protected filamentFormOpen = signal(false);
-
   // Filament form fields
   protected filamentProfileId = signal('');
   protected filamentColorId = signal('');
@@ -271,6 +176,7 @@ export class FilamentsPageComponent implements OnInit {
     void this.loadColors();
     void this.loadBrands();
     void this.loadMaterialTypes();
+    void this.loadProfiles();
     void this.loadFilaments();
   }
 

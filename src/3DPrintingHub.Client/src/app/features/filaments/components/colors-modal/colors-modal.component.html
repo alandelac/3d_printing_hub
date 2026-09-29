@@ -7,6 +7,7 @@
   </div>
 
   <app-table [columns]="columns" [rows]="colors" [loading]="loading" emptyText="No colors found."
+    filterPlaceholder="Filter colors…"
     (edit)="startEdit($event)" (delete)="onDelete($event)">
     <ng-template appTableCell="colorCode" let-color>
       <span class="swatch" [style.background]="color.colorCode"></span>{{ color.colorCode }}

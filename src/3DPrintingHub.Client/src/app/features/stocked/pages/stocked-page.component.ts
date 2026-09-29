@@ -26,11 +26,15 @@ export class StockedPageComponent implements OnInit {
 
   protected readonly title = signal('Stock');
 
+  /**
+   * Column metadata only: the `value` functions feed the shared table's filter
+   * and ordering, while custom cell templates keep the rendered markup.
+   */
   protected readonly columns: TableColumn<ProductStock>[] = [
     { key: 'id', header: 'ID', value: stock => stock.id },
     { key: 'modelPrintName', header: 'Model', value: stock => stock.modelPrintName },
     { key: 'filamentColorName', header: 'Filament', value: stock => stock.filamentColorName },
-    { key: 'quantity', header: 'Quantity' },
+    { key: 'quantity', header: 'Quantity', value: stock => stock.quantityInStock },
     { key: 'costToProduce', header: 'Cost To Produce', value: stock => stock.costToProduce },
     { key: 'recommendedSalePrice', header: 'Recommended Sale Price', value: stock => stock.recommendedSalePrice },
     { key: 'salePrice', header: 'Sale Price', value: stock => stock.salePrice },

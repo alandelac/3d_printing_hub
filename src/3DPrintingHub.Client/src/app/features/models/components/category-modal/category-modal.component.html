@@ -10,6 +10,7 @@
     [rows]="categories()"
     [loading]="loading()"
     emptyText="No categories found."
+    filterPlaceholder="Filter categories…"
     (edit)="startEdit($event)"
     (delete)="remove.emit($event)"
   />

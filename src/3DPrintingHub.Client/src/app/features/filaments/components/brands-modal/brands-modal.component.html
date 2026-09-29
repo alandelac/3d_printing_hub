@@ -6,5 +6,6 @@
   </div>
 
   <app-table [columns]="columns" [rows]="brands" [loading]="loading" emptyText="No brands found."
+    filterPlaceholder="Filter brands…"
     (edit)="startEdit($event)" (delete)="onDelete($event)" />
 </app-modal>

@@ -1,16 +1,11 @@
-import { Component, signal, computed, inject, OnInit } from '@angular/core';
+import { Component, signal, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { firstValueFrom } from 'rxjs';
 import { ModelRepository } from '../../../data/repositories/model.repository';
 import { ModelPrintCategory } from '../../../domain/models/model-print-category.model';
 import { ModelPrint, ModelPrintCreate, ModelPrintUpdate } from '../../../domain/models/model-print.model';
 import { ConfirmDeleteComponent } from '../../../shared/ui/confirm-delete/confirm-delete.component';
-import {
-  TableCellDirective,
-  TableColumn,
-  TableComponent,
-  TableHeaderDirective
-} from '../../../shared/ui/table/table.component';
+import { TableCellDirective, TableColumn, TableComponent } from '../../../shared/ui/table/table.component';
 import { CategoryFormValue, CategoryModalComponent } from '../components/category-modal/category-modal.component';
 import { ModelFormModalComponent, ModelFormValue } from '../components/model-form-modal/model-form-modal.component';
 
@@ -21,7 +16,6 @@ import { ModelFormModalComponent, ModelFormValue } from '../components/model-for
     CommonModule,
     TableComponent,
     TableCellDirective,
-    TableHeaderDirective,
     ConfirmDeleteComponent,
     CategoryModalComponent,
     ModelFormModalComponent
@@ -33,13 +27,17 @@ export class ModelsPageComponent implements OnInit {
   private modelRepository = inject(ModelRepository);
   protected readonly title = signal('Models');
 
+  /**
+   * Column metadata only: the shared table owns the ordering (from `sortValue` /
+   * `value`) and the text filter, so the page keeps no list state of its own.
+   */
   protected readonly columns: TableColumn<ModelPrint>[] = [
     { key: 'name', header: 'Name', value: model => model.name },
     { key: 'category', header: 'Category', value: model => model.categoryName },
     { key: 'weight', header: 'Weight (g)', value: model => model.estimatedWeightGrams },
     { key: 'time', header: 'Time (min)', value: model => model.estimatedTimeMinutes },
-    { key: 'defaultCost', header: 'Default Cost' },
-    { key: 'defaultSalePrice', header: 'Sale Price' }
+    { key: 'defaultCost', header: 'Default Cost', value: model => model.defaultCost },
+    { key: 'defaultSalePrice', header: 'Sale Price', value: model => model.defaultSalePrice }
   ];
 
   // Category functionality
@@ -54,90 +52,6 @@ export class ModelsPageComponent implements OnInit {
   // Models list functionality
   protected models = signal<ModelPrint[]>([]);
   protected modelsLoading = signal(false);
-
-  // Sorting state
-  protected sortColumn = signal<string>('');
-  protected sortDirection = signal<'asc' | 'desc'>('asc');
-
-  // Filter state
-  protected modelFilter = signal('');
-
-  // Combined filter + sort
-  protected filteredSortedModels = computed(() => {
-    const data = this.models();
-    const filterText = this.modelFilter().toLowerCase().trim();
-    const column = this.sortColumn();
-    const direction = this.sortDirection();
-
-    // Step 1: filter
-    const filtered = !filterText
-      ? data
-      : data.filter(m =>
-          m.name.toLowerCase().includes(filterText) ||
-          m.categoryName.toLowerCase().includes(filterText) ||
-          String(m.estimatedWeightGrams).includes(filterText) ||
-          String(m.estimatedTimeMinutes).includes(filterText) ||
-          String(m.defaultCost).includes(filterText) ||
-          String(m.defaultSalePrice).includes(filterText)
-        );
-
-    // Step 2: sort
-    if (!column) return filtered;
-
-    return [...filtered].sort((a, b) => {
-      let valA: string | number;
-      let valB: string | number;
-
-      switch (column) {
-        case 'name':
-          valA = a.name.toLowerCase();
-          valB = b.name.toLowerCase();
-          break;
-        case 'category':
-          valA = a.categoryName.toLowerCase();
-          valB = b.categoryName.toLowerCase();
-          break;
-        case 'weight':
-          valA = a.estimatedWeightGrams;
-          valB = b.estimatedWeightGrams;
-          break;
-        case 'time':
-          valA = a.estimatedTimeMinutes;
-          valB = b.estimatedTimeMinutes;
-          break;
-        case 'defaultCost':
-          valA = a.defaultCost;
-          valB = b.defaultCost;
-          break;
-        case 'salePrice':
-          valA = a.defaultSalePrice;
-          valB = b.defaultSalePrice;
-          break;
-        default:
-          return 0;
-      }
-
-      if (typeof valA === 'string' && typeof valB === 'string') {
-        return direction === 'asc' ? valA.localeCompare(valB) : valB.localeCompare(valA);
-      }
-
-      return direction === 'asc' ? (valA as number) - (valB as number) : (valB as number) - (valA as number);
-    });
-  });
-
-  protected toggleSort(column: string): void {
-    if (this.sortColumn() === column) {
-      this.sortDirection.set(this.sortDirection() === 'asc' ? 'desc' : 'asc');
-    } else {
-      this.sortColumn.set(column);
-      this.sortDirection.set('asc');
-    }
-  }
-
-  protected sortIndicator(column: string): string {
-    if (this.sortColumn() !== column) return '';
-    return this.sortDirection() === 'asc' ? ' ▲' : ' ▼';
-  }
 
   // Edit Model modal state
   protected editOpen = signal(false);
