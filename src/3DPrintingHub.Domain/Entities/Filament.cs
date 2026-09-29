@@ -1,4 +1,6 @@
-﻿namespace _3DPrintingHub.Domain.Entities;
+﻿using _3DPrintingHub.Domain.Exceptions;
+
+namespace _3DPrintingHub.Domain.Entities;
 
 public class Filament
 {
@@ -6,7 +8,7 @@ public class Filament
 
     // Clave Foránea hacia el Perfil Técnico
     public Guid FilamentProfileId { get; set; }
-    public FilamentProfile? Profile { get; set; } 
+    public FilamentProfile? Profile { get; set; }
     public Guid FilamentColorId { get; set; }
     public FilamentColor? Color { get; set; }
 
@@ -24,4 +26,32 @@ public class Filament
     public decimal CostPerGram => MaxCost / 1000; // asumiendo que el peso total es de un Kg
 
     public ICollection<ProductStock> ProductStocks { get; set; } = [];
+    public ICollection<WeightAdjustmentLog> WeightAdjustmentLogs { get; set; } = [];
+
+    public void AdjustRemainingWeight(decimal amount, string reason, string? userId = null)
+    {
+        if (string.IsNullOrWhiteSpace(reason))
+        {
+            throw new ArgumentException("A reason is required when adjusting filament weight.", nameof(reason));
+        }
+
+        var oldWeight = RemainingWeightGrams;
+        var nextWeight = (decimal)RemainingWeightGrams + amount;
+
+        if (nextWeight < 0)
+        {
+            throw new BusinessRuleException("Remaining weight cannot be negative.");
+        }
+
+        RemainingWeightGrams = (int)Math.Round(nextWeight, MidpointRounding.AwayFromZero);
+        WeightAdjustmentLogs.Add(new WeightAdjustmentLog
+        {
+            FilamentId = Id,
+            TimestampUtc = DateTime.UtcNow,
+            UserId = userId ?? "system",
+            Reason = reason,
+            OldWeightGrams = oldWeight,
+            NewWeightGrams = RemainingWeightGrams
+        });
+    }
 }

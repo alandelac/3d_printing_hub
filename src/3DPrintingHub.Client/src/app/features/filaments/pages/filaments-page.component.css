@@ -1,3 +1,23 @@
 .filaments-page { padding: 1rem; }
 .actions { display: flex; gap: 0.5rem; margin-bottom: 1rem; flex-wrap: wrap; }
 .swatch { display: inline-block; width: 16px; height: 16px; margin-right: 8px; vertical-align: middle; border-radius: 3px; border: 1px solid rgba(0,0,0,0.06); }
+.weight-adjuster {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.weight-adjuster span {
+  min-width: 3.5rem;
+  text-align: right;
+}
+.weight-adjuster input {
+  width: 5.5rem;
+  min-width: 5.5rem;
+  max-width: 5.5rem;
+  padding: 0.25rem 0.4rem;
+  text-align: right;
+}
+.weight-adjuster button {
+  min-width: 2.25rem;
+  padding: 0.25rem 0.55rem;
+}

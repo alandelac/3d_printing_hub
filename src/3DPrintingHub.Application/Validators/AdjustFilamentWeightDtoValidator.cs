@@ -10,7 +10,11 @@ public class AdjustFilamentWeightDtoValidator : AbstractValidator<AdjustFilament
         RuleFor(x => x.FilamentId)
             .NotEmpty().WithMessage("Filament id is required.");
 
-        RuleFor(x => x.Grams)
-            .NotEqual(0).WithMessage("Grams must be a non-zero whole number.");
+        RuleFor(x => x.Amount)
+            .NotEqual(0m).WithMessage("Amount must be a non-zero value.");
+
+        RuleFor(x => x.Reason)
+            .NotEmpty().WithMessage("A reason is required for the adjustment.")
+            .MaximumLength(500).WithMessage("Reason cannot exceed 500 characters.");
     }
 }
