@@ -6,6 +6,7 @@ using _3DPrintingHub.Domain.Entities;
 namespace _3DPrintingHub.Infrastructure.Data;
 
 public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : IdentityDbContext<IdentityUser>(options){
+    public DbSet<Client> Clients => Set<Client>();
     public DbSet<Brand> Brands => Set<Brand>();
     public DbSet<MaterialType> MaterialTypes => Set<MaterialType>();
     public DbSet<Marketplace> Marketplaces => Set<Marketplace>();
@@ -24,6 +25,14 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
+
+        modelBuilder.Entity<Client>(entity =>
+        {
+            entity.Property(c => c.Name).HasMaxLength(200);
+            entity.Property(c => c.Phone).HasMaxLength(30);
+            entity.Property(c => c.Email).HasMaxLength(254);
+            entity.HasIndex(c => c.Name);
+        });
 
         modelBuilder.Entity<Brand>()
             .HasIndex(b => b.Name)

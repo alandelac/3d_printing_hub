@@ -162,7 +162,7 @@ This is the **single source of truth for planned work**. `TODO.md` has been reti
 
 ## Phase 10 — Filament remaining-weight adjuster *(was TODO.md → Next)*
 
-- [ ] Covered
+- [x] Covered
 
 **Objective:** Adjust a spool's remaining weight from the filament table.
 
