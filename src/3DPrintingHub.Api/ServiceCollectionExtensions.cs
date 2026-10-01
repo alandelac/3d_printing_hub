@@ -21,6 +21,7 @@ namespace Microsoft.Extensions.DependencyInjection
             services.AddScoped<IPrintPricingService, PrintPricingService>();
             services.AddScoped<IProductStockService, ProductStockService>();
             services.AddScoped<ISettingService, SettingService>();
+            services.AddScoped<IClientService, ClientService>();
 
             services.AddFluentValidationAutoValidation();
             services.AddValidatorsFromAssemblyContaining<ModelPrintCreateDtoValidator>();
