@@ -3,7 +3,7 @@ import { routes } from './app.routes';
 
 describe('app routes', () => {
   it('lazy-loads each feature and keeps protected routes guarded', () => {
-    const protectedPaths = ['dashboard', 'filaments', 'models', 'settings', 'stocked'];
+    const protectedPaths = ['clients', 'dashboard', 'filaments', 'models', 'settings', 'stocked'];
     const protectedRoutes = routes.filter(route => protectedPaths.includes(route.path ?? ''));
 
     expect(protectedRoutes).toHaveLength(protectedPaths.length);

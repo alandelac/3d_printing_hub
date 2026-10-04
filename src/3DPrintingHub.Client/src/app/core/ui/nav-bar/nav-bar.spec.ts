@@ -32,6 +32,7 @@ describe('NavBar', () => {
     const links = Array.from(compiled.querySelectorAll<HTMLAnchorElement>('.links a'));
 
     expect(links.map(link => link.textContent?.trim())).toEqual([
+      'Clients',
       'Dashboard',
       'Filaments',
       'Models',
@@ -39,6 +40,7 @@ describe('NavBar', () => {
       'Stocked',
     ]);
     expect(links.map(link => link.getAttribute('href'))).toEqual([
+      '/clients',
       '/dashboard',
       '/filaments',
       '/models',

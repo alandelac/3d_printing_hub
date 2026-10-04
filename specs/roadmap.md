@@ -190,7 +190,7 @@ This is the **single source of truth for planned work**. `TODO.md` has been reti
 
 ## Phase 11b — Clients frontend *(was TODO.md → Next)*
 
-- [ ] Covered
+- [x] Covered
 
 **Objective:** Manage client information from an authenticated, discoverable frontend.
 
