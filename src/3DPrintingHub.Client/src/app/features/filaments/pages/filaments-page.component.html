@@ -54,54 +54,46 @@
     </div>
   </app-modal>
 
-  <!-- Filaments Table (displayed directly on page) -->
+  <!-- Filaments Table (filtering, ordering and the list states come from the shared table) -->
   <div class="table-section">
     <h3>Filaments</h3>
-    <div class="filter-bar">
-      <input type="text" placeholder="Filter filaments…" [value]="filamentFilter()" (input)="filamentFilter.set($any($event.target).value)" class="filter-input" />
-    </div>
-    <app-list-state [loading]="filamentLoading()" [hasData]="filaments().length > 0" emptyText="No filaments found.">
-      <div class="table-scroll">
-        <table>
-          <thead>
-            <tr>
-              <th class="sortable" (click)="toggleSort('profile')">Profile{{ sortIndicator('profile') }}</th>
-              <th class="sortable" (click)="toggleSort('color')">Color{{ sortIndicator('color') }}</th>
-              <th class="sortable" (click)="toggleSort('remainingWeight')">Remaining Weight{{ sortIndicator('remainingWeight') }}</th>
-              <th class="sortable" (click)="toggleSort('minCost')">Min Cost{{ sortIndicator('minCost') }}</th>
-              <th class="sortable" (click)="toggleSort('maxCost')">Max Cost{{ sortIndicator('maxCost') }}</th>
-              <th class="sortable" (click)="toggleSort('lastCost')">Last Cost{{ sortIndicator('lastCost') }}</th>
-              <th class="sortable" (click)="toggleSort('lastPurchaseDate')">Last Purchase{{ sortIndicator('lastPurchaseDate') }}</th>
-              <th class="sortable" (click)="toggleSort('buyAgain')">Buy Again{{ sortIndicator('buyAgain') }}</th>
-              <th>Buy URL</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr *ngFor="let f of filteredSortedFilaments()">
-              <td>{{ f.filamentProfile.brandName }} - {{ f.filamentProfile.materialTypeName }}</td>
-              <td><span class="swatch" [style.background]="f.colorCode"></span> {{ f.colorName }}</td>
-              <td>
-                {{ f.remainingWeightGrams }}g
-                <button class="secondary" (click)="openAdjustWeightModal(f)">Update</button>
-              </td>
-              <td>${{ f.minCost }}</td>
-              <td>${{ f.maxCost }}</td>
-              <td>${{ f.lastCost }}</td>
-              <td>{{ f.lastPurchaseDate | date: 'shortDate' }}</td>
-              <td>{{ f.buyAgain ? 'Yes' : 'No' }}</td>
-              <td>
-                <a *ngIf="f.buyLink" [href]="f.buyLink" target="_blank" rel="noopener noreferrer">Link</a>
-                <span *ngIf="!f.buyLink">-</span>
-              </td>
-              <td>
-                <app-table-actions (edit)="openEditModal(f)" (delete)="openDeleteModal(f)" />
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </app-list-state>
+    <app-table
+      [columns]="filamentColumns"
+      [rows]="filaments()"
+      [loading]="filamentLoading()"
+      emptyText="No filaments found."
+      filterPlaceholder="Filter filaments…"
+      (edit)="openEditModal($event)"
+      (delete)="openDeleteModal($event)"
+    >
+      <ng-template appTableCell="profile" let-f>{{ f.filamentProfile.brandName }} - {{ f.filamentProfile.materialTypeName }}</ng-template>
+      <ng-template appTableCell="color" let-f><span class="swatch" [style.background]="f.colorCode"></span> {{ f.colorName }}</ng-template>
+      <ng-template appTableCell="remainingWeight" let-f>
+        <div class="weight-adjuster">
+          <span>{{ f.remainingWeightGrams }}g</span>
+          <input
+            type="number"
+            min="0"
+            step="1"
+            [value]="getInlineWeightAdjustment(f.id) ?? ''"
+            (input)="setInlineWeightAdjustment(f.id, $any($event.target).value)"
+            aria-label="Adjust remaining weight for {{ f.filamentProfile.brandName }} {{ f.filamentProfile.materialTypeName }}"
+          />
+          <button class="secondary" type="button" (click)="applyInlineWeightAdjustment(f, 'add')">+</button>
+          <button class="secondary" type="button" (click)="applyInlineWeightAdjustment(f, 'subtract')">−</button>
+          <button class="secondary" type="button" (click)="applyInlineWeightAdjustment(f, 'set')">Update</button>
+        </div>
+      </ng-template>
+      <ng-template appTableCell="minCost" let-f>${{ f.minCost }}</ng-template>
+      <ng-template appTableCell="maxCost" let-f>${{ f.maxCost }}</ng-template>
+      <ng-template appTableCell="lastCost" let-f>${{ f.lastCost }}</ng-template>
+      <ng-template appTableCell="lastPurchaseDate" let-f>{{ f.lastPurchaseDate | dateFormat }}</ng-template>
+      <ng-template appTableCell="buyAgain" let-f>{{ f.buyAgain ? 'Yes' : 'No' }}</ng-template>
+      <ng-template appTableCell="buyLink" let-f>
+        <a *ngIf="f.buyLink" [href]="f.buyLink" target="_blank" rel="noopener noreferrer">Link</a>
+        <span *ngIf="!f.buyLink">-</span>
+      </ng-template>
+    </app-table>
   </div>
 
   <!-- Edit Filament Modal -->
@@ -224,33 +216,14 @@
           <button *ngIf="isEditingProfile()" class="secondary" (click)="cancelEditProfile()">Cancel</button>
         </div>
 
-        <app-list-state [loading]="profileLoading()" [hasData]="profiles().length > 0" emptyText="No filament profiles found.">
-      <table>
-        <thead>
-          <tr>
-            <th>Brand</th>
-            <th>Material Type</th>
-            <th>Ironing Flow %</th>
-            <th>Ironing Speed</th>
-            <th>Slope Angle</th>
-            <th>Z Separation</th>
-            <th></th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let p of profiles()">
-            <td>{{ p.brandName }}</td>
-            <td>{{ p.materialTypeName }}</td>
-            <td>{{ p.ironingFlowPercentage }}</td>
-            <td>{{ p.ironingSpeedMmS }}</td>
-            <td>{{ p.slopeAngleForSupports }}</td>
-            <td>{{ p.zSeparationForSupports }}</td>
-            <td>
-              <app-table-actions (edit)="startEditProfile(p)" (delete)="deleteProfileConfirm(p)" />
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </app-list-state>
+        <app-table
+          [columns]="profileColumns"
+          [rows]="profiles()"
+          [loading]="profileLoading()"
+          emptyText="No filament profiles found."
+          filterPlaceholder="Filter profiles…"
+          (edit)="startEditProfile($event)"
+          (delete)="deleteProfileConfirm($event)"
+        />
   </app-modal>
 </section>

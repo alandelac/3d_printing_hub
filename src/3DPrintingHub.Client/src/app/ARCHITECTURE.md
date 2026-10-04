@@ -83,6 +83,13 @@ Elementos transversales que usa toda la aplicación.
 - `core/ui/`
   - Componentes reutilizables ligeros: botones, inputs, modales, badges, spinners
 
+## Shared UI
+
+Los componentes presentacionales reutilizados por varias features viven en `shared/ui/`.
+La tabla compartida (`shared/ui/table`) posee el shell de tabla, estados de carga/vacio,
+columnas configurables, celdas custom y acciones de fila. No contiene sorting ni filtering;
+esas responsabilidades permanecen en las paginas hasta Phase 9.
+
 ### Regla
 
 Si un elemento se usa en más de una feature, debe estar en `core/`.
@@ -168,7 +175,8 @@ Agrupa por dominios de negocio, cada uno con su propio espacio.
 Dentro de cada feature:
 - `pages/`: vistas completas
 - `components/`: subcomponentes específicos de esa feature
-- `routing`: rutas internas, si usas lazy loading
+- `<feature>-routing.ts`: rutas internas exportadas como `Routes`, cargadas desde `app.routes.ts`
+  mediante `loadChildren`; las paginas se cargan con `loadComponent`.
 
 ### Ejemplo de componente tonto
 

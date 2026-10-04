@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using Microsoft.AspNetCore.Mvc;
 using _3DPrintingHub.Application.Dtos;
 using _3DPrintingHub.Application.Services;
@@ -75,7 +76,8 @@ public class FilamentsController(IFilamentService filamentService) : ControllerB
             return BadRequest(new { message = "The filament id in the route does not match the one in the body." });
         }
 
-        var updatedFilament = await filamentService.AdjustFilamentWeightAsync(dto.FilamentId, dto.Grams, cancellationToken);
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? User.Identity?.Name ?? "system";
+        var updatedFilament = await filamentService.AdjustFilamentWeightAsync(dto.FilamentId, dto.Amount, dto.Reason, userId, cancellationToken);
         return Ok(updatedFilament);
     }
     

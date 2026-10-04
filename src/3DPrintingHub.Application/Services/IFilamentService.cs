@@ -25,12 +25,14 @@ public interface IFilamentService
     Task<FilamentDto> UpdateFilamentAsync(FilamentUpdateDto dto, CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Adjusts the remaining weight of a Filament by adding or reducing the specified amount of grams.
-    /// If the resulting weight is less than 0, it will be set to 0.
+    /// Adjusts the remaining weight of a Filament by adding or reducing the specified amount.
+    /// A negative resulting weight is rejected, and the adjustment is tracked in the audit log.
     /// </summary>
     /// <param name="filamentId">The Id of the Filament to adjust.</param>
-    /// <param name="grams">The amount of grams to add (positive) or reduce (negative). Must be a whole number.</param>
+    /// <param name="amount">The amount of grams to add (positive) or reduce (negative).</param>
+    /// <param name="reason">The reason for the adjustment.</param>
+    /// <param name="userId">The user performing the adjustment.</param>
     /// <param name="cancellationToken"></param>
     /// <returns>The updated FilamentDto.</returns>
-    Task<FilamentDto> AdjustFilamentWeightAsync(Guid filamentId, int grams, CancellationToken cancellationToken = default);
+    Task<FilamentDto> AdjustFilamentWeightAsync(Guid filamentId, decimal amount, string? reason = null, string? userId = null, CancellationToken cancellationToken = default);
 }

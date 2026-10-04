@@ -18,15 +18,17 @@ create
 - in there:
     - `plan.md` as a series of numbered task groups
     - `requirement.md` for the scope, decisions, context
-    - `validation.md` for how to know th eimplementation succeeded and can be merged
+    - `validation.md` for how to know the implementation succeeded and can be merged
 
 refer to `specs/mission.md` and `specs/tech-stack.md` for guidance
 
-Important: you must use your askUserqQestion tool, grouped on these 3, before writing to disk
+Important: you must use your askUserqQuestion tool, grouped on these 3, before writing to disk
 
 ## run implemention
 
-Implement the remaining task groups
+Implement the remaining task groups on folder _____
+
+Mark each checkbox on the validation.md as they are being completed
 
 ## Update the CHANGELOG before merging
 

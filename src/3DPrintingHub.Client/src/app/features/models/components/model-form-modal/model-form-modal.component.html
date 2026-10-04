@@ -1,0 +1,83 @@
+<app-modal [title]="isEdit() ? 'Edit Model' : 'Create New Model'" (close)="cancel.emit()">
+  <form class="model-form" (submit)="onSubmit($event)">
+    <div class="form-group">
+      <label [for]="idPrefix() + 'Name'">Name *</label>
+      <input
+        [id]="idPrefix() + 'Name'"
+        type="text"
+        placeholder="Model name"
+        [value]="name()"
+        (input)="name.set($any($event.target).value)"
+        required
+      />
+    </div>
+
+    <div class="form-group">
+      <label [for]="idPrefix() + 'Category'">Category *</label>
+      <select
+        [id]="idPrefix() + 'Category'"
+        [value]="categoryId()"
+        (change)="categoryId.set($any($event.target).value)"
+        required
+      >
+        <option *ngIf="!categories().length" value="" disabled>No categories available</option>
+        <option *ngFor="let c of categories()" [value]="c.id" [selected]="c.id === categoryId()">{{ c.name }}</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label [for]="idPrefix() + 'Weight'">Estimated Weight (grams) *</label>
+      <input
+        [id]="idPrefix() + 'Weight'"
+        type="number"
+        placeholder="e.g. 150"
+        [value]="estimatedWeightGrams()"
+        (input)="onNumberInput('estimatedWeightGrams', $any($event.target).value)"
+        min="1"
+        required
+      />
+    </div>
+
+    <div class="form-group">
+      <label [for]="idPrefix() + 'Time'">Estimated Time (minutes) *</label>
+      <input
+        [id]="idPrefix() + 'Time'"
+        type="number"
+        placeholder="e.g. 45"
+        [value]="estimatedTimeMinutes()"
+        (input)="onNumberInput('estimatedTimeMinutes', $any($event.target).value)"
+        min="1"
+        required
+      />
+    </div>
+
+    <div class="form-group">
+      <label [for]="idPrefix() + 'File'">File Location or URL</label>
+      <input
+        [id]="idPrefix() + 'File'"
+        type="text"
+        placeholder="https://... (optional)"
+        [value]="fileLocationOrUrl()"
+        (input)="fileLocationOrUrl.set($any($event.target).value)"
+      />
+    </div>
+
+    <div class="form-group">
+      <label [for]="idPrefix() + 'Notes'">Notes</label>
+      <textarea
+        [id]="idPrefix() + 'Notes'"
+        placeholder="Additional notes (optional)"
+        [value]="notes()"
+        (input)="notes.set($any($event.target).value)"
+        rows="3"
+      ></textarea>
+    </div>
+
+    <div class="form-actions">
+      <button type="button" class="secondary" (click)="cancel.emit()" [disabled]="loading()">Cancel</button>
+      <button type="submit" class="primary" [disabled]="loading() || (!isEdit() && !categories().length)">
+        {{ submitLabel() }}
+      </button>
+    </div>
+  </form>
+</app-modal>

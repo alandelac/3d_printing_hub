@@ -6,6 +6,7 @@ using _3DPrintingHub.Domain.Entities;
 namespace _3DPrintingHub.Infrastructure.Data;
 
 public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : IdentityDbContext<IdentityUser>(options){
+    public DbSet<Client> Clients => Set<Client>();
     public DbSet<Brand> Brands => Set<Brand>();
     public DbSet<MaterialType> MaterialTypes => Set<MaterialType>();
     public DbSet<Marketplace> Marketplaces => Set<Marketplace>();
@@ -15,6 +16,7 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     public DbSet<FilamentProfile> FilamentProfiles => Set<FilamentProfile>();
     public DbSet<FilamentColor> FilamentColors => Set<FilamentColor>();
     public DbSet<Filament> Filaments => Set<Filament>();
+    public DbSet<WeightAdjustmentLog> WeightAdjustmentLogs => Set<WeightAdjustmentLog>();
     public DbSet<ModelPrint> ModelPrints => Set<ModelPrint>();
     public DbSet<ProductStock> ProductStocks => Set<ProductStock>();
     public DbSet<PublishedModels> PublishedModels => Set<PublishedModels>();
@@ -23,6 +25,14 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
+
+        modelBuilder.Entity<Client>(entity =>
+        {
+            entity.Property(c => c.Name).HasMaxLength(200);
+            entity.Property(c => c.Phone).HasMaxLength(30);
+            entity.Property(c => c.Email).HasMaxLength(254);
+            entity.HasIndex(c => c.Name);
+        });
 
         modelBuilder.Entity<Brand>()
             .HasIndex(b => b.Name)
@@ -81,6 +91,17 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
                 .WithMany(c => c.Filaments)
                 .HasForeignKey(f => f.FilamentColorId)
                 .OnDelete(DeleteBehavior.Restrict);
+        });
+
+        modelBuilder.Entity<WeightAdjustmentLog>(entity =>
+        {
+            entity.Property(log => log.UserId).HasMaxLength(128);
+            entity.Property(log => log.Reason).HasMaxLength(500);
+
+            entity.HasOne(log => log.Filament)
+                .WithMany(f => f.WeightAdjustmentLogs)
+                .HasForeignKey(log => log.FilamentId)
+                .OnDelete(DeleteBehavior.Cascade);
         });
 
         modelBuilder.Entity<ModelPrint>(entity =>

@@ -1,0 +1,17 @@
+<app-modal title="Categories" (close)="onClose()">
+  <div class="add-form">
+    <input #nameInputElement placeholder="Category name" [value]="nameInput()" (input)="onNameInput($any($event.target).value)" />
+    <button class="primary" (click)="onAdd()" [disabled]="loading()">{{ isEditing() ? 'Save Changes' : 'Add' }}</button>
+    <button *ngIf="isEditing()" class="secondary" (click)="cancelEdit()">Cancel</button>
+  </div>
+
+  <app-table
+    [columns]="columns"
+    [rows]="categories()"
+    [loading]="loading()"
+    emptyText="No categories found."
+    filterPlaceholder="Filter categories…"
+    (edit)="startEdit($event)"
+    (delete)="remove.emit($event)"
+  />
+</app-modal>

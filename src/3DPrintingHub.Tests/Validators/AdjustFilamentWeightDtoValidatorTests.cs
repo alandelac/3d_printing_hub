@@ -23,17 +23,18 @@ public class AdjustFilamentWeightDtoValidatorTests
     }
 
     [Fact]
-    public void Validate_WhenGramsIsZero_ReturnsValidationError()
+    public void Validate_WhenAmountIsZero_ReturnsValidationError()
     {
         var dto = new AdjustFilamentWeightDto
         {
             FilamentId = Guid.NewGuid(),
-            Grams = 0
+            Amount = 0m,
+            Reason = "Used in print"
         };
 
         var result = _validator.Validate(dto);
 
         Assert.False(result.IsValid);
-        Assert.Contains(result.Errors, error => error.PropertyName == nameof(AdjustFilamentWeightDto.Grams));
+        Assert.Contains(result.Errors, error => error.PropertyName == nameof(AdjustFilamentWeightDto.Amount));
     }
 }

@@ -4,15 +4,24 @@ import { FilamentBrand } from '../../../../domain/models/filament-brand.model';
 import { FilamentMaterialType } from '../../../../domain/models/filament-material-type.model';
 import { FilamentProfile, FilamentProfileCreate } from '../../../../domain/models/filament-profile.model';
 import { ModalComponent } from '../../../../shared/ui/modal/modal.component';
-import { ListStateComponent } from '../../../../shared/ui/list-state/list-state.component';
+import { TableComponent, TableColumn } from '../../../../shared/ui/table/table.component';
 
 @Component({
   selector: 'app-profiles-modal',
   standalone: true,
-  imports: [CommonModule, ModalComponent, ListStateComponent],
+  imports: [CommonModule, ModalComponent, TableComponent],
   templateUrl: './profiles-modal.component.html'
 })
 export class ProfilesModalComponent {
+  readonly columns: TableColumn<FilamentProfile>[] = [
+    { key: 'brand', header: 'Brand', value: profile => profile.brandName },
+    { key: 'materialType', header: 'Material Type', value: profile => profile.materialTypeName },
+    { key: 'ironingFlow', header: 'Ironing Flow %', value: profile => profile.ironingFlowPercentage },
+    { key: 'ironingSpeed', header: 'Ironing Speed', value: profile => profile.ironingSpeedMmS },
+    { key: 'slopeAngle', header: 'Slope Angle', value: profile => profile.slopeAngleForSupports },
+    { key: 'zSeparation', header: 'Z Separation', value: profile => profile.zSeparationForSupports }
+  ];
+
   @Input() brands: FilamentBrand[] = [];
   @Input() materialTypes: FilamentMaterialType[] = [];
   @Input() profiles: FilamentProfile[] = [];

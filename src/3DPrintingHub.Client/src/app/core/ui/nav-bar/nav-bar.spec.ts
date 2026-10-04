@@ -1,5 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { provideRouter, RouterOutlet } from '@angular/router';
+import { provideRouter } from '@angular/router';
 import { NavBar } from './nav-bar';
 import { AuthService } from '../../auth/auth.service';
 
@@ -24,15 +24,44 @@ describe('NavBar', () => {
     fixture.detectChanges();
   });
 
-  it('renders navigation links and triggers logout', () => {
+  it('renders the navigation links with the shared navbar control convention', () => {
     const compiled = fixture.nativeElement as HTMLElement;
 
     expect(compiled.querySelector('.brand')?.textContent).toContain('3DPrintingHub');
-    expect(compiled.querySelectorAll('a').length).toBeGreaterThan(0);
 
-    const button = compiled.querySelector('button[type="button"]') as HTMLButtonElement;
-    button.click();
+    const links = Array.from(compiled.querySelectorAll<HTMLAnchorElement>('.links a'));
 
-    expect(authService.logout).toHaveBeenCalled();
+    expect(links.map(link => link.textContent?.trim())).toEqual([
+      'Clients',
+      'Dashboard',
+      'Filaments',
+      'Models',
+      'Settings',
+      'Stocked',
+    ]);
+    expect(links.map(link => link.getAttribute('href'))).toEqual([
+      '/clients',
+      '/dashboard',
+      '/filaments',
+      '/models',
+      '/settings',
+      '/stocked',
+    ]);
+    expect(links.every(link => link.classList.contains('nav-link'))).toBe(true);
+  });
+
+  it('renders the sign-out control with the shared navbar control convention and triggers logout', () => {
+    const compiled = fixture.nativeElement as HTMLElement;
+
+    const button = compiled.querySelector<HTMLButtonElement>('button');
+
+    expect(button).not.toBeNull();
+    expect(button?.classList.contains('nav-link')).toBe(true);
+    expect(button?.getAttribute('type')).toBe('button');
+    expect(button?.textContent?.trim()).toBe('Sign out');
+
+    button?.click();
+
+    expect(authService.logout).toHaveBeenCalledTimes(1);
   });
 });

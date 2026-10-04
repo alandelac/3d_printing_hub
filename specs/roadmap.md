@@ -88,7 +88,7 @@ This is the **single source of truth for planned work**. `TODO.md` has been reti
 
 ## Phase 5 — Docker API startup and proxy reliability
 
-- [ ] Covered
+- [x] Covered
 
 **Objective:** A compose deployment does not serve a `502 Connection refused` when nginx forwards requests to the API.
 
@@ -104,7 +104,7 @@ This is the **single source of truth for planned work**. `TODO.md` has been reti
 
 ## Phase 6 — Sign-out button styling *(was TODO.md → Next)*
 
-- [ ] Covered
+- [x] Covered
 
 **Objective:** The sign-out button matches the other navbar buttons.
 
@@ -117,7 +117,7 @@ This is the **single source of truth for planned work**. `TODO.md` has been reti
 
 ## Phase 7 — Frontend architecture consolidation *(was TODO.md → **Now**)*
 
-- [ ] Covered
+- [x] Covered
 
 **Objective:** The client is DRY, organised predictably, and free of repeated code.
 
@@ -133,7 +133,7 @@ This is the **single source of truth for planned work**. `TODO.md` has been reti
 
 ## Phase 8 — Global timestamp formatter *(was TODO.md → Next)*
 
-- [ ] Covered
+- [x] Covered
 
 **Objective:** ISO timestamps render as `YYYY-MM-DD` everywhere, defined once.
 
@@ -147,21 +147,22 @@ This is the **single source of truth for planned work**. `TODO.md` has been reti
 
 ## Phase 9 — Global table component *(was TODO.md → Next)*
 
-- [ ] Covered
+- [x] Covered
 
-**Objective:** One table component with sorting and filtering, used app-wide.
+**Objective:** One reusable table component with sorting and filtering, used app-wide across both page tables and modal tables.
 
 **Deliverables**
 - Shared sortable/filterable table component in `shared/ui`.
-- Adopted by the filament, model and stock tables; per-feature sorting/filtering code deleted.
+- Adopted by the main feature tables (filament, model and stock) and by modal tables such as colors, brands, material types and similar list UIs; per-feature sorting/filtering code deleted where duplicated.
+- A single shared table pattern that can later be customized for more specialized tables without re-implementing the list shell each time.
 
-**Acceptance:** The three existing tables lose their bespoke sort/filter logic and behave identically or better.
+**Acceptance:** All list-based tables in the app, including modal tables, lose their bespoke sort/filter logic and behave identically or better under one shared component.
 
 ---
 
 ## Phase 10 — Filament remaining-weight adjuster *(was TODO.md → Next)*
 
-- [ ] Covered
+- [x] Covered
 
 **Objective:** Adjust a spool's remaining weight from the filament table.
 
@@ -176,7 +177,7 @@ This is the **single source of truth for planned work**. `TODO.md` has been reti
 
 ## Phase 11a — Clients backend *(was TODO.md → Next)*
 
-- [ ] Covered
+- [x] Covered
 
 **Objective:** The `Client` domain concept exists end to end on the server.
 
@@ -189,15 +190,32 @@ This is the **single source of truth for planned work**. `TODO.md` has been reti
 
 ## Phase 11b — Clients frontend *(was TODO.md → Next)*
 
-- [ ] Covered
+- [x] Covered
 
-**Objective:** A client page where basic info is gathered.
+**Objective:** Manage client information from an authenticated, discoverable frontend.
 
 **Deliverables**
 - `features/clients` with list and create/edit pages, models in `domain/models`, and a repository in `data/`.
 - Route registered behind `authGuard` and added to the navbar.
+- Client list uses the shared table with filterable and sortable columns for client details.
+- Each row supports editing; creation is available from the list.
 
-**Acceptance:** A user can create, edit, list and delete clients from the UI, and the data survives a reload.
+**Acceptance:** A user can create, edit and list clients from the UI, filter and sort the list, and see persisted data after a reload. Deletion is not part of this phase.
+
+---
+
+## Phase 11c — Client deletion
+
+- [ ] Covered
+
+**Objective:** Support deliberate client deletion end to end.
+
+**Deliverables**
+- Authenticated backend delete operation for clients, implemented through the application service and persistence layers.
+- Per-client delete action in the clients UI with confirmation and clear success/error feedback.
+- Tests covering successful deletion, missing clients, and the chosen behavior when a client is referenced by sales.
+
+**Acceptance:** A user can delete a client from the UI after confirmation; the API and UI report the result consistently, deleted clients no longer appear after reload, and referenced-client behavior is covered by tests.
 
 ---
 

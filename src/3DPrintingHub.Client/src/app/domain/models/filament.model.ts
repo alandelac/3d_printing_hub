@@ -51,5 +51,7 @@ export interface FilamentUpdate {
 
 export interface AdjustFilamentWeight {
   filamentId: string;
-  grams: number;
+  grams?: number;
+  amount?: number;
+  reason?: string;
 }

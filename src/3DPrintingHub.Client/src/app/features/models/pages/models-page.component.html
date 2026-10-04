@@ -6,207 +6,41 @@
   </div>
 
   <!-- Model Creation Modal -->
-  <app-modal *ngIf="modelOpen()" title="Create New Model" (close)="toggleModelOpen()">
-        <form class="model-form" (submit)="createModel()">
-          <div class="form-group">
-            <label for="modelName">Name *</label>
-            <input 
-              id="modelName"
-              type="text" 
-              placeholder="Model name" 
-              [value]="modelForm().name" 
-              (input)="onModelInputChange('name', $any($event.target).value)"
-              required
-            />
-          </div>
+  <app-model-form-modal
+    *ngIf="modelOpen()"
+    [categories]="categories()"
+    [loading]="modelLoading()"
+    (save)="createModel($event)"
+    (cancel)="toggleModelOpen()"
+  />
 
-          <div class="form-group">
-            <label for="modelCategory">Category *</label>
-            <select 
-              id="modelCategory"
-              [value]="modelForm().categoryId" 
-              (change)="onCategoryChange($any($event.target).value)"
-              required
-            >
-              <option *ngIf="!categories().length" value="" disabled>No categories available</option>
-              <option *ngFor="let c of categories()" [value]="c.id">{{ c.name }}</option>
-            </select>
-          </div>
-
-          <div class="form-group">
-            <label for="modelWeight">Estimated Weight (grams) *</label>
-            <input 
-              id="modelWeight"
-              type="number" 
-              placeholder="e.g. 150" 
-              [value]="modelForm().estimatedWeightGrams" 
-              (input)="onModelInputChange('estimatedWeightGrams', +$any($event.target).value || 0)"
-              min="1"
-              required
-            />
-          </div>
-
-          <div class="form-group">
-            <label for="modelTime">Estimated Time (minutes) *</label>
-            <input 
-              id="modelTime"
-              type="number" 
-              placeholder="e.g. 45" 
-              [value]="modelForm().estimatedTimeMinutes" 
-              (input)="onModelInputChange('estimatedTimeMinutes', +$any($event.target).value || 0)"
-              min="1"
-              required
-            />
-          </div>
-
-          <div class="form-group">
-            <label for="modelFile">File Location or URL</label>
-            <input 
-              id="modelFile"
-              type="text" 
-              placeholder="https://... (optional)" 
-              [value]="modelForm().fileLocationOrUrl || ''" 
-              (input)="onModelInputChange('fileLocationOrUrl', $any($event.target).value)"
-            />
-          </div>
-
-          <div class="form-group">
-            <label for="modelNotes">Notes</label>
-            <textarea 
-              id="modelNotes"
-              placeholder="Additional notes (optional)" 
-              [value]="modelForm().notes || ''" 
-              (input)="onModelInputChange('notes', $any($event.target).value)"
-              rows="3"
-            ></textarea>
-          </div>
-
-          <div class="form-actions">
-            <button type="button" class="secondary" (click)="toggleModelOpen()" [disabled]="modelLoading()">Cancel</button>
-            <button type="submit" class="primary" [disabled]="modelLoading() || !categories().length">
-              {{ modelLoading() ? 'Creating...' : 'Create Model' }}
-            </button>
-          </div>
-        </form>
-  </app-modal>
-
-  <!-- Models List -->
-  <div class="filter-bar">
-    <input type="text" placeholder="Filter models…" [value]="modelFilter()" (input)="modelFilter.set($any($event.target).value)" class="filter-input" />
-  </div>
-  <app-list-state [loading]="modelsLoading()" [hasData]="models().length > 0" emptyText="No models found. Create your first model above.">
-    <table class="models-table">
-      <thead>
-        <tr>
-          <th class="sortable" (click)="toggleSort('name')">Name{{ sortIndicator('name') }}</th>
-          <th class="sortable" (click)="toggleSort('category')">Category{{ sortIndicator('category') }}</th>
-          <th class="sortable" (click)="toggleSort('weight')">Weight (g){{ sortIndicator('weight') }}</th>
-          <th class="sortable" (click)="toggleSort('time')">Time (min){{ sortIndicator('time') }}</th>
-                  <th class="sortable" (click)="toggleSort('defaultCost')">Default Cost{{ sortIndicator('defaultCost') }}</th>
-          <th class="sortable" (click)="toggleSort('salePrice')">Sale Price{{ sortIndicator('salePrice') }}</th>
-          <th>Actions</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let m of filteredSortedModels()">
-          <td>{{ m.name }}</td>
-          <td>{{ m.categoryName }}</td>
-          <td>{{ m.estimatedWeightGrams }}</td>
-          <td>{{ m.estimatedTimeMinutes }}</td>
-          <td>{{ m.defaultCost | number:'1.2-2' }}</td>
-                  <td>{{ m.defaultSalePrice | number:'1.2-2' }}</td>
-          <td>
-            <app-table-actions (edit)="openEditModal(m)" (delete)="openDeleteModal(m)" />
-          </td>
-        </tr>
-      </tbody>
-    </table>
-  </app-list-state>
+  <!-- Models List (filtering, ordering and the empty/loading states come from the shared table) -->
+  <app-table
+    [columns]="columns"
+    [rows]="models()"
+    [loading]="modelsLoading()"
+    emptyText="No models found. Create your first model above."
+    filterPlaceholder="Filter models…"
+    (edit)="openEditModal($event)"
+    (delete)="openDeleteModal($event)"
+  >
+    <ng-template appTableCell="defaultCost" let-model>
+      {{ model.defaultCost | number:'1.2-2' }}
+    </ng-template>
+    <ng-template appTableCell="defaultSalePrice" let-model>
+      {{ model.defaultSalePrice | number:'1.2-2' }}
+    </ng-template>
+  </app-table>
 
   <!-- Edit Model Modal -->
-  <app-modal *ngIf="editOpen()" title="Edit Model" (close)="closeEditModal()">
-        <form class="model-form" (submit)="updateModel()">
-          <div class="form-group">
-            <label for="editModelName">Name *</label>
-            <input
-              id="editModelName"
-              type="text"
-              placeholder="Model name"
-              [value]="editName()"
-              (input)="editName.set($any($event.target).value)"
-              required
-            />
-          </div>
-
-          <div class="form-group">
-            <label for="editModelCategory">Category *</label>
-            <select
-              id="editModelCategory"
-              [value]="editCategoryId()"
-              (change)="editCategoryId.set($any($event.target).value)"
-              required
-            >
-              <option *ngIf="!categories().length" value="" disabled>No categories available</option>
-              <option *ngFor="let c of categories()" [value]="c.id">{{ c.name }}</option>
-            </select>
-          </div>
-
-          <div class="form-group">
-            <label for="editModelWeight">Estimated Weight (grams) *</label>
-            <input
-              id="editModelWeight"
-              type="number"
-              placeholder="e.g. 150"
-              [value]="editEstimatedWeightGrams()"
-              (input)="editEstimatedWeightGrams.set($any($event.target).value ? +$any($event.target).value : null)"
-              min="1"
-              required
-            />
-          </div>
-
-          <div class="form-group">
-            <label for="editModelTime">Estimated Time (minutes) *</label>
-            <input
-              id="editModelTime"
-              type="number"
-              placeholder="e.g. 45"
-              [value]="editEstimatedTimeMinutes()"
-              (input)="editEstimatedTimeMinutes.set($any($event.target).value ? +$any($event.target).value : null)"
-              min="1"
-              required
-            />
-          </div>
-
-          <div class="form-group">
-            <label for="editModelFile">File Location or URL</label>
-            <input
-              id="editModelFile"
-              type="text"
-              placeholder="https://... (optional)"
-              [value]="editFileLocationOrUrl()"
-              (input)="editFileLocationOrUrl.set($any($event.target).value)"
-            />
-          </div>
-
-          <div class="form-group">
-            <label for="editModelNotes">Notes</label>
-            <textarea
-              id="editModelNotes"
-              placeholder="Additional notes (optional)"
-              [value]="editNotes()"
-              (input)="editNotes.set($any($event.target).value)"
-              rows="3"
-            ></textarea>
-          </div>
-
-          <div class="form-actions">
-            <button type="button" class="secondary" (click)="closeEditModal()" [disabled]="editLoading()">Cancel</button>
-            <button type="submit" class="primary" [disabled]="editLoading()">
-              {{ editLoading() ? 'Saving...' : 'Save Changes' }}
-            </button>
-          </div>
-        </form>
-  </app-modal>
+  <app-model-form-modal
+    *ngIf="editOpen()"
+    [categories]="categories()"
+    [model]="editModel()"
+    [loading]="editLoading()"
+    (save)="updateModel($event)"
+    (cancel)="closeEditModal()"
+  />
 
   <!-- Generic Delete Confirmation Modal (shared by model and category tables) -->
   <app-confirm-delete
@@ -219,25 +53,12 @@
   />
 
   <!-- Category Modal -->
-  <app-modal *ngIf="categoryOpen()" title="Categories" (close)="toggleCategoryOpen()">
-        <div class="add-form">
-          <input placeholder="Category name" [value]="categoryNameInput()" (input)="categoryNameInput.set($any($event.target).value)" />
-          <button class="primary" (click)="addCategory()" [disabled]="categoryLoading()">{{ isEditingCategory() ? 'Save Changes' : 'Add' }}</button>
-          <button *ngIf="isEditingCategory()" class="secondary" (click)="cancelCategoryEdit()">Cancel</button>
-        </div>
-
-        <app-list-state [loading]="categoryLoading()" [hasData]="categories().length > 0" emptyText="No categories found.">
-          <table>
-            <thead>
-              <tr><th>Name</th><th>Actions</th></tr>
-            </thead>
-            <tbody>
-              <tr *ngFor="let c of categories()">
-                <td>{{ c.name }}</td>
-                <td><app-table-actions (edit)="startCategoryEdit(c)" (delete)="deleteCategoryConfirm(c)" /></td>
-              </tr>
-            </tbody>
-          </table>
-        </app-list-state>
-  </app-modal>
+  <app-category-modal
+    *ngIf="categoryOpen()"
+    [categories]="categories()"
+    [loading]="categoryLoading()"
+    (save)="saveCategory($event)"
+    (remove)="deleteCategoryConfirm($event)"
+    (close)="toggleCategoryOpen()"
+  />
 </section>

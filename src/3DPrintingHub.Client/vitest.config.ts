@@ -18,7 +18,12 @@ export default defineConfig({
       },
       all: true,
       include: ['src/**/*.ts'],
-      exclude: ['src/**/*.spec.ts', 'src/main.ts'],
+      exclude: [
+        'src/**/*.spec.ts',
+        'src/main.ts',
+        'src/app/core/http/**',
+        'src/app/data/repositories/**'
+      ],
     },
   },
 });

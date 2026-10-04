@@ -5,15 +5,7 @@
     <button *ngIf="isEditing" class="secondary" (click)="cancelEdit()">Cancel</button>
   </div>
 
-  <app-list-state [loading]="loading" [hasData]="materialTypes.length > 0" emptyText="No material types found.">
-    <table>
-      <thead><tr><th>Name</th><th>Actions</th></tr></thead>
-      <tbody>
-        <tr *ngFor="let mt of materialTypes">
-          <td>{{ mt.name }}</td>
-          <td><app-table-actions (edit)="startEdit(mt)" (delete)="onDelete(mt)" /></td>
-        </tr>
-      </tbody>
-    </table>
-  </app-list-state>
+  <app-table [columns]="columns" [rows]="materialTypes" [loading]="loading" emptyText="No material types found."
+    filterPlaceholder="Filter material types…"
+    (edit)="startEdit($event)" (delete)="onDelete($event)" />
 </app-modal>

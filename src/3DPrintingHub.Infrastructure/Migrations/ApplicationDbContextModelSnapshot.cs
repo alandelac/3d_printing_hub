@@ -227,6 +227,35 @@ namespace _3DPrintingHub.Infrastructure.Migrations
                     b.ToTable("Brands");
                 });
 
+            modelBuilder.Entity("_3DPrintingHub.Domain.Entities.Client", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("ContactPlatform")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Email")
+                        .HasMaxLength(254)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Phone")
+                        .HasMaxLength(30)
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Name");
+
+                    b.ToTable("Clients");
+                });
+
             modelBuilder.Entity("_3DPrintingHub.Domain.Entities.Filament", b =>
                 {
                     b.Property<Guid>("Id")
@@ -550,6 +579,41 @@ namespace _3DPrintingHub.Infrastructure.Migrations
                     b.ToTable("Settings");
                 });
 
+            modelBuilder.Entity("_3DPrintingHub.Domain.Entities.WeightAdjustmentLog", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("FilamentId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("NewWeightGrams")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("OldWeightGrams")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Reason")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("TimestampUtc")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasMaxLength(128)
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("FilamentId");
+
+                    b.ToTable("WeightAdjustmentLogs");
+                });
+
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
                 {
                     b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", null)
@@ -707,9 +771,22 @@ namespace _3DPrintingHub.Infrastructure.Migrations
                     b.Navigation("ProductStock");
                 });
 
+            modelBuilder.Entity("_3DPrintingHub.Domain.Entities.WeightAdjustmentLog", b =>
+                {
+                    b.HasOne("_3DPrintingHub.Domain.Entities.Filament", "Filament")
+                        .WithMany("WeightAdjustmentLogs")
+                        .HasForeignKey("FilamentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Filament");
+                });
+
             modelBuilder.Entity("_3DPrintingHub.Domain.Entities.Filament", b =>
                 {
                     b.Navigation("ProductStocks");
+
+                    b.Navigation("WeightAdjustmentLogs");
                 });
 
             modelBuilder.Entity("_3DPrintingHub.Domain.Entities.FilamentColor", b =>
