@@ -36,6 +36,7 @@ describe('feature layering', () => {
   it('keeps the documented feature folder shape', () => {
     const expected = {
       auth: ['pages'],
+      clients: ['pages', 'components'],
       dashboard: ['pages', 'components'],
       filaments: ['pages', 'components'],
       models: ['pages', 'components'],

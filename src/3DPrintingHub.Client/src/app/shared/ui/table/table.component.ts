@@ -6,6 +6,7 @@ import {
   TemplateRef,
   computed,
   contentChildren,
+  inject,
   input,
   model,
   output
@@ -81,8 +82,7 @@ function compareValues(a: TableValue, b: TableValue, direction: TableSortDirecti
 })
 export class TableCellDirective {
   readonly appTableCell = input.required<string>();
-
-  constructor(readonly templateRef: TemplateRef<unknown>) {}
+  readonly templateRef = inject(TemplateRef<unknown>);
 }
 
 /**
@@ -101,8 +101,7 @@ export class TableCellDirective {
 })
 export class TableHeaderDirective {
   readonly appTableHeader = input.required<string>();
-
-  constructor(readonly templateRef: TemplateRef<unknown>) {}
+  readonly templateRef = inject(TemplateRef<unknown>);
 }
 
 /**
