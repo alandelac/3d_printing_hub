@@ -177,7 +177,7 @@ This is the **single source of truth for planned work**. `TODO.md` has been reti
 
 ## Phase 11a — Clients backend *(was TODO.md → Next)*
 
-- [ ] Covered
+- [x] Covered
 
 **Objective:** The `Client` domain concept exists end to end on the server.
 
@@ -192,13 +192,30 @@ This is the **single source of truth for planned work**. `TODO.md` has been reti
 
 - [ ] Covered
 
-**Objective:** A client page where basic info is gathered.
+**Objective:** Manage client information from an authenticated, discoverable frontend.
 
 **Deliverables**
 - `features/clients` with list and create/edit pages, models in `domain/models`, and a repository in `data/`.
 - Route registered behind `authGuard` and added to the navbar.
+- Client list uses the shared table with filterable and sortable columns for client details.
+- Each row supports editing; creation is available from the list.
 
-**Acceptance:** A user can create, edit, list and delete clients from the UI, and the data survives a reload.
+**Acceptance:** A user can create, edit and list clients from the UI, filter and sort the list, and see persisted data after a reload. Deletion is not part of this phase.
+
+---
+
+## Phase 11c — Client deletion
+
+- [ ] Covered
+
+**Objective:** Support deliberate client deletion end to end.
+
+**Deliverables**
+- Authenticated backend delete operation for clients, implemented through the application service and persistence layers.
+- Per-client delete action in the clients UI with confirmation and clear success/error feedback.
+- Tests covering successful deletion, missing clients, and the chosen behavior when a client is referenced by sales.
+
+**Acceptance:** A user can delete a client from the UI after confirmation; the API and UI report the result consistently, deleted clients no longer appear after reload, and referenced-client behavior is covered by tests.
 
 ---
 
