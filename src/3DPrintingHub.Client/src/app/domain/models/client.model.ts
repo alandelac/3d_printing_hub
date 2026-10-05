@@ -8,6 +8,7 @@ export interface Client {
   id: string;
   name: string;
   contactPlatform: ClientContactPlatform;
+  isArchived?: boolean;
   phone?: string | null;
   email?: string | null;
 }
