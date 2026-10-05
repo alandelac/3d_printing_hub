@@ -93,4 +93,14 @@ describe('ClientRepository', () => {
     expect(req.request.body).toEqual(updatePayload);
     req.flush(updatePayload);
   });
+
+  it('archives a client with the backend delete endpoint', () => {
+    repository.archiveClient('client-1').subscribe(response => {
+      expect(response).toBeNull();
+    });
+
+    const req = httpMock.expectOne('http://localhost:5033/api/clients/client-1');
+    expect(req.request.method).toBe('DELETE');
+    req.flush(null);
+  });
 });

@@ -3,22 +3,22 @@
 ## 1. Automated Tests
 
 ### Backend
-- [ ] Existing client rows migrate with `IsArchived = false`; newly created clients also default to active.
-- [ ] Archiving an existing client persists `IsArchived = true` without removing or changing its id, name, contact platform, phone, or email.
-- [ ] Archiving an already archived client succeeds without changing the retained client data.
-- [ ] Archiving a missing client produces the established not-found result and API status `404`.
-- [ ] `DELETE /api/clients/{id}` requires authentication and returns `204` for an existing client.
-- [ ] `GET /api/clients` omits archived clients; `GET /api/clients/{id}` still returns the archived client and its archive state.
-- [ ] Temporary-SQLite and `WebApplicationFactory` integration tests cover the migration and endpoint behavior.
+- [x] Existing client rows migrate with `IsArchived = false`; newly created clients also default to active.
+- [x] Archiving an existing client persists `IsArchived = true` without removing or changing its id, name, contact platform, phone, or email.
+- [x] Archiving an already archived client succeeds without changing the retained client data.
+- [x] Archiving a missing client produces the established not-found result and API status `404`.
+- [x] `DELETE /api/clients/{id}` requires authentication and returns `204` for an existing client.
+- [x] `GET /api/clients` omits archived clients; `GET /api/clients/{id}` still returns the archived client and its archive state.
+- [x] Temporary-SQLite and `WebApplicationFactory` integration tests cover the migration and endpoint behavior.
 
 ### Frontend
-- [ ] `ClientRepository` sends the archive request to the expected client endpoint.
-- [ ] Canceling the shared confirmation dialog makes no request.
-- [ ] Confirming archive disables duplicate submission while loading and removes the client from the active list after success.
-- [ ] The confirmation text and action label describe archiving and retained history, not irreversible deletion.
-- [ ] API errors remain visible, close no unrelated UI, and leave the client available for retry.
+- [x] `ClientRepository` sends the archive request to the expected client endpoint.
+- [x] Canceling the shared confirmation dialog makes no request.
+- [x] Confirming archive disables duplicate submission while loading and removes the client from the active list after success.
+- [x] The confirmation text and action label describe archiving and retained history, not irreversible deletion.
+- [x] API errors remain visible, close no unrelated UI, and leave the client available for retry.
 - [ ] Focused frontend tests pass; the complete frontend suite passes and global coverage remains at or above 80%.
-- [ ] The Angular production build succeeds.
+- [x] The Angular production build succeeds.
 
 ## 2. Referenced-Client Behavior
 
@@ -36,8 +36,8 @@
 
 ## 4. CI Gates and Merge Readiness
 
-- [ ] Backend build and full `dotnet test` pass, including temporary-SQLite and API integration tests.
+- [x] Backend build and full `dotnet test` pass, including temporary-SQLite and API integration tests.
 - [ ] Frontend build, full Vitest suite, and global coverage gate pass.
-- [ ] No new package or external service is added without a tech-stack decision.
-- [ ] No credentials, personal data, or machine-specific paths are added.
-- [ ] Changes remain uncommitted until the repository owner explicitly requests a commit.
+- [x] No new package or external service is added without a tech-stack decision.
+- [x] No credentials, personal data, or machine-specific paths are added.
+- [x] Changes remain uncommitted until the repository owner explicitly requests a commit.

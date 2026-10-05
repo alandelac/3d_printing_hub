@@ -3,13 +3,14 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 import { ClientRepository } from '../../../data/repositories/client.repository';
 import { Client, ClientContactPlatform, ClientCreate, ClientUpdate } from '../../../domain/models/client.model';
+import { ConfirmDeleteComponent } from '../../../shared/ui/confirm-delete/confirm-delete.component';
 import { TableCellDirective, TableColumn, TableComponent } from '../../../shared/ui/table/table.component';
 import { ClientFormModalComponent, ClientFormValue } from '../components/client-form-modal/client-form-modal.component';
 
 @Component({
   selector: 'app-clients-page',
   standalone: true,
-  imports: [CommonModule, TableComponent, TableCellDirective, ClientFormModalComponent],
+  imports: [CommonModule, TableComponent, TableCellDirective, ClientFormModalComponent, ConfirmDeleteComponent],
   template: `
     <section class="clients-page">
       <h2>{{ title() }}</h2>
@@ -26,6 +27,18 @@ import { ClientFormModalComponent, ClientFormValue } from '../components/client-
         (cancel)="closeClientModal()"
       />
 
+      <app-confirm-delete
+        *ngIf="archiveOpen()"
+        [title]="'Archive'"
+        [entityName]="archiveName()"
+        [description]="'Are you sure you want to archive'"
+        [details]="'History will be retained, but this client will leave the active list.'"
+        [confirmLabel]="'Yes, Archive'"
+        [loading]="archiveLoading()"
+        (confirm)="confirmArchive()"
+        (cancel)="closeArchiveModal()"
+      />
+
       <app-table
         [columns]="columns"
         [rows]="clients()"
@@ -40,6 +53,7 @@ import { ClientFormModalComponent, ClientFormValue } from '../components/client-
 
         <ng-template appTableCell="actions" let-client>
           <button class="secondary" type="button" (click)="openEditClient(client)">Edit</button>
+          <button class="danger" type="button" (click)="openArchiveConfirm(client)">Archive</button>
         </ng-template>
       </app-table>
 
@@ -57,6 +71,10 @@ export class ClientsPageComponent implements OnInit {
   protected readonly editingClient = signal<Client | null>(null);
   protected readonly loading = signal(false);
   protected readonly validationError = signal<string | null>(null);
+  protected readonly archiveOpen = signal(false);
+  protected readonly archiveLoading = signal(false);
+  protected readonly archiveName = signal('');
+  private pendingArchive: (() => Promise<void>) | null = null;
 
   protected readonly columns: TableColumn<Client>[] = [
     { key: 'name', header: 'Name', value: client => client.name },
@@ -93,6 +111,43 @@ export class ClientsPageComponent implements OnInit {
     this.clientOpen.set(false);
     this.editingClient.set(null);
     this.validationError.set(null);
+  }
+
+  protected openArchiveConfirm(client: Client): void {
+    this.archiveName.set(client.name);
+    this.pendingArchive = async () => {
+      await firstValueFrom(this.clientRepository.archiveClient(client.id));
+      this.clients.set(this.clients().filter(existing => existing.id !== client.id));
+    };
+    this.archiveOpen.set(true);
+  }
+
+  protected closeArchiveModal(): void {
+    this.archiveOpen.set(false);
+    this.archiveName.set('');
+    this.pendingArchive = null;
+  }
+
+  protected async confirmArchive(): Promise<void> {
+    const action = this.pendingArchive;
+    this.pendingArchive = null;
+
+    if (!action) {
+      this.closeArchiveModal();
+      return;
+    }
+
+    this.archiveLoading.set(true);
+
+    try {
+      await action();
+      this.closeArchiveModal();
+    } catch (error) {
+      console.error('Error archiving client:', error);
+      alert(`Error: ${error}`);
+    } finally {
+      this.archiveLoading.set(false);
+    }
   }
 
   protected openEditClient(client: Client): void {

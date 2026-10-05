@@ -83,3 +83,5 @@ app.MapHealthChecks("/health");
 app.MapIdentityApi<IdentityUser>(); // <-- Genera las rutas /login, /register, /manage/info, etc.
 
 app.Run();
+
+public partial class Program { }

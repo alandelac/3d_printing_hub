@@ -42,4 +42,11 @@ public class ClientsController(IClientService clientService) : ControllerBase
         var updatedClient = await clientService.UpdateClientAsync(dto, cancellationToken);
         return Ok(updatedClient);
     }
+
+    [HttpDelete("{id:guid}")]
+    public async Task<IActionResult> Archive(Guid id, CancellationToken cancellationToken)
+    {
+        await clientService.ArchiveClientAsync(id, cancellationToken);
+        return NoContent();
+    }
 }

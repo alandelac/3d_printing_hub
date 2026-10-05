@@ -30,6 +30,6 @@ import { Component, input, output } from '@angular/core';
   `
 })
 export class ModalComponent {
-  readonly title = input.required<string>();
+  readonly title = input<string>('');
   readonly close = output<void>();
 }

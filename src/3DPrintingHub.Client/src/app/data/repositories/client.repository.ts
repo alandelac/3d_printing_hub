@@ -21,4 +21,8 @@ export class ClientRepository {
   updateClient(payload: ClientUpdate) {
     return this.api.put<Client>(`/clients/${payload.id}`, payload);
   }
+
+  archiveClient(id: string) {
+    return this.api.delete<void>(`/clients/${id}`);
+  }
 }

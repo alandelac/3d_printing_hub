@@ -20,6 +20,7 @@ public class ClientTests
         Assert.Equal(ClientContactPlatform.WhatsApp, client.ContactPlatform);
         Assert.Equal("+351912345678", client.Phone);
         Assert.Equal("ada@example.com", client.Email);
+        Assert.False(client.IsArchived);
     }
 
     [Theory]

@@ -23,4 +23,9 @@ public interface IClientService
     /// Updates an existing Client record and returns the updated record.
     /// </summary>
     Task<ClientDto> UpdateClientAsync(ClientUpdateDto dto, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Marks an existing Client as archived without removing the record.
+    /// </summary>
+    Task ArchiveClientAsync(Guid id, CancellationToken cancellationToken = default);
 }
