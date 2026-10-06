@@ -8,6 +8,7 @@ export const routes: Routes = [
   { path: 'dashboard', canActivate: [authGuard], /* c8 ignore next */ loadChildren: () => import('./features/dashboard/dashboard-routing').then(module => module.routes) },
   { path: 'filaments', canActivate: [authGuard], /* c8 ignore next */ loadChildren: () => import('./features/filaments/filaments-routing').then(module => module.routes) },
   { path: 'models', canActivate: [authGuard], /* c8 ignore next */ loadChildren: () => import('./features/models/models-routing').then(module => module.routes) },
+  { path: 'print-jobs', canActivate: [authGuard], /* c8 ignore next */ loadChildren: () => import('./features/print-jobs/print-jobs-routing').then(module => module.routes) },
   { path: 'sales', canActivate: [authGuard], /* c8 ignore next */ loadChildren: () => import('./features/sales/sales-routing').then(module => module.routes) },
   { path: 'settings', canActivate: [authGuard], /* c8 ignore next */ loadChildren: () => import('./features/settings/settings-routing').then(module => module.routes) },
   { path: 'stocked', canActivate: [authGuard], /* c8 ignore next */ loadChildren: () => import('./features/stocked/stocked-routing').then(module => module.routes) },

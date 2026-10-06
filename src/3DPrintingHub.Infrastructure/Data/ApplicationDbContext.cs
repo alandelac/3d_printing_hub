@@ -174,7 +174,14 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
 
         modelBuilder.Entity<PrintJob>(entity =>
         {
+            entity.Property(j => j.UsedWeightGrams).HasPrecision(18, 2);
             entity.Property(j => j.CalculatedMaterialCost).HasPrecision(18, 2);
+            entity.ToTable(table => table.HasCheckConstraint(
+                "CK_PrintJobs_ProducedQuantity_Positive",
+                "ProducedQuantity > 0"));
+            entity.ToTable(table => table.HasCheckConstraint(
+                "CK_PrintJobs_UsedWeightGrams_Positive",
+                "UsedWeightGrams > 0"));
 
             entity.HasOne(j => j.Filament)
                 .WithMany()
