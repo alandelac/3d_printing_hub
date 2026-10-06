@@ -251,7 +251,7 @@ This is the **single source of truth for planned work**. `TODO.md` has been reti
 
 ## Phase 13 — Print job registry *(was TODO.md → Next)*
 
-- [ ] Covered
+- [x] Covered
 
 **Objective:** The orphaned `PrintJob` entity becomes usable: finishing a job adds the printed quantity to stock and consumes the filament it used.
 

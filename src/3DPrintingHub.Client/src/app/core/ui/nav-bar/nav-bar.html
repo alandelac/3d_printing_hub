@@ -11,6 +11,16 @@
       <a class="nav-link" routerLink="/settings">Settings</a>
       <a class="nav-link" routerLink="/stocked">Stocked</a>
       <button class="nav-link" type="button" (click)="authService.logout()">Sign out</button>
+      <button
+        class="nav-link theme-toggle"
+        type="button"
+        (click)="toggleTheme()"
+        [attr.aria-pressed]="themeTogglePressed()"
+        [attr.aria-label]="themeToggleLabel()"
+        [attr.title]="themeToggleLabel()"
+      >
+        {{ themeToggleLabel() }}
+      </button>
     </div>
   </div>
 </nav>
