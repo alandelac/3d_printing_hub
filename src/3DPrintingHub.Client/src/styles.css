@@ -1,3 +1,61 @@
+/* Theme tokens: light is the default; dark overrides apply under html[data-theme='dark'] */
+:root {
+  color-scheme: light;
+  --bg: #ffffff;
+  --bg-muted: #f8fafc;
+  --surface: #ffffff;
+  --surface-border: #eeeeee;
+  --text: #111827;
+  --text-muted: #57534e;
+  --input-bg: #ffffff;
+  --input-border: #dddddd;
+  --input-text: #111827;
+  --table-divider: #eeeeee;
+  --modal-bg: #ffffff;
+  --secondary-bg: #e5e7eb;
+  --secondary-text: #374151;
+}
+
+html[data-theme='dark'] {
+  color-scheme: dark;
+  --bg: #0b1120;
+  --bg-muted: #111a2e;
+  --surface: #14203a;
+  --surface-border: #2a3a5f;
+  --text: #e8edf7;
+  --text-muted: #b6c1d6;
+  --input-bg: #0f1930;
+  --input-border: #33456e;
+  --input-text: #e8edf7;
+  --table-divider: #2a3a5f;
+  --modal-bg: #14203a;
+  --secondary-bg: #26334f;
+  --secondary-text: #e8edf7;
+}
+
+html,
+body {
+  background: var(--bg);
+  color: var(--text);
+}
+
+body {
+  margin: 0;
+  font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.main {
+  background: var(--bg);
+  color: var(--text);
+  min-height: calc(100vh - 3rem);
+}
+
+a {
+  color: inherit;
+}
+
+
 /* Global table styles */
 table {
   width: 100%;
@@ -8,7 +66,8 @@ th,
 td {
   text-align: left;
   padding: 0.5rem;
-  border-bottom: 1px solid #eee;
+  border-bottom: 1px solid var(--table-divider);
+  color: var(--text);
 }
 
 /* Global form styles */
@@ -33,7 +92,9 @@ td {
 .add-form input,
 .add-form select {
   padding: 0.4rem;
-  border: 1px solid #ddd;
+  border: 1px solid var(--input-border);
+  background: var(--input-bg);
+  color: var(--input-text);
   border-radius: 4px;
   flex: 1 1 200px;
   min-width: 150px;
@@ -58,19 +119,21 @@ td {
 .modal-backdrop {
   position: absolute;
   inset: 0;
-  background: rgba(0, 0, 0, 0.4);
+  background: rgba(0, 0, 0, 0.55);
 }
 
 .modal-content {
   position: relative;
-  background: white;
+  background: var(--modal-bg);
+  color: var(--text);
+  border: 1px solid var(--surface-border);
   border-radius: 8px;
   padding: 1rem;
   max-width: 800px;
   width: 100%;
   max-height: 90vh;
   overflow-y: auto;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.24);
 }
 
 .modal-content header {
@@ -94,8 +157,8 @@ td {
 }
 
 .secondary {
-  background: #e5e7eb;
-  color: #374151;
+  background: var(--secondary-bg);
+  color: var(--secondary-text);
   border: none;
   padding: 0.5rem 0.75rem;
   border-radius: 6px;
@@ -121,7 +184,7 @@ td {
   border: none;
   font-size: 1.2rem;
   cursor: pointer;
-  color: #666;
+  color: var(--text-muted);
 }
 
 /* Global responsive styles */
@@ -194,7 +257,9 @@ td {
 .form-group select,
 .form-group textarea {
   padding: 0.4rem;
-  border: 1px solid #ddd;
+  border: 1px solid var(--input-border);
+  background: var(--input-bg);
+  color: var(--input-text);
   border-radius: 4px;
   font-size: 0.9rem;
 }
@@ -213,6 +278,56 @@ td {
 /* Spacing for action buttons inside table cells */
 tbody td button + button {
   margin-left: 0.25rem;
+}
+
+/* Dark theme support for feature surfaces with hard-coded light colors */
+html[data-theme='dark'] .dashboard-card {
+  background: var(--surface);
+  border-color: var(--surface-border);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
+}
+
+html[data-theme='dark'] .login-page,
+html[data-theme='dark'] .register-page {
+  background: linear-gradient(135deg, #231303 0%, #2a0f22 52%, #07180f 100%);
+}
+
+html[data-theme='dark'] .login-panel,
+html[data-theme='dark'] .register-panel {
+  background: var(--surface);
+  border-color: var(--surface-border);
+  box-shadow: 0 1rem 2.5rem rgba(0, 0, 0, 0.45);
+}
+
+html[data-theme='dark'] .login-panel h1,
+html[data-theme='dark'] .register-panel h1,
+html[data-theme='dark'] .login-panel label,
+html[data-theme='dark'] .register-panel label {
+  color: var(--text);
+}
+
+html[data-theme='dark'] .login-panel .intro,
+html[data-theme='dark'] .register-panel .intro {
+  color: var(--text-muted);
+}
+
+html[data-theme='dark'] .login-panel input,
+html[data-theme='dark'] .register-panel input {
+  background: var(--input-bg);
+  border-color: var(--input-border);
+  color: var(--input-text);
+}
+
+html[data-theme='dark'] .legend .legend-percent,
+html[data-theme='dark'] .form-hint {
+  color: var(--text-muted);
+}
+
+html[data-theme='dark'] .weight-adjuster input,
+html[data-theme='dark'] .qty-adjust input {
+  background: var(--input-bg);
+  border-color: var(--input-border);
+  color: var(--input-text);
 }
 
 /* You can add global styles to this file, and also import other style files */

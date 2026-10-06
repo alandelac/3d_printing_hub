@@ -4,6 +4,8 @@
         "dotnet test": true,
         "dotnet ef": true,
         "npx vitest": true,
-        "npx ng": true
+        "npx ng": true,
+        "git commit": true,
+        "git push": true
     }
 }

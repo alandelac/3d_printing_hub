@@ -1,0 +1,46 @@
+<section class="job-form">
+  <h3>Record completed print</h3>
+
+  <form (ngSubmit)="onSubmit()">
+    <div class="field-row">
+      <label>
+        Model
+        <select [value]="modelPrintId()" (change)="modelPrintId.set($any($event.target).value)">
+          <option value="">Select model</option>
+          <option *ngFor="let model of models" [value]="model.id">{{ model.name }}</option>
+        </select>
+      </label>
+
+      <label>
+        Filament
+        <select [value]="filamentId()" (change)="filamentId.set($any($event.target).value)">
+          <option value="">Select filament</option>
+          <option *ngFor="let filament of filaments" [value]="filament.id">{{ filament.filamentProfile.brandName }} {{ filament.filamentProfile.materialTypeName }} - {{ filament.colorName }} ({{ filament.remainingWeightGrams }}g left)</option>
+        </select>
+      </label>
+    </div>
+
+    <div class="field-row">
+      <label>
+        Produced quantity
+        <input id="producedQuantity" type="number" min="1" [value]="producedQuantity()" (input)="producedQuantity.set($any($event.target).value)" />
+      </label>
+
+      <label>
+        Used weight (g)
+        <input id="usedWeightGrams" type="number" [value]="calculatedWeightGrams() || ''" readonly />
+      </label>
+    </div>
+
+    <label>
+      Notes
+      <textarea [value]="notes()" (input)="notes.set($any($event.target).value)"></textarea>
+    </label>
+
+    <div class="form-actions">
+      <button type="button" class="secondary" (click)="cancel.emit()">Cancel</button>
+      <button type="submit" class="primary" [disabled]="loading">{{ loading ? 'Saving…' : 'Save job' }}</button>
+    </div>
+
+  </form>
+</section>

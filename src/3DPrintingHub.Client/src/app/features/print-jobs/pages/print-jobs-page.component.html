@@ -1,0 +1,48 @@
+<section class="print-jobs-page">
+  <h2>{{ title() }}</h2>
+
+  <div class="actions">
+    <button class="primary" type="button" (click)="openCreateForm()">Add print job</button>
+  </div>
+
+  <app-print-job-form
+    *ngIf="formOpen()"
+    [models]="models()"
+    [filaments]="filaments()"
+    [loading]="loading()"
+    (save)="savePrintJob($event)"
+    (cancel)="closeForm()"
+  />
+
+  <app-table
+    [columns]="columns"
+    [rows]="printJobs()"
+    [loading]="loading()"
+    emptyText="No print jobs found."
+    filterPlaceholder="Filter print jobs…"
+    [showActions]="false"
+  >
+    <ng-template appTableCell="modelPrintName" let-job>
+      {{ job.modelPrintName ?? 'Unknown model' }}
+    </ng-template>
+
+    <ng-template appTableCell="filamentName" let-job>
+      {{ job.filamentName ?? 'Unknown filament' }}
+    </ng-template>
+
+    <ng-template appTableCell="printedAt" let-job>
+      {{ job.printedAt | dateFormat }}
+    </ng-template>
+
+    <ng-template appTableCell="calculatedMaterialCost" let-job>
+      {{ job.calculatedMaterialCost | currency:'USD':'symbol':'1.2-2' }}
+    </ng-template>
+  </app-table>
+
+  <app-modal *ngIf="validationError()" title="Unable to save print job" (close)="dismissError()">
+    <p>{{ validationError() }}</p>
+    <div class="form-actions">
+      <button type="button" class="primary" (click)="dismissError()">Close</button>
+    </div>
+  </app-modal>
+</section>
