@@ -85,6 +85,20 @@ describe('PrintJobsPageComponent', () => {
     expect(getFilaments).toHaveBeenCalledTimes(2);
   });
 
+  it('opens the create form and closes it when cancelled', async () => {
+    const addButton = fixture.nativeElement.querySelector('button.primary') as HTMLButtonElement;
+    addButton.click();
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.querySelector('app-print-job-form')).not.toBeNull();
+
+    const cancelButton = fixture.nativeElement.querySelector('button.secondary') as HTMLButtonElement;
+    cancelButton.click();
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.querySelector('app-print-job-form')).toBeNull();
+  });
+
   it('shows insufficient filament errors in the shared modal', async () => {
     createPrintJob.mockReturnValue(throwError(() => ({
       error: { detail: 'Insufficient filament remaining weight to complete the requested print job.' }
