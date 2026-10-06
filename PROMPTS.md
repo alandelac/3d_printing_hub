@@ -28,7 +28,7 @@ Important: you must use your askUserqQuestion tool, grouped on these 3, before w
 
 Implement the remaining task groups on folder _____
 
-Mark each checkbox on the validation.md as they are being completed
+Mark each checkbox on the validation.md and plan.md as they are being completed
 
 ## Update the CHANGELOG before merging
 

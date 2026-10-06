@@ -11,6 +11,7 @@ public class PrintJob
     public Guid ModelPrintId { get; set; }
     public ModelPrint? ModelPrint { get; set; }
 
+    public int ProducedQuantity { get; set; }
     public decimal UsedWeightGrams { get; set; }
     public DateTime PrintedAt { get; set; } = DateTime.UtcNow;
 
