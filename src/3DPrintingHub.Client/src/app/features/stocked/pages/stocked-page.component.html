@@ -43,6 +43,12 @@
           <button class="secondary" (click)="adjustQuantity(stock, 'subtract')" [disabled]="adjustingId() === stock.id">−</button>
         </span>
       </ng-template>
+      <ng-template appTableCell="costToProduce" let-stock>
+        {{ stock.costToProduce | number:'1.2-2' }}
+      </ng-template>
+      <ng-template appTableCell="recommendedSalePrice" let-stock>
+        {{ stock.recommendedSalePrice | number:'1.2-2' }}
+      </ng-template>
       <ng-template appTableCell="lastUpdated" let-stock>{{ stock.lastUpdated | dateFormat }}</ng-template>
     </app-table>
   </div>

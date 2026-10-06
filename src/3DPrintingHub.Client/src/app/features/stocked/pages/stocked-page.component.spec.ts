@@ -52,8 +52,8 @@ const stock = (id: string, quantity: number): ProductStock => ({
   filamentColorName: 'Black',
   filamentColorCode: '#000000',
   quantityInStock: quantity,
-  costToProduce: 2,
-  recommendedSalePrice: 4,
+  costToProduce: 2.123456,
+  recommendedSalePrice: 4.987654,
   salePrice: 5,
   lastUpdated: '2026-01-02T00:00:00'
 });
@@ -142,6 +142,8 @@ describe('StockedPageComponent', () => {
     expect(rows().length).toBe(1);
     expect(rows()[0].textContent).toContain('Bracket');
     expect(rows()[0].querySelector('.qty-display')?.textContent).toBe('4');
+    expect(rows()[0].cells[4].textContent?.trim()).toBe('2.12');
+    expect(rows()[0].cells[5].textContent?.trim()).toBe('4.99');
   });
 
   it('shows the empty state when there is no product stock', async () => {
