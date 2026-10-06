@@ -18,4 +18,5 @@ public class ProductStock
     public DateTime LastUpdated { get; set; } = DateTime.UtcNow;
 
     public ICollection<PublishedModels> PublishedModels { get; set; } = [];
+    public ICollection<Sale> Sales { get; set; } = [];
 }

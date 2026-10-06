@@ -22,6 +22,7 @@ namespace Microsoft.Extensions.DependencyInjection
             services.AddScoped<IProductStockService, ProductStockService>();
             services.AddScoped<ISettingService, SettingService>();
             services.AddScoped<IClientService, ClientService>();
+            services.AddScoped<ISaleService, SaleService>();
 
             services.AddFluentValidationAutoValidation();
             services.AddValidatorsFromAssemblyContaining<ModelPrintCreateDtoValidator>();
