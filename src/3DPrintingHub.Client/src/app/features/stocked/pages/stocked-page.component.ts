@@ -6,7 +6,7 @@ import { ModelRepository } from '../../../data/repositories/model.repository';
 import { FilamentRepository } from '../../../data/repositories/filament.repository';
 import { ModelPrint } from '../../../domain/models/model-print.model';
 import { Filament } from '../../../domain/models/filament.model';
-import { ProductStock, ProductStockCreate } from '../../../domain/models/product-stock.model';
+import { ProductStock, ProductStockCreate, ProductStockUpdate } from '../../../domain/models/product-stock.model';
 import { ConfirmDeleteComponent } from '../../../shared/ui/confirm-delete/confirm-delete.component';
 import { TableCellDirective, TableColumn, TableComponent } from '../../../shared/ui/table/table.component';
 import { DateFormatPipe } from '../../../shared/pipes/date-format.pipe';
@@ -166,7 +166,17 @@ export class StockedPageComponent implements OnInit {
     try {
       const editing = this.editingStock();
       if (editing) {
-        await firstValueFrom(this.productStockRepository.updateProductStock({ id: editing.id, ...payload }));
+        if (!Number.isInteger(value.minimumInventoryQuantity) || (value.minimumInventoryQuantity ?? -1) < 0) {
+          alert('Minimum inventory quantity must be a non-negative integer.');
+          return;
+        }
+
+        const update: ProductStockUpdate = {
+          id: editing.id,
+          ...payload,
+          minimumInventoryQuantity: value.minimumInventoryQuantity
+        };
+        await firstValueFrom(this.productStockRepository.updateProductStock(update));
       } else {
         await firstValueFrom(this.productStockRepository.createProductStock(payload));
       }
@@ -179,6 +189,19 @@ export class StockedPageComponent implements OnInit {
     } finally {
       this.loading.set(false);
     }
+  }
+
+  protected stockStatus(stock: ProductStock): string | null {
+    if (stock.quantityInStock === 0) {
+      return 'Out of stock';
+    }
+
+    return stock.quantityInStock < stock.minimumInventoryQuantity ? 'Low stock' : null;
+  }
+
+  protected quantityAccessibleLabel(stock: ProductStock): string {
+    const status = this.stockStatus(stock);
+    return `${stock.quantityInStock} in stock${status ? `, ${status}` : ''}; minimum ${stock.minimumInventoryQuantity}.`;
   }
 
   protected deleteStockConfirm(stock: ProductStock): void {

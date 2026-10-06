@@ -59,6 +59,7 @@ const stock: ProductStock = {
   filamentColorName: 'Black',
   filamentColorCode: '#000000',
   quantityInStock: 4,
+  minimumInventoryQuantity: 2,
   costToProduce: 2,
   recommendedSalePrice: 4,
   salePrice: 5,
@@ -116,7 +117,8 @@ describe('StockFormModalComponent', () => {
     expect(selects()[0].value).toBe('m2');
     expect(selects()[1].value).toBe('f1');
     expect(inputs()[0].value).toBe('4');
-    expect(inputs()[1].value).toBe('5');
+    expect(inputs()[1].value).toBe('2');
+    expect(inputs()[2].value).toBe('5');
     expect(saveButton()?.textContent?.trim()).toBe('Update');
   });
 
@@ -135,9 +137,13 @@ describe('StockFormModalComponent', () => {
     quantity.value = '7';
     quantity.dispatchEvent(new Event('input'));
 
-    const salePrice = inputs()[1];
-    salePrice.value = '9.5';
-    salePrice.dispatchEvent(new Event('input'));
+    const minimumQuantity = inputs()[1];
+    minimumQuantity.value = '8';
+    minimumQuantity.dispatchEvent(new Event('input'));
+
+    const salePriceInput = inputs()[2];
+    salePriceInput.value = '9.5';
+    salePriceInput.dispatchEvent(new Event('input'));
 
     saveButton()?.click();
 
@@ -145,7 +151,8 @@ describe('StockFormModalComponent', () => {
       modelPrintId: 'm1',
       filamentId: 'f1',
       quantityInStock: 7,
-      salePrice: 9.5
+      salePrice: 9.5,
+      minimumInventoryQuantity: 8
     });
   });
 

@@ -53,12 +53,14 @@ public class PrintJobService(ApplicationDbContext dbContext, IPrintPricingServic
                 filament.MaxCost,
                 cancellationToken);
             var recommendedSalePrice = costToProduce * 2;
+            var minimumInventoryQuantity = await ProductStockDefaults.GetMinimumInventoryQuantityAsync(dbContext, cancellationToken);
 
             productStock = new ProductStock
             {
                 ModelPrintId = dto.ModelPrintId,
                 FilamentId = dto.FilamentId,
                 QuantityInStock = dto.ProducedQuantity,
+                MinimumInventoryQuantity = minimumInventoryQuantity,
                 CostToProduce = costToProduce,
                 RecommendedSalePrice = recommendedSalePrice,
                 SalePrice = recommendedSalePrice,

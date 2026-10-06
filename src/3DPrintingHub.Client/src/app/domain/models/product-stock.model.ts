@@ -6,6 +6,7 @@ export interface ProductStock {
   filamentColorName: string;
   filamentColorCode: string;
   quantityInStock: number;
+  minimumInventoryQuantity: number;
   costToProduce: number;
   recommendedSalePrice: number;
   salePrice: number;
@@ -24,5 +25,6 @@ export interface ProductStockUpdate {
   modelPrintId?: string;
   filamentId?: string;
   quantityInStock?: number;
+  minimumInventoryQuantity?: number;
   salePrice?: number;
 }

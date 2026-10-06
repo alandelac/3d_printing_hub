@@ -20,6 +20,8 @@ public class ProductStockService(ApplicationDbContext dbContext, IPrintPricingSe
             .FirstOrDefaultAsync(f => f.Id == dto.FilamentId, cancellationToken)
             ?? throw new InvalidOperationException($"Filament with ID {dto.FilamentId} does not exist.");
 
+        var minimumInventoryQuantity = await ProductStockDefaults.GetMinimumInventoryQuantityAsync(dbContext, cancellationToken);
+
         // CostToProduce is calculated automatically from the selected filament's MaxCost
         // (unlike ModelPrint, which uses the average MaxCost of all filaments)
         var costToProduce = await printPricingService.CalculateCostUsingFilamentAsync(
@@ -38,6 +40,7 @@ public class ProductStockService(ApplicationDbContext dbContext, IPrintPricingSe
             ModelPrintId = dto.ModelPrintId,
             FilamentId = dto.FilamentId,
             QuantityInStock = dto.QuantityInStock,
+            MinimumInventoryQuantity = minimumInventoryQuantity,
             CostToProduce = costToProduce,
             RecommendedSalePrice = recommendedSalePrice,
             SalePrice = salePrice,
@@ -116,6 +119,11 @@ public class ProductStockService(ApplicationDbContext dbContext, IPrintPricingSe
         if (dto.QuantityInStock.HasValue)
         {
             productStock.QuantityInStock = dto.QuantityInStock.Value;
+        }
+
+        if (dto.MinimumInventoryQuantity.HasValue)
+        {
+            productStock.MinimumInventoryQuantity = dto.MinimumInventoryQuantity.Value;
         }
 
         // 4. Calcular costos usando las entidades que YA tenemos en memoria (evitamos 2 queries extra)
@@ -228,6 +236,7 @@ public class ProductStockService(ApplicationDbContext dbContext, IPrintPricingSe
             FilamentColorName = ps.Filament?.Color != null ? ps.Filament.Color.Name : $"Unknown Color ({ps.FilamentId})",
             FilamentColorCode = ps.Filament?.Color?.ColorCode ?? string.Empty,
             QuantityInStock = ps.QuantityInStock,
+            MinimumInventoryQuantity = ps.MinimumInventoryQuantity,
             Version = ps.Version,
             CostToProduce = ps.CostToProduce,
             RecommendedSalePrice = ps.RecommendedSalePrice,
