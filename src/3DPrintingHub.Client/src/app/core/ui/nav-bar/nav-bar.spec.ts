@@ -88,7 +88,10 @@ describe('NavBar', () => {
 
     expect(toggle).not.toBeNull();
     expect(toggle?.getAttribute('type')).toBe('button');
-    expect(toggle?.textContent?.trim()).toBe('🌙 Dark mode');
+    expect(toggle?.textContent?.trim()).toBe('');
+    expect(toggle?.querySelector('.moon-icon')).not.toBeNull();
+    expect(toggle?.querySelector('.sun-icon')).not.toBeNull();
+    expect(toggle?.getAttribute('aria-label')).toBe('Switch to dark mode');
     expect(toggle?.getAttribute('aria-pressed')).toBe('false');
 
     toggle?.click();
@@ -101,7 +104,8 @@ describe('NavBar', () => {
     const updatedToggle = (fixture.nativeElement as HTMLElement).querySelector<HTMLButtonElement>(
       '.theme-toggle'
     );
-    expect(updatedToggle?.textContent?.trim()).toBe('☀️ Light mode');
+    expect(updatedToggle?.textContent?.trim()).toBe('');
+    expect(updatedToggle?.getAttribute('aria-label')).toBe('Switch to light mode');
     expect(updatedToggle?.getAttribute('aria-pressed')).toBe('true');
 
     updatedToggle?.click();

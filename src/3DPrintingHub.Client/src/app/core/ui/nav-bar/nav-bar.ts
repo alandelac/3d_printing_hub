@@ -16,7 +16,7 @@ export class NavBar {
 
   protected readonly isDarkTheme = computed(() => this.themeService.isDark());
   protected readonly themeToggleLabel = computed(() =>
-    this.themeService.isDark() ? '☀️ Light mode' : '🌙 Dark mode'
+    this.themeService.isDark() ? 'Switch to light mode' : 'Switch to dark mode'
   );
   protected readonly themeTogglePressed = computed(() => (this.themeService.isDark() ? 'true' : 'false'));
 
