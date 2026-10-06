@@ -15,7 +15,7 @@
         Filament
         <select [value]="filamentId()" (change)="filamentId.set($any($event.target).value)">
           <option value="">Select filament</option>
-          <option *ngFor="let filament of filaments" [value]="filament.id">{{ filament.colorName }} ({{ filament.remainingWeightGrams }}g left)</option>
+          <option *ngFor="let filament of filaments" [value]="filament.id">{{ filament.filamentProfile.brandName }} {{ filament.filamentProfile.materialTypeName }} - {{ filament.colorName }} ({{ filament.remainingWeightGrams }}g left)</option>
         </select>
       </label>
     </div>
