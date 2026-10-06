@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { provideRouter } from '@angular/router';
 import { of, throwError } from 'rxjs';
 import { ClientRepository } from '../../../data/repositories/client.repository';
 import { Client, ClientContactPlatform } from '../../../domain/models/client.model';
@@ -55,7 +56,10 @@ describe('ClientsPageComponent', () => {
 
     await TestBed.configureTestingModule({
       imports: [ClientsPageComponent],
-      providers: [{ provide: ClientRepository, useValue: { getClients, createClient, updateClient, archiveClient } }]
+      providers: [
+        provideRouter([]),
+        { provide: ClientRepository, useValue: { getClients, createClient, updateClient, archiveClient } }
+      ]
     }).compileComponents();
 
     fixture = TestBed.createComponent(ClientsPageComponent);

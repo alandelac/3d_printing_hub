@@ -1,0 +1,49 @@
+<section class="sales-page">
+  <h2>{{ title() }}</h2>
+
+  <div class="actions">
+    <button class="primary" type="button" (click)="openCreateModal()">Add Sale</button>
+  </div>
+
+  <app-sale-form-modal
+    *ngIf="formOpen()"
+    [clients]="clients()"
+    [productStocks]="productStocks()"
+    [sale]="editingSale()"
+    [loading]="loading()"
+    (save)="saveSale($event)"
+    (cancel)="closeModal()"
+  />
+
+  <app-table
+    [columns]="columns"
+    [rows]="sales()"
+    [loading]="salesLoading()"
+    emptyText="No sales found."
+    filterPlaceholder="Filter sales…"
+    [showActions]="false"
+  >
+    <ng-template appTableCell="clientName" let-sale>
+      {{ sale.clientName ?? 'No client' }}
+    </ng-template>
+
+    <ng-template appTableCell="unitTotal" let-sale>
+      {{ (sale.quantity * sale.salePrice) | currency:'USD':'symbol':'1.2-2' }}
+    </ng-template>
+
+    <ng-template appTableCell="paymentReceived" let-sale>
+      {{ sale.paymentReceived ? 'Paid' : 'Unpaid' }}
+    </ng-template>
+
+    <ng-template appTableCell="soldAtUtc" let-sale>
+      {{ sale.soldAtUtc | dateFormat }}
+    </ng-template>
+
+    <ng-template appTableCell="actions" let-sale>
+      <button class="secondary" type="button" (click)="openEditSale(sale)">Edit</button>
+      <button *ngIf="!sale.paymentReceived" class="primary" type="button" (click)="markPaid(sale)">Mark Paid</button>
+    </ng-template>
+  </app-table>
+
+  <p *ngIf="validationError()" class="validation-error">{{ validationError() }}</p>
+</section>

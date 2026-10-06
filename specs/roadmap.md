@@ -221,7 +221,7 @@ This is the **single source of truth for planned work**. `TODO.md` has been reti
 
 ## Phase 12a — Sales backend
 
-- [ ] Covered
+- [x] Covered
 
 **Objective:** Sales are recorded and tied to clients and stock.
 
@@ -236,7 +236,7 @@ This is the **single source of truth for planned work**. `TODO.md` has been reti
 
 ## Phase 12b — Sales and money-owed frontend
 
-- [ ] Covered
+- [x] Covered
 
 **Objective:** A sales registry, plus per-client selling history and who owes money.
 
