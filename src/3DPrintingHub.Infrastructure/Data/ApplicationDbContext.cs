@@ -19,6 +19,7 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     public DbSet<WeightAdjustmentLog> WeightAdjustmentLogs => Set<WeightAdjustmentLog>();
     public DbSet<ModelPrint> ModelPrints => Set<ModelPrint>();
     public DbSet<ProductStock> ProductStocks => Set<ProductStock>();
+    public DbSet<Sale> Sales => Set<Sale>();
     public DbSet<PublishedModels> PublishedModels => Set<PublishedModels>();
     public DbSet<PrintJob> PrintJobs => Set<PrintJob>();
 
@@ -32,6 +33,11 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
             entity.Property(c => c.Phone).HasMaxLength(30);
             entity.Property(c => c.Email).HasMaxLength(254);
             entity.HasIndex(c => c.Name);
+
+            entity.HasMany(c => c.Sales)
+                .WithOne(s => s.Client)
+                .HasForeignKey(s => s.ClientId)
+                .OnDelete(DeleteBehavior.Restrict);
         });
 
         modelBuilder.Entity<Brand>()
@@ -132,6 +138,25 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
                 .WithMany(f => f.ProductStocks)
                 .HasForeignKey(ps => ps.FilamentId)
                 .OnDelete(DeleteBehavior.Restrict);
+
+            entity.HasMany(ps => ps.Sales)
+                .WithOne(s => s.ProductStock)
+                .HasForeignKey(s => s.ProductStockId)
+                .OnDelete(DeleteBehavior.Restrict);
+        });
+
+        modelBuilder.Entity<Sale>(entity =>
+        {
+            entity.Property(s => s.SalePrice).HasPrecision(18, 2);
+            entity.Property(s => s.SoldAtUtc).HasDefaultValueSql("CURRENT_TIMESTAMP");
+            entity.HasIndex(s => s.ProductStockId);
+            entity.HasIndex(s => s.ClientId);
+            entity.HasIndex(s => s.SoldAtUtc);
+            entity.ToTable(table =>
+            {
+                table.HasCheckConstraint("CK_Sales_Quantity_Positive", "Quantity > 0");
+                table.HasCheckConstraint("CK_Sales_Price_Positive", "SalePrice > 0");
+            });
         });
 
         modelBuilder.Entity<PublishedModels>(entity =>
