@@ -10,7 +10,6 @@
     [models]="models()"
     [filaments]="filaments()"
     [loading]="loading()"
-    [error]="validationError()"
     (save)="savePrintJob($event)"
     (cancel)="closeForm()"
   />
@@ -40,5 +39,10 @@
     </ng-template>
   </app-table>
 
-  <p *ngIf="validationError()" class="validation-error">{{ validationError() }}</p>
+  <app-modal *ngIf="validationError()" title="Unable to save print job" (close)="dismissError()">
+    <p>{{ validationError() }}</p>
+    <div class="form-actions">
+      <button type="button" class="primary" (click)="dismissError()">Close</button>
+    </div>
+  </app-modal>
 </section>

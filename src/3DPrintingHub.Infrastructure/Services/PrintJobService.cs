@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace _3DPrintingHub.Infrastructure.Services;
 
-public class PrintJobService(ApplicationDbContext dbContext) : IPrintJobService
+public class PrintJobService(ApplicationDbContext dbContext, IPrintPricingService printPricingService) : IPrintJobService
 {
     public async Task<Guid> CreatePrintJobAsync(PrintJobCreateDto dto, CancellationToken cancellationToken = default)
     {
@@ -33,10 +33,6 @@ public class PrintJobService(ApplicationDbContext dbContext) : IPrintJobService
             .FirstOrDefaultAsync(f => f.Id == dto.FilamentId, cancellationToken)
             ?? throw new ResourceNotFoundException($"Filament with ID {dto.FilamentId} was not found.");
 
-        var productStock = await dbContext.ProductStocks
-            .FirstOrDefaultAsync(ps => ps.ModelPrintId == dto.ModelPrintId && ps.FilamentId == dto.FilamentId, cancellationToken)
-            ?? throw new ResourceConflictException("No product stock row exists for the selected model and filament pair.");
-
         if (dto.UsedWeightGrams > filament.RemainingWeightGrams)
             throw new BusinessRuleException("Insufficient filament remaining weight to complete the requested print job.");
 
@@ -46,15 +42,43 @@ public class PrintJobService(ApplicationDbContext dbContext) : IPrintJobService
 
         using var transaction = await dbContext.Database.BeginTransactionAsync(cancellationToken);
 
-        var stockRowsAffected = await dbContext.ProductStocks
-            .Where(ps => ps.Id == productStock.Id && ps.Version == productStock.Version)
-            .ExecuteUpdateAsync(setters => setters
-                .SetProperty(ps => ps.QuantityInStock, ps => ps.QuantityInStock + dto.ProducedQuantity)
-                .SetProperty(ps => ps.Version, ps => ps.Version + 1)
-                .SetProperty(ps => ps.LastUpdated, DateTime.UtcNow), cancellationToken);
+        var productStock = await dbContext.ProductStocks
+            .FirstOrDefaultAsync(ps => ps.ModelPrintId == dto.ModelPrintId && ps.FilamentId == dto.FilamentId, cancellationToken);
 
-        if (stockRowsAffected == 0)
-            throw new ResourceConflictException("The selected stock row was changed by another request.");
+        if (productStock is null)
+        {
+            var costToProduce = await printPricingService.CalculateCostUsingFilamentAsync(
+                modelPrint.EstimatedWeightGrams,
+                modelPrint.EstimatedTimeMinutes,
+                filament.MaxCost,
+                cancellationToken);
+            var recommendedSalePrice = costToProduce * 2;
+
+            productStock = new ProductStock
+            {
+                ModelPrintId = dto.ModelPrintId,
+                FilamentId = dto.FilamentId,
+                QuantityInStock = dto.ProducedQuantity,
+                CostToProduce = costToProduce,
+                RecommendedSalePrice = recommendedSalePrice,
+                SalePrice = recommendedSalePrice,
+                Version = 0,
+                LastUpdated = DateTime.UtcNow
+            };
+            await dbContext.ProductStocks.AddAsync(productStock, cancellationToken);
+        }
+        else
+        {
+            var stockRowsAffected = await dbContext.ProductStocks
+                .Where(ps => ps.Id == productStock.Id && ps.Version == productStock.Version)
+                .ExecuteUpdateAsync(setters => setters
+                    .SetProperty(ps => ps.QuantityInStock, ps => ps.QuantityInStock + dto.ProducedQuantity)
+                    .SetProperty(ps => ps.Version, ps => ps.Version + 1)
+                    .SetProperty(ps => ps.LastUpdated, DateTime.UtcNow), cancellationToken);
+
+            if (stockRowsAffected == 0)
+                throw new ResourceConflictException("The selected stock row was changed by another request.");
+        }
 
         var filamentRowsAffected = await dbContext.Filaments
             .Where(f => f.Id == filament.Id && f.RemainingWeightGrams >= gramsToSubtract)

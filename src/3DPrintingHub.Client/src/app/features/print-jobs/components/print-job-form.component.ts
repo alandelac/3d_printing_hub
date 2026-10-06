@@ -1,4 +1,5 @@
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { Component, EventEmitter, Input, OnChanges, Output, SimpleChanges, signal } from '@angular/core';
 import { Filament } from '../../../domain/models/filament.model';
 import { ModelPrint } from '../../../domain/models/model-print.model';
@@ -14,14 +15,13 @@ export interface PrintJobFormValue {
 @Component({
   selector: 'app-print-job-form',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, FormsModule],
   templateUrl: './print-job-form.component.html'
 })
 export class PrintJobFormComponent implements OnChanges {
   @Input() models: ModelPrint[] = [];
   @Input() filaments: Filament[] = [];
   @Input() loading = false;
-  @Input() error: string | null = null;
 
   @Output() save = new EventEmitter<PrintJobFormValue>();
   @Output() cancel = new EventEmitter<void>();
@@ -42,12 +42,21 @@ export class PrintJobFormComponent implements OnChanges {
     }
   }
 
+  protected calculatedWeightGrams(): number {
+    const model = this.models.find(candidate => candidate.id === this.modelPrintId());
+    const quantity = Number(this.producedQuantity());
+
+    return model && Number.isFinite(quantity) && quantity > 0
+      ? model.estimatedWeightGrams * quantity
+      : 0;
+  }
+
   protected onSubmit(): void {
     const payload: PrintJobFormValue = {
       modelPrintId: this.modelPrintId(),
       filamentId: this.filamentId(),
       producedQuantity: Number(this.producedQuantity()),
-      usedWeightGrams: Number(this.usedWeightGrams()),
+      usedWeightGrams: this.calculatedWeightGrams(),
       notes: this.notes()
     };
 

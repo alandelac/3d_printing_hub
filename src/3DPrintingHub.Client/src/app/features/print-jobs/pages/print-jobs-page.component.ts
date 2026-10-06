@@ -8,13 +8,14 @@ import { Filament } from '../../../domain/models/filament.model';
 import { ModelPrint } from '../../../domain/models/model-print.model';
 import { PrintJob, PrintJobCreate } from '../../../domain/models/print-job.model';
 import { DateFormatPipe } from '../../../shared/pipes/date-format.pipe';
+import { ModalComponent } from '../../../shared/ui/modal/modal.component';
 import { TableCellDirective, TableColumn, TableComponent } from '../../../shared/ui/table/table.component';
 import { PrintJobFormComponent, PrintJobFormValue } from '../components/print-job-form.component';
 
 @Component({
   selector: 'app-print-jobs-page',
   standalone: true,
-  imports: [CommonModule, TableComponent, TableCellDirective, DateFormatPipe, PrintJobFormComponent],
+  imports: [CommonModule, TableComponent, TableCellDirective, DateFormatPipe, ModalComponent, PrintJobFormComponent],
   templateUrl: './print-jobs-page.component.html',
 })
 export class PrintJobsPageComponent implements OnInit {
@@ -57,24 +58,28 @@ export class PrintJobsPageComponent implements OnInit {
     this.validationError.set(null);
   }
 
+  protected dismissError(): void {
+    this.validationError.set(null);
+  }
+
   protected async savePrintJob(value: PrintJobFormValue): Promise<void> {
     if (!value.modelPrintId) {
-      this.validationError.set('Please select a model.');
+      this.validationError.set('Select a model before saving the print job.');
       return;
     }
 
     if (!value.filamentId) {
-      this.validationError.set('Please select a filament.');
+      this.validationError.set('Select a filament before saving the print job.');
       return;
     }
 
     if (!Number.isFinite(value.producedQuantity) || value.producedQuantity <= 0) {
-      this.validationError.set('Produced quantity must be greater than zero.');
+      this.validationError.set('Enter a quantity of at least one item.');
       return;
     }
 
     if (!Number.isFinite(value.usedWeightGrams) || value.usedWeightGrams <= 0) {
-      this.validationError.set('Used weight must be greater than zero.');
+      this.validationError.set('The selected model needs a valid estimated weight before it can be printed.');
       return;
     }
 
@@ -93,11 +98,10 @@ export class PrintJobsPageComponent implements OnInit {
     try {
       await firstValueFrom(this.printJobRepository.createPrintJob(payload));
       this.closeForm();
-      await this.loadPrintJobs();
+      await Promise.all([this.loadPrintJobs(), this.loadFilaments()]);
     } catch (error) {
       console.error('Error creating print job:', error);
-      this.validationError.set(`Error: ${error}`);
-      alert(`Error: ${error}`);
+      this.validationError.set(this.getFriendlyErrorMessage(error));
     } finally {
       this.loading.set(false);
     }
@@ -109,7 +113,7 @@ export class PrintJobsPageComponent implements OnInit {
       this.printJobs.set(printJobs);
     } catch (error) {
       console.error('Error loading print jobs:', error);
-      this.validationError.set(`Error: ${error}`);
+      this.validationError.set(this.getFriendlyErrorMessage(error));
     }
   }
 
@@ -127,5 +131,27 @@ export class PrintJobsPageComponent implements OnInit {
     } catch (error) {
       console.error('Error loading filaments:', error);
     }
+  }
+
+  private getFriendlyErrorMessage(error: unknown): string {
+    const response = error && typeof error === 'object'
+      ? (error as { error?: unknown }).error
+      : null;
+    const problem = response && typeof response === 'object'
+      ? response as Record<string, unknown>
+      : null;
+    const message = [problem?.['detail'], problem?.['message'], problem?.['title']]
+      .find(value => typeof value === 'string' && value.trim().length > 0) as string | undefined;
+    const normalizedMessage = message?.toLowerCase() ?? '';
+
+    if (normalizedMessage.includes('insufficient filament')) {
+      return 'There is not enough filament remaining for this print. Choose another filament or reduce the quantity.';
+    }
+
+    if (normalizedMessage.includes('no product stock row')) {
+      return 'There is no stock entry for this model and filament combination. Add it to product stock before recording this print.';
+    }
+
+    return message ?? 'We could not save this print job. Check the selected model and filament, then try again.';
   }
 }

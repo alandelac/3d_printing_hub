@@ -83,7 +83,7 @@ public class PrintJobServiceIntegrationTests
             await dbContext.ProductStocks.AddAsync(productStock);
             await dbContext.SaveChangesAsync();
 
-            var service = new PrintJobService(dbContext);
+            var service = new PrintJobService(dbContext, new PrintPricingService(dbContext));
 
             var createdId = await service.CreatePrintJobAsync(new PrintJobCreateDto
             {
@@ -105,6 +105,94 @@ public class PrintJobServiceIntegrationTests
             Assert.Equal(750, persistedFilament.RemainingWeightGrams);
             Assert.Equal(4m, persistedJob.CalculatedMaterialCost);
             Assert.Equal("Completed job", persistedJob.Notes);
+        }
+    }
+
+    [Fact]
+    public async Task CreatePrintJobAsync_WhenStockDoesNotExist_CreatesStockWithRecommendedPrice()
+    {
+        await using var connection = new SqliteConnection("Filename=:memory:");
+        await connection.OpenAsync();
+
+        var options = new DbContextOptionsBuilder<ApplicationDbContext>()
+            .UseSqlite(connection)
+            .Options;
+
+        await using (var dbContext = new ApplicationDbContext(options))
+        {
+            await dbContext.Database.EnsureCreatedAsync();
+
+            var category = new ModelPrintCategory { Name = "Functional parts" };
+            var color = new FilamentColor { Name = "Black", ColorCode = "#000000" };
+            var brand = new Brand { Name = "Prusa" };
+            var materialType = new MaterialType { Name = "PLA" };
+            var profile = new FilamentProfile
+            {
+                BrandId = brand.Id,
+                MaterialTypeId = materialType.Id,
+                BrandName = brand,
+                MaterialType = materialType
+            };
+            var modelPrint = new ModelPrint
+            {
+                Name = "Test model",
+                Category = category,
+                CategoryId = category.Id,
+                EstimatedWeightGrams = 200,
+                EstimatedTimeMinutes = 60,
+                DefaultSalePrice = 20m,
+                DefaultCost = 10m,
+                CommercialLicense = false,
+                FileLocationOrUrl = "file:///tmp/model.stl",
+                Notes = "Test"
+            };
+            var filament = new Filament
+            {
+                FilamentProfileId = profile.Id,
+                Profile = profile,
+                FilamentColorId = color.Id,
+                Color = color,
+                MinCost = 8m,
+                MaxCost = 16m,
+                LastCost = 16m,
+                RemainingWeightGrams = 1000,
+            };
+
+            await dbContext.ModelPrintCategories.AddAsync(category);
+            await dbContext.FilamentColors.AddAsync(color);
+            await dbContext.Brands.AddAsync(brand);
+            await dbContext.MaterialTypes.AddAsync(materialType);
+            await dbContext.FilamentProfiles.AddAsync(profile);
+            await dbContext.ModelPrints.AddAsync(modelPrint);
+            await dbContext.Filaments.AddAsync(filament);
+            await dbContext.Settings.AddRangeAsync(
+                new Settings { parameter = "misprint_error_rate", value = 0m },
+                new Settings { parameter = "electricity_cost_per_kwh", value = 0m },
+                new Settings { parameter = "printer_electricity_consumption_per_hour", value = 0m },
+                new Settings { parameter = "tear_down_cost_per_hour", value = 0m });
+            await dbContext.SaveChangesAsync();
+
+            var service = new PrintJobService(dbContext, new PrintPricingService(dbContext));
+            var createdId = await service.CreatePrintJobAsync(new PrintJobCreateDto
+            {
+                ModelPrintId = modelPrint.Id,
+                FilamentId = filament.Id,
+                UsedWeightGrams = 250m,
+                ProducedQuantity = 5
+            });
+
+            var createdStock = await dbContext.ProductStocks.AsNoTracking().SingleAsync();
+            var persistedJob = await dbContext.PrintJobs.AsNoTracking().SingleAsync(job => job.Id == createdId);
+            var persistedFilament = await dbContext.Filaments.AsNoTracking().SingleAsync();
+
+            Assert.Equal(modelPrint.Id, createdStock.ModelPrintId);
+            Assert.Equal(filament.Id, createdStock.FilamentId);
+            Assert.Equal(5, createdStock.QuantityInStock);
+            Assert.Equal(3.2m, createdStock.CostToProduce);
+            Assert.Equal(6.4m, createdStock.RecommendedSalePrice);
+            Assert.Equal(createdStock.RecommendedSalePrice, createdStock.SalePrice);
+            Assert.Equal(250m, persistedJob.UsedWeightGrams);
+            Assert.Equal(750, persistedFilament.RemainingWeightGrams);
         }
     }
 
@@ -181,7 +269,7 @@ public class PrintJobServiceIntegrationTests
             await dbContext.ProductStocks.AddAsync(productStock);
             await dbContext.SaveChangesAsync();
 
-            var service = new PrintJobService(dbContext);
+            var service = new PrintJobService(dbContext, new PrintPricingService(dbContext));
 
             var exception = await Assert.ThrowsAsync<BusinessRuleException>(() => service.CreatePrintJobAsync(new PrintJobCreateDto
             {
