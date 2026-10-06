@@ -40,6 +40,7 @@ describe('feature layering', () => {
       dashboard: ['pages', 'components'],
       filaments: ['pages', 'components'],
       models: ['pages', 'components'],
+      sales: ['pages', 'components'],
       settings: ['pages', 'components'],
       stocked: ['pages', 'components']
     };

@@ -36,6 +36,7 @@ describe('NavBar', () => {
       'Dashboard',
       'Filaments',
       'Models',
+      'Sales',
       'Settings',
       'Stocked',
     ]);
@@ -44,6 +45,7 @@ describe('NavBar', () => {
       '/dashboard',
       '/filaments',
       '/models',
+      '/sales',
       '/settings',
       '/stocked',
     ]);

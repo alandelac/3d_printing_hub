@@ -240,6 +240,9 @@ namespace _3DPrintingHub.Infrastructure.Migrations
                         .HasMaxLength(254)
                         .HasColumnType("TEXT");
 
+                    b.Property<bool>("IsArchived")
+                        .HasColumnType("INTEGER");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(200)
@@ -558,6 +561,49 @@ namespace _3DPrintingHub.Infrastructure.Migrations
                     b.ToTable("PublishedModels");
                 });
 
+            modelBuilder.Entity("_3DPrintingHub.Domain.Entities.Sale", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid?>("ClientId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<bool>("PaymentReceived")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<Guid>("ProductStockId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("Quantity")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<decimal>("SalePrice")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("SoldAtUtc")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ClientId");
+
+                    b.HasIndex("ProductStockId");
+
+                    b.HasIndex("SoldAtUtc");
+
+                    b.ToTable("Sales", t =>
+                        {
+                            t.HasCheckConstraint("CK_Sales_Price_Positive", "SalePrice > 0");
+
+                            t.HasCheckConstraint("CK_Sales_Quantity_Positive", "Quantity > 0");
+                        });
+                });
+
             modelBuilder.Entity("_3DPrintingHub.Domain.Entities.Settings", b =>
                 {
                     b.Property<Guid>("Id")
@@ -771,6 +817,24 @@ namespace _3DPrintingHub.Infrastructure.Migrations
                     b.Navigation("ProductStock");
                 });
 
+            modelBuilder.Entity("_3DPrintingHub.Domain.Entities.Sale", b =>
+                {
+                    b.HasOne("_3DPrintingHub.Domain.Entities.Client", "Client")
+                        .WithMany("Sales")
+                        .HasForeignKey("ClientId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("_3DPrintingHub.Domain.Entities.ProductStock", "ProductStock")
+                        .WithMany("Sales")
+                        .HasForeignKey("ProductStockId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Client");
+
+                    b.Navigation("ProductStock");
+                });
+
             modelBuilder.Entity("_3DPrintingHub.Domain.Entities.WeightAdjustmentLog", b =>
                 {
                     b.HasOne("_3DPrintingHub.Domain.Entities.Filament", "Filament")
@@ -780,6 +844,11 @@ namespace _3DPrintingHub.Infrastructure.Migrations
                         .IsRequired();
 
                     b.Navigation("Filament");
+                });
+
+            modelBuilder.Entity("_3DPrintingHub.Domain.Entities.Client", b =>
+                {
+                    b.Navigation("Sales");
                 });
 
             modelBuilder.Entity("_3DPrintingHub.Domain.Entities.Filament", b =>
@@ -817,6 +886,8 @@ namespace _3DPrintingHub.Infrastructure.Migrations
             modelBuilder.Entity("_3DPrintingHub.Domain.Entities.ProductStock", b =>
                 {
                     b.Navigation("PublishedModels");
+
+                    b.Navigation("Sales");
                 });
 #pragma warning restore 612, 618
         }

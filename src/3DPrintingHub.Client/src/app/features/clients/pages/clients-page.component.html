@@ -13,6 +13,18 @@
     (cancel)="closeClientModal()"
   />
 
+  <app-confirm-delete
+    *ngIf="archiveOpen()"
+    [title]="'Archive'"
+    [entityName]="archiveName()"
+    [description]="'Are you sure you want to archive'"
+    [details]="'History will be retained, but this client will leave the active list.'"
+    [confirmLabel]="'Yes, Archive'"
+    [loading]="archiveLoading()"
+    (confirm)="confirmArchive()"
+    (cancel)="closeArchiveModal()"
+  />
+
   <app-table
     [columns]="columns"
     [rows]="clients()"
@@ -26,7 +38,9 @@
     </ng-template>
 
     <ng-template appTableCell="actions" let-client>
+      <button class="secondary" type="button" [routerLink]="['/clients', client.id]">View Details</button>
       <button class="secondary" type="button" (click)="openEditClient(client)">Edit</button>
+      <button class="danger" type="button" (click)="openArchiveConfirm(client)">Archive</button>
     </ng-template>
   </app-table>
 

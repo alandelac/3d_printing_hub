@@ -1,0 +1,9 @@
+{
+    "chat.tools.terminal.autoApprove": {
+        "npx tsc": true,
+        "dotnet test": true,
+        "dotnet ef": true,
+        "npx vitest": true,
+        "npx ng": true
+    }
+}

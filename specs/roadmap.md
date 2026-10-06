@@ -206,7 +206,7 @@ This is the **single source of truth for planned work**. `TODO.md` has been reti
 
 ## Phase 11c — Client deletion
 
-- [ ] Covered
+- [x] Covered
 
 **Objective:** Support deliberate client deletion end to end.
 
@@ -221,21 +221,22 @@ This is the **single source of truth for planned work**. `TODO.md` has been reti
 
 ## Phase 12a — Sales backend
 
-- [ ] Covered
+- [x] Covered
 
 **Objective:** Sales are recorded and tied to clients and stock.
 
 **Deliverables**
-- `Sale` entity linking client, model/product stock (and filament where relevant), quantity, price and a payment-received flag.
+- `Sale` entity linking client, model/product stock, quantity, price and a payment-received flag.
 - Atomic product-stock decrement on sale; DTOs, validators, `ISaleService` + implementation, `SalesController`, migration.
+- A sale can be link to a client but it can be optional, stock, qty, and price are mandatory flago optional default value is true. 
 
-**Acceptance:** Recording a sale decrements stock exactly once, and an over-sale is rejected without side effects.
+**Acceptance:** Recording a sale decrements stock by the quantitye, and an over-sale is rejected without side effects.
 
 ---
 
 ## Phase 12b — Sales and money-owed frontend
 
-- [ ] Covered
+- [x] Covered
 
 **Objective:** A sales registry, plus per-client selling history and who owes money.
 

@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { provideRouter } from '@angular/router';
 import { of, throwError } from 'rxjs';
 import { ClientRepository } from '../../../data/repositories/client.repository';
 import { Client, ClientContactPlatform } from '../../../domain/models/client.model';
@@ -26,6 +27,7 @@ describe('ClientsPageComponent', () => {
   let getClients: ReturnType<typeof vi.fn>;
   let createClient: ReturnType<typeof vi.fn>;
   let updateClient: ReturnType<typeof vi.fn>;
+  let archiveClient: ReturnType<typeof vi.fn>;
 
   const compiled = (): HTMLElement => fixture.nativeElement as HTMLElement;
   const addButton = (): HTMLButtonElement | undefined =>
@@ -37,6 +39,9 @@ describe('ClientsPageComponent', () => {
   const modalInputs = (): HTMLInputElement[] =>
     Array.from(compiled().querySelector('app-client-form-modal')?.querySelectorAll('input') ?? []);
 
+  const findButtonByText = (text: string): HTMLButtonElement | undefined =>
+    Array.from(compiled().querySelectorAll('button')).find(button => button.textContent?.trim() === text);
+
   const flush = async (): Promise<void> => {
     await fixture.whenStable();
     fixture.detectChanges();
@@ -46,11 +51,15 @@ describe('ClientsPageComponent', () => {
     getClients = vi.fn().mockReturnValue(of(clients));
     createClient = vi.fn().mockReturnValue(of({ id: '3' }));
     updateClient = vi.fn().mockReturnValue(of(clients[0]));
+    archiveClient = vi.fn().mockReturnValue(of(undefined));
     vi.stubGlobal('alert', vi.fn());
 
     await TestBed.configureTestingModule({
       imports: [ClientsPageComponent],
-      providers: [{ provide: ClientRepository, useValue: { getClients, createClient, updateClient } }]
+      providers: [
+        provideRouter([]),
+        { provide: ClientRepository, useValue: { getClients, createClient, updateClient, archiveClient } }
+      ]
     }).compileComponents();
 
     fixture = TestBed.createComponent(ClientsPageComponent);
@@ -160,5 +169,39 @@ describe('ClientsPageComponent', () => {
 
     expect(createClient).not.toHaveBeenCalled();
     expect(compiled().textContent).toContain('Name is required');
+  });
+
+  it('archives a client after confirmation and removes it from the active list', async () => {
+    fixture.detectChanges();
+    await flush();
+
+    const archiveButton = findButtonByText('Archive');
+    expect(archiveButton).toBeDefined();
+    archiveButton?.click();
+    await flush();
+
+    expect(document.body.textContent).toContain('History will be retained');
+
+    const confirmArchiveButton = Array.from(compiled().querySelectorAll('button')).find(button => button.textContent?.trim() === 'Yes, Archive');
+    confirmArchiveButton?.click();
+    await flush();
+
+    expect(archiveClient).toHaveBeenCalledWith('1');
+    expect(compiled().querySelector('app-confirm-delete')).toBeNull();
+  });
+
+  it('cancels the archive confirmation without requesting the API', async () => {
+    fixture.detectChanges();
+    await flush();
+
+    findButtonByText('Archive')?.click();
+    await flush();
+
+    const cancelButton = Array.from(compiled().querySelectorAll('button')).find(button => button.textContent?.trim() === 'Cancel');
+    cancelButton?.click();
+    await flush();
+
+    expect(archiveClient).not.toHaveBeenCalled();
+    expect(compiled().querySelector('app-confirm-delete')).toBeNull();
   });
 });

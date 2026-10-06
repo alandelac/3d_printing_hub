@@ -15,7 +15,11 @@ public class Client
 
     public ClientContactPlatform ContactPlatform { get; set; }
 
+    public bool IsArchived { get; set; }
+
     public string? Phone { get; set; }
 
     public string? Email { get; set; }
+
+    public ICollection<Sale> Sales { get; set; } = [];
 }

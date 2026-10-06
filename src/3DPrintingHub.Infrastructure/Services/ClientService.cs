@@ -15,6 +15,7 @@ public class ClientService(ApplicationDbContext dbContext) : IClientService
         {
             Name = dto.Name.Trim(),
             ContactPlatform = dto.ContactPlatform,
+            IsArchived = false,
             Phone = NormalizeOptional(dto.Phone),
             Email = NormalizeOptional(dto.Email)
         };
@@ -29,6 +30,7 @@ public class ClientService(ApplicationDbContext dbContext) : IClientService
     {
         return await dbContext.Clients
             .AsNoTracking()
+            .Where(c => !c.IsArchived)
             .OrderBy(c => c.Name)
             .ThenBy(c => c.Id)
             .Select(c => new ClientDto
@@ -36,6 +38,7 @@ public class ClientService(ApplicationDbContext dbContext) : IClientService
                 Id = c.Id,
                 Name = c.Name,
                 ContactPlatform = c.ContactPlatform,
+                IsArchived = c.IsArchived,
                 Phone = c.Phone,
                 Email = c.Email
             })
@@ -68,11 +71,27 @@ public class ClientService(ApplicationDbContext dbContext) : IClientService
         return MapToDto(client);
     }
 
+    public async Task ArchiveClientAsync(Guid id, CancellationToken cancellationToken = default)
+    {
+        var client = await dbContext.Clients
+            .FirstOrDefaultAsync(c => c.Id == id, cancellationToken)
+            ?? throw new ResourceNotFoundException($"Client with ID {id} was not found.");
+
+        if (client.IsArchived)
+        {
+            return;
+        }
+
+        client.IsArchived = true;
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
+
     private static ClientDto MapToDto(Client client) => new()
     {
         Id = client.Id,
         Name = client.Name,
         ContactPlatform = client.ContactPlatform,
+        IsArchived = client.IsArchived,
         Phone = client.Phone,
         Email = client.Email
     };
