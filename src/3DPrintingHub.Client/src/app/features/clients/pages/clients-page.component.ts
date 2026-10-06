@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit, inject, signal } from '@angular/core';
+import { RouterLink } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
 import { ClientRepository } from '../../../data/repositories/client.repository';
 import { Client, ClientContactPlatform, ClientCreate, ClientUpdate } from '../../../domain/models/client.model';
@@ -10,56 +11,8 @@ import { ClientFormModalComponent, ClientFormValue } from '../components/client-
 @Component({
   selector: 'app-clients-page',
   standalone: true,
-  imports: [CommonModule, TableComponent, TableCellDirective, ClientFormModalComponent, ConfirmDeleteComponent],
-  template: `
-    <section class="clients-page">
-      <h2>{{ title() }}</h2>
-
-      <div class="actions">
-        <button class="primary" type="button" (click)="openCreateModal()">Add Client</button>
-      </div>
-
-      <app-client-form-modal
-        *ngIf="clientOpen()"
-        [client]="editingClient()"
-        [loading]="loading()"
-        (save)="saveClient($event)"
-        (cancel)="closeClientModal()"
-      />
-
-      <app-confirm-delete
-        *ngIf="archiveOpen()"
-        [title]="'Archive'"
-        [entityName]="archiveName()"
-        [description]="'Are you sure you want to archive'"
-        [details]="'History will be retained, but this client will leave the active list.'"
-        [confirmLabel]="'Yes, Archive'"
-        [loading]="archiveLoading()"
-        (confirm)="confirmArchive()"
-        (cancel)="closeArchiveModal()"
-      />
-
-      <app-table
-        [columns]="columns"
-        [rows]="clients()"
-        [loading]="clientsLoading()"
-        emptyText="No clients found."
-        filterPlaceholder="Filter clients…"
-        [showActions]="false"
-      >
-        <ng-template appTableCell="contactPlatform" let-client>
-          {{ client.contactPlatform }}
-        </ng-template>
-
-        <ng-template appTableCell="actions" let-client>
-          <button class="secondary" type="button" (click)="openEditClient(client)">Edit</button>
-          <button class="danger" type="button" (click)="openArchiveConfirm(client)">Archive</button>
-        </ng-template>
-      </app-table>
-
-      <p *ngIf="validationError()" class="validation-error">{{ validationError() }}</p>
-    </section>
-  `
+  imports: [CommonModule, RouterLink, TableComponent, TableCellDirective, ClientFormModalComponent, ConfirmDeleteComponent],
+  templateUrl: './clients-page.component.html'
 })
 export class ClientsPageComponent implements OnInit {
   private readonly clientRepository = inject(ClientRepository);

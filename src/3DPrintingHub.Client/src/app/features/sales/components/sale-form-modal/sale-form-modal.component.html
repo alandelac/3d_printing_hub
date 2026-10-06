@@ -1,0 +1,45 @@
+<div class="modal-backdrop">
+  <div class="modal-content" role="dialog" aria-modal="true">
+    <h3>{{ sale ? 'Edit Sale' : 'Add Sale' }}</h3>
+
+    <label>
+      Product stock
+      <select [value]="productStockId()" (change)="onProductStockChange($any($event.target).value)">
+        <option value="" disabled>Select a stock item</option>
+        <option *ngFor="let stock of productStocks" [value]="stock.id">
+          {{ stock.modelPrintName }} · {{ stock.filamentColorName }} ({{ stock.quantityInStock }} in stock)
+        </option>
+      </select>
+    </label>
+
+    <label>
+      Client (optional)
+      <select [value]="clientId() ?? ''" (change)="clientId.set($any($event.target).value || null)">
+        <option value="">No client</option>
+        <option *ngFor="let client of clients" [value]="client.id">{{ client.name }}</option>
+      </select>
+    </label>
+
+    <label>
+      Quantity
+      <input type="number" min="1" [value]="quantity()" (input)="quantity.set(+($any($event.target).value || 1))" />
+    </label>
+
+    <label>
+      Unit sale price
+      <input type="number" step="0.01" min="0.01" [value]="salePrice()" (input)="salePrice.set(+($any($event.target).value || 0))" />
+    </label>
+
+    <label class="checkbox-row">
+      <input type="checkbox" [checked]="paymentReceived()" (change)="paymentReceived.set($any($event.target).checked)" />
+      Payment received
+    </label>
+
+    <div class="modal-actions">
+      <button class="secondary" type="button" (click)="cancel.emit()">Cancel</button>
+      <button class="primary" type="button" [disabled]="loading" (click)="submit()">
+        {{ loading ? 'Saving...' : (sale ? 'Save Sale' : 'Add Sale') }}
+      </button>
+    </div>
+  </div>
+</div>

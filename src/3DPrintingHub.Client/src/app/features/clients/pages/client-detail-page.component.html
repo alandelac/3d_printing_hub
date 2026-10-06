@@ -1,0 +1,39 @@
+<section class="client-detail-page">
+  <h2>{{ client()?.name ?? 'Client detail' }}</h2>
+
+  <div *ngIf="loading()" class="state">Loading…</div>
+  <p *ngIf="error()" class="validation-error">{{ error() }}</p>
+
+  <div *ngIf="!loading() && client()" class="client-summary">
+    <div class="summary-card">
+      <h3>Outstanding balance</h3>
+      <p class="balance-value">{{ outstandingBalance() | currency:'USD':'symbol':'1.2-2' }}</p>
+      <small>{{ clientSales().filter(sale => !sale.paymentReceived).length }} unpaid sale(s)</small>
+    </div>
+  </div>
+
+  <app-table
+    *ngIf="client()"
+    [columns]="columns"
+    [rows]="clientSales()"
+    emptyText="No sales found for this client."
+    filterPlaceholder="Filter sales…"
+    [showActions]="false"
+  >
+    <ng-template appTableCell="soldAtUtc" let-sale>
+      {{ sale.soldAtUtc | dateFormat }}
+    </ng-template>
+
+    <ng-template appTableCell="paymentReceived" let-sale>
+      {{ sale.paymentReceived ? 'Paid' : 'Unpaid' }}
+    </ng-template>
+
+    <ng-template appTableCell="salePrice" let-sale>
+      {{ sale.salePrice | currency:'USD':'symbol':'1.2-2' }}
+    </ng-template>
+
+    <ng-template appTableCell="actions" let-sale>
+      <button *ngIf="!sale.paymentReceived" class="primary" type="button" (click)="markPaid(sale)">Mark Paid</button>
+    </ng-template>
+  </app-table>
+</section>
