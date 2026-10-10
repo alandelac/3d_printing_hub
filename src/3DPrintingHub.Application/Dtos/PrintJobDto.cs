@@ -7,6 +7,9 @@ public class PrintJobDto
     public string? ModelPrintName { get; set; }
     public Guid FilamentId { get; set; }
     public string? FilamentName { get; set; }
+    public string? FilamentColorCode { get; set; }
+    public string? FilamentBrandName { get; set; }
+    public string? FilamentMaterialTypeName { get; set; }
     public int ProducedQuantity { get; set; }
     public decimal UsedWeightGrams { get; set; }
     public DateTime PrintedAt { get; set; }

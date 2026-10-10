@@ -7,20 +7,10 @@ namespace _3DPrintingHub.Api.Data;
 public static class SettingsSeeder
 {
     /// <summary>
-    /// Seeds the Settings table with default values if it's empty.
-    /// Add new settings here as needed.
+    /// Inserts missing defaults while preserving any existing setting values.
     /// </summary>
     public static async Task SeedAsync(ApplicationDbContext dbContext)
     {
-        // Check if settings already exist
-        var hasSettings = await dbContext.Settings.AnyAsync();
-        
-        if (hasSettings)
-        {
-            return; // Settings already seeded
-        }
-
-        // Default settings - add new ones here
         var defaultSettings = new List<Settings>
         {
             new() {
@@ -38,11 +28,27 @@ public static class SettingsSeeder
              new() {
                  parameter = "misprint_error_rate",
                     value = 0.2m
+             },
+             new() {
+                 parameter = "minimum_inventory_quantity",
+                 value = 2m
              }
         };
-        
 
-        await dbContext.Settings.AddRangeAsync(defaultSettings);
+        var existingParameters = await dbContext.Settings
+            .Select(setting => setting.parameter)
+            .ToListAsync();
+        var existingParameterSet = new HashSet<string>(existingParameters, StringComparer.OrdinalIgnoreCase);
+        var missingSettings = defaultSettings
+            .Where(setting => !existingParameterSet.Contains(setting.parameter))
+            .ToList();
+
+        if (missingSettings.Count == 0)
+        {
+            return;
+        }
+
+        await dbContext.Settings.AddRangeAsync(missingSettings);
         await dbContext.SaveChangesAsync();
     }
 }

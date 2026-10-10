@@ -169,7 +169,8 @@ public class PrintJobServiceIntegrationTests
                 new Settings { parameter = "misprint_error_rate", value = 0m },
                 new Settings { parameter = "electricity_cost_per_kwh", value = 0m },
                 new Settings { parameter = "printer_electricity_consumption_per_hour", value = 0m },
-                new Settings { parameter = "tear_down_cost_per_hour", value = 0m });
+                new Settings { parameter = "tear_down_cost_per_hour", value = 0m },
+                new Settings { parameter = "minimum_inventory_quantity", value = 7m });
             await dbContext.SaveChangesAsync();
 
             var service = new PrintJobService(dbContext, new PrintPricingService(dbContext));
@@ -188,6 +189,7 @@ public class PrintJobServiceIntegrationTests
             Assert.Equal(modelPrint.Id, createdStock.ModelPrintId);
             Assert.Equal(filament.Id, createdStock.FilamentId);
             Assert.Equal(5, createdStock.QuantityInStock);
+            Assert.Equal(7, createdStock.MinimumInventoryQuantity);
             Assert.Equal(3.2m, createdStock.CostToProduce);
             Assert.Equal(6.4m, createdStock.RecommendedSalePrice);
             Assert.Equal(createdStock.RecommendedSalePrice, createdStock.SalePrice);

@@ -45,32 +45,41 @@ describe('NavBar', () => {
     const links = Array.from(compiled.querySelectorAll<HTMLAnchorElement>('.links a'));
 
     expect(links.map(link => link.textContent?.trim())).toEqual([
-      'Clients',
       'Dashboard',
       'Filaments',
       'Models',
+      'Stocked',
       'Print Jobs',
       'Sales',
+      'Clients',
       'Settings',
-      'Stocked',
     ]);
     expect(links.map(link => link.getAttribute('href'))).toEqual([
-      '/clients',
       '/dashboard',
       '/filaments',
       '/models',
+      '/stocked',
       '/print-jobs',
       '/sales',
+      '/clients',
       '/settings',
-      '/stocked',
     ]);
     expect(links.every(link => link.classList.contains('nav-link'))).toBe(true);
+  });
+
+  it('keeps the brand on the left, links centered, and actions on the right', () => {
+    const compiled = fixture.nativeElement as HTMLElement;
+    const inner = compiled.querySelector('.nav-inner');
+    const children = Array.from(inner?.children ?? []).map(child => child.className);
+
+    expect(children).toEqual(['brand', 'links', 'nav-actions']);
+    expect(compiled.querySelector('.nav-actions .theme-toggle')).not.toBeNull();
   });
 
   it('renders the sign-out control with the shared navbar control convention and triggers logout', () => {
     const compiled = fixture.nativeElement as HTMLElement;
 
-    const buttons = Array.from(compiled.querySelectorAll<HTMLButtonElement>('.links button'));
+    const buttons = Array.from(compiled.querySelectorAll<HTMLButtonElement>('.nav-actions button'));
     const button = buttons.find(candidate => candidate.textContent?.trim() === 'Sign out');
 
     expect(button).not.toBeUndefined();
@@ -88,7 +97,10 @@ describe('NavBar', () => {
 
     expect(toggle).not.toBeNull();
     expect(toggle?.getAttribute('type')).toBe('button');
-    expect(toggle?.textContent?.trim()).toBe('🌙 Dark mode');
+    expect(toggle?.textContent?.trim()).toBe('');
+    expect(toggle?.querySelector('.moon-icon')).not.toBeNull();
+    expect(toggle?.querySelector('.sun-icon')).not.toBeNull();
+    expect(toggle?.getAttribute('aria-label')).toBe('Switch to dark mode');
     expect(toggle?.getAttribute('aria-pressed')).toBe('false');
 
     toggle?.click();
@@ -101,7 +113,8 @@ describe('NavBar', () => {
     const updatedToggle = (fixture.nativeElement as HTMLElement).querySelector<HTMLButtonElement>(
       '.theme-toggle'
     );
-    expect(updatedToggle?.textContent?.trim()).toBe('☀️ Light mode');
+    expect(updatedToggle?.textContent?.trim()).toBe('');
+    expect(updatedToggle?.getAttribute('aria-label')).toBe('Switch to light mode');
     expect(updatedToggle?.getAttribute('aria-pressed')).toBe('true');
 
     updatedToggle?.click();

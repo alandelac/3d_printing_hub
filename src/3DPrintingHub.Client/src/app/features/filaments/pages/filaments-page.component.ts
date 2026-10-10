@@ -1,4 +1,4 @@
-import { Component, signal, inject, OnInit } from '@angular/core';
+import { Component, signal, computed, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { firstValueFrom } from 'rxjs';
 import { FilamentRepository } from '../../../data/repositories/filament.repository';
@@ -12,13 +12,14 @@ import { TableCellDirective, TableColumn, TableComponent } from '../../../shared
 import { ConfirmDeleteComponent } from '../../../shared/ui/confirm-delete/confirm-delete.component';
 import { DateFormatPipe } from '../../../shared/pipes/date-format.pipe';
 import { ColorsModalComponent } from '../components/colors-modal/colors-modal.component';
+import { ColorSelectComponent } from '../components/color-select/color-select.component';
 import { BrandsModalComponent } from '../components/brands-modal/brands-modal.component';
 import { MaterialTypesModalComponent } from '../components/material-types-modal/material-types-modal.component';
 
 @Component({
   selector: 'app-filaments-page',
   standalone: true,
-  imports: [CommonModule, ModalComponent, TableComponent, TableCellDirective, ConfirmDeleteComponent, DateFormatPipe, ColorsModalComponent, BrandsModalComponent, MaterialTypesModalComponent],
+  imports: [CommonModule, ModalComponent, TableComponent, TableCellDirective, ConfirmDeleteComponent, DateFormatPipe, ColorsModalComponent, BrandsModalComponent, MaterialTypesModalComponent, ColorSelectComponent],
   templateUrl: './filaments-page.component.html',
   styleUrls: ['./filaments-page.component.css']
 })
@@ -73,6 +74,57 @@ export class FilamentsPageComponent implements OnInit {
   // Filament main data (displayed directly on page)
   protected filaments = signal<Filament[]>([]);
   protected filamentLoading = signal(false);
+
+  // Summary (brief overview shown in the white space on the left)
+  protected totalWeightGrams = computed(() =>
+    this.filaments().reduce((sum, f) => sum + (f.remainingWeightGrams ?? 0), 0)
+  );
+  protected totalFilaments = computed(() => this.filaments().length);
+  protected averageMaxCost = computed(() => {
+    const list = this.filaments();
+    if (list.length === 0) return 0;
+    const sum = list.reduce((acc, f) => acc + (f.maxCost ?? 0), 0);
+    return sum / list.length;
+  });
+  protected mostUsedBrand = computed(() => {
+    const list = this.filaments();
+    if (list.length === 0) return '-';
+    const counts = new Map<string, number>();
+    for (const f of list) {
+      const brand = f.filamentProfile?.brandName?.trim() || '-';
+      counts.set(brand, (counts.get(brand) ?? 0) + 1);
+    }
+    let topBrand = '-';
+    let topCount = 0;
+    for (const [brand, count] of counts) {
+      if (count > topCount) {
+        topCount = count;
+        topBrand = brand;
+      }
+    }
+    return topBrand;
+  });
+  private filamentWeightExtremes = computed(() => {
+    const list = this.filaments();
+    if (list.length === 0) return { most: null as Filament | null, least: null as Filament | null };
+    let most = list[0];
+    let least = list[0];
+    for (const f of list) {
+      if ((f.remainingWeightGrams ?? 0) > (most.remainingWeightGrams ?? 0)) most = f;
+      if ((f.remainingWeightGrams ?? 0) < (least.remainingWeightGrams ?? 0)) least = f;
+    }
+    return { most, least };
+  });
+  protected mostFilament = computed(() => this.filamentWeightExtremes().most);
+  protected leastFilament = computed(() => this.filamentWeightExtremes().least);
+  protected filamentLabel(f: Filament | null): string {
+    if (!f) return '-';
+    const color = f.colorName?.trim() || '-';
+    const brand = f.filamentProfile?.brandName?.trim() || '-';
+    const material = f.filamentProfile?.materialTypeName?.trim() || '';
+    const profile = material ? `${brand} - ${material}` : brand;
+    return `${color} - ${profile} (${f.remainingWeightGrams ?? 0}g)`;
+  }
 
   /**
    * Column metadata only. Every cell is rendered by a custom template, so the

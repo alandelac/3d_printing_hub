@@ -23,6 +23,17 @@
       (input)="onQuantityInput($any($event.target).value)"
     />
 
+    <ng-container *ngIf="isEditing()">
+      <label>Minimum Inventory Quantity:</label>
+      <input
+        type="number"
+        min="0"
+        step="1"
+        [value]="minimumInventoryQuantity()"
+        (input)="onMinimumInventoryQuantityInput($any($event.target).value)"
+      />
+    </ng-container>
+
     <label>Sale Price (per unit, optional):</label>
     <input
       type="number"

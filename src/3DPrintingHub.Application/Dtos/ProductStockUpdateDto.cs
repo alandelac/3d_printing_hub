@@ -28,6 +28,11 @@ public class ProductStockUpdateDto
     public int? QuantityInStock { get; set; }
 
     /// <summary>
+    /// Optional: The minimum quantity to keep in stock for this product.
+    /// </summary>
+    public int? MinimumInventoryQuantity { get; set; }
+
+    /// <summary>
     /// Optional: The sale price of one unit.
     /// </summary>
     public decimal? SalePrice { get; set; }

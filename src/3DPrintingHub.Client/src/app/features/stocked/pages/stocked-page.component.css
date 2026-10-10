@@ -2,6 +2,43 @@
   padding: 1rem;
 }
 
+.swatch { display: inline-block; width: 16px; height: 16px; margin-right: 8px; vertical-align: middle; border-radius: 3px; border: 1px solid rgba(0,0,0,0.06); }
+
+.qty-display {
+  display: inline-flex;
+  min-width: 1.75rem;
+  justify-content: center;
+  border-radius: 3px;
+  padding: 0.1rem 0.35rem;
+  font-weight: 600;
+}
+
+.qty-display--out-of-stock {
+  color: #9f1c13;
+  background: #fde8e7;
+}
+
+.qty-display--low-stock {
+  color: #784600;
+  background: #fff0c2;
+}
+
+.stock-status {
+  display: inline-block;
+  margin-left: 0.35rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.stock-status--out-of-stock {
+  color: #9f1c13;
+}
+
+.stock-status--low-stock {
+  color: #784600;
+}
+
 .form-hint {
   display: block;
   flex: 0 0 100%;

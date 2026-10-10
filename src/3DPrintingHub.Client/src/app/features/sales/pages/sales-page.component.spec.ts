@@ -24,6 +24,7 @@ const productStocks: ProductStock[] = [{
   filamentColorName: 'Red',
   filamentColorCode: '#f00',
   quantityInStock: 14,
+  minimumInventoryQuantity: 2,
   costToProduce: 4,
   recommendedSalePrice: 8,
   salePrice: 10,

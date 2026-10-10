@@ -10,6 +10,7 @@ export interface StockFormValue {
   filamentId: string;
   quantityInStock: number;
   salePrice: number;
+  minimumInventoryQuantity?: number;
 }
 
 /**
@@ -36,6 +37,7 @@ export class StockFormModalComponent implements OnChanges {
   protected readonly filamentId = signal('');
   protected readonly quantityInStock = signal(0);
   protected readonly salePrice = signal(0);
+  protected readonly minimumInventoryQuantity = signal(0);
 
   protected isEditing(): boolean {
     return this.stock() !== null;
@@ -53,6 +55,7 @@ export class StockFormModalComponent implements OnChanges {
       this.filamentId.set(stock.filamentId);
       this.quantityInStock.set(stock.quantityInStock);
       this.salePrice.set(stock.salePrice);
+      this.minimumInventoryQuantity.set(stock.minimumInventoryQuantity);
       return;
     }
 
@@ -60,6 +63,7 @@ export class StockFormModalComponent implements OnChanges {
     this.filamentId.set(this.filaments().length ? this.filaments()[0].id : '');
     this.quantityInStock.set(0);
     this.salePrice.set(0);
+    this.minimumInventoryQuantity.set(0);
   }
 
   protected onQuantityInput(value: string): void {
@@ -70,12 +74,22 @@ export class StockFormModalComponent implements OnChanges {
     this.salePrice.set(value ? +value : 0);
   }
 
+  protected onMinimumInventoryQuantityInput(value: string): void {
+    this.minimumInventoryQuantity.set(value ? +value : 0);
+  }
+
   protected onSave(): void {
-    this.save.emit({
+    const value: StockFormValue = {
       modelPrintId: this.modelPrintId(),
       filamentId: this.filamentId(),
       quantityInStock: this.quantityInStock(),
       salePrice: this.salePrice()
-    });
+    };
+
+    if (this.isEditing()) {
+      value.minimumInventoryQuantity = this.minimumInventoryQuantity();
+    }
+
+    this.save.emit(value);
   }
 }

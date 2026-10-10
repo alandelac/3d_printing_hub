@@ -1,14 +1,46 @@
 <section class="filaments-page">
   <h2>{{ title() }}</h2>
-  <div class="actions">
-    <button class="primary" (click)="toggleOpen()">Colors</button>
-    <button class="primary" (click)="toggleBrandOpen()">Brands</button>
-    <button class="primary" (click)="toggleMaterialTypeOpen()">Material Types</button>
-    <button class="primary" (click)="toggleProfileOpen()">Filament Profiles</button>
-  </div>
+  <div class="top-row">
+    <div class="actions-stack">
+      <div class="actions">
+        <button class="primary" (click)="toggleOpen()">Colors</button>
+        <button class="primary" (click)="toggleBrandOpen()">Brands</button>
+        <button class="primary" (click)="toggleMaterialTypeOpen()">Material Types</button>
+        <button class="primary" (click)="toggleProfileOpen()">Filament Profiles</button>
+      </div>
 
-  <div class="actions">
-    <button class="primary" (click)="toggleFilamentForm()">Add New Filament</button>
+      <div class="actions">
+        <button class="primary" (click)="toggleFilamentForm()">Add New Filament</button>
+      </div>
+    </div>
+
+    <!-- Summary (brief overview, right side) -->
+    <div class="summary">
+      <div class="summary-card">
+        <span class="summary-label">Total weight</span>
+        <strong class="summary-value">{{ totalWeightGrams() }}g</strong>
+      </div>
+      <div class="summary-card">
+        <span class="summary-label">Filaments</span>
+        <strong class="summary-value">{{ totalFilaments() }}</strong>
+      </div>
+      <div class="summary-card">
+        <span class="summary-label">Avg price (max)</span>
+        <strong class="summary-value">${{ averageMaxCost() | number: '1.0-2' }}</strong>
+      </div>
+      <div class="summary-card">
+        <span class="summary-label">Most used brand</span>
+        <strong class="summary-value">{{ mostUsedBrand() }}</strong>
+      </div>
+      <div class="summary-card">
+        <span class="summary-label">Most filament</span>
+        <strong class="summary-value"><span *ngIf="mostFilament()" class="swatch" [style.background]="mostFilament()?.colorCode"></span>{{ filamentLabel(mostFilament()) }}</strong>
+      </div>
+      <div class="summary-card">
+        <span class="summary-label">Least filament</span>
+        <strong class="summary-value"><span *ngIf="leastFilament()" class="swatch" [style.background]="leastFilament()?.colorCode"></span>{{ filamentLabel(leastFilament()) }}</strong>
+      </div>
+    </div>
   </div>
 
   <!-- Filament Modal -->
@@ -21,10 +53,11 @@
           </select>
 
           <label>Color:</label>
-          <select [value]="filamentColorId()" (change)="filamentColorId.set($any($event.target).value)">
-            <option value="">Select Color</option>
-            <option *ngFor="let c of colors()" [value]="c.id">{{ c.color }} ({{ c.colorCode }})</option>
-          </select>
+          <app-color-select
+            [colors]="colors()"
+            [value]="filamentColorId()"
+            (valueChange)="filamentColorId.set($event)"
+          />
 
           <label>Min Cost:</label>
           <input type="number" placeholder="Min Cost" [value]="filamentMinCost()" (input)="filamentMinCost.set($any($event.target).value ? +$any($event.target).value : null)" />
@@ -79,9 +112,9 @@
             (input)="setInlineWeightAdjustment(f.id, $any($event.target).value)"
             aria-label="Adjust remaining weight for {{ f.filamentProfile.brandName }} {{ f.filamentProfile.materialTypeName }}"
           />
-          <button class="secondary" type="button" (click)="applyInlineWeightAdjustment(f, 'add')">+</button>
-          <button class="secondary" type="button" (click)="applyInlineWeightAdjustment(f, 'subtract')">−</button>
-          <button class="secondary" type="button" (click)="applyInlineWeightAdjustment(f, 'set')">Update</button>
+          <button class="success" type="button" (click)="applyInlineWeightAdjustment(f, 'add')">+</button>
+          <button class="danger" type="button" (click)="applyInlineWeightAdjustment(f, 'subtract')">−</button>
+          <button class="primary" type="button" (click)="applyInlineWeightAdjustment(f, 'set')">Update</button>
         </div>
       </ng-template>
       <ng-template appTableCell="minCost" let-f>${{ f.minCost }}</ng-template>

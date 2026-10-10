@@ -20,6 +20,8 @@ public class ProductStockService(ApplicationDbContext dbContext, IPrintPricingSe
             .FirstOrDefaultAsync(f => f.Id == dto.FilamentId, cancellationToken)
             ?? throw new InvalidOperationException($"Filament with ID {dto.FilamentId} does not exist.");
 
+        var minimumInventoryQuantity = await ProductStockDefaults.GetMinimumInventoryQuantityAsync(dbContext, cancellationToken);
+
         // CostToProduce is calculated automatically from the selected filament's MaxCost
         // (unlike ModelPrint, which uses the average MaxCost of all filaments)
         var costToProduce = await printPricingService.CalculateCostUsingFilamentAsync(
@@ -38,6 +40,7 @@ public class ProductStockService(ApplicationDbContext dbContext, IPrintPricingSe
             ModelPrintId = dto.ModelPrintId,
             FilamentId = dto.FilamentId,
             QuantityInStock = dto.QuantityInStock,
+            MinimumInventoryQuantity = minimumInventoryQuantity,
             CostToProduce = costToProduce,
             RecommendedSalePrice = recommendedSalePrice,
             SalePrice = salePrice,
@@ -56,6 +59,9 @@ public class ProductStockService(ApplicationDbContext dbContext, IPrintPricingSe
             .Include(ps => ps.ModelPrint)
             .Include(ps => ps.Filament)
                 .ThenInclude(f => f!.Color)
+            .Include(ps => ps.Filament)
+                .ThenInclude(f => f!.Profile)
+                    .ThenInclude(p => p!.MaterialType)
             .ToListAsync(cancellationToken);
 
         var result = productStocks.Select(ps => ToDto(ps)).ToList();
@@ -69,6 +75,9 @@ public class ProductStockService(ApplicationDbContext dbContext, IPrintPricingSe
             .Include(ps => ps.ModelPrint)
             .Include(ps => ps.Filament)
                 .ThenInclude(f => f!.Color)
+            .Include(ps => ps.Filament)
+                .ThenInclude(f => f!.Profile)
+                    .ThenInclude(p => p!.MaterialType)
             .FirstOrDefaultAsync(ps => ps.Id == id, cancellationToken)
             ?? throw new InvalidOperationException($"ProductStock with ID {id} does not exist.");
 
@@ -87,6 +96,9 @@ public class ProductStockService(ApplicationDbContext dbContext, IPrintPricingSe
             .Include(ps => ps.ModelPrint)
             .Include(ps => ps.Filament)
                 .ThenInclude(f => f!.Color)
+            .Include(ps => ps.Filament)
+                .ThenInclude(f => f!.Profile)
+                    .ThenInclude(p => p!.MaterialType)
             .FirstOrDefaultAsync(ps => ps.Id == dto.Id, cancellationToken)
             ?? throw new InvalidOperationException($"ProductStock with ID {dto.Id} does not exist.");
 
@@ -106,6 +118,8 @@ public class ProductStockService(ApplicationDbContext dbContext, IPrintPricingSe
         {
             var newFilament = await dbContext.Filaments
                 .Include(f => f!.Color) // Aseguramos incluir el color para el DTO
+                .Include(f => f!.Profile)
+                    .ThenInclude(p => p!.MaterialType)
                 .FirstOrDefaultAsync(f => f.Id == dto.FilamentId.Value, cancellationToken)
                 ?? throw new InvalidOperationException($"Filament with ID {dto.FilamentId.Value} does not exist.");
 
@@ -116,6 +130,11 @@ public class ProductStockService(ApplicationDbContext dbContext, IPrintPricingSe
         if (dto.QuantityInStock.HasValue)
         {
             productStock.QuantityInStock = dto.QuantityInStock.Value;
+        }
+
+        if (dto.MinimumInventoryQuantity.HasValue)
+        {
+            productStock.MinimumInventoryQuantity = dto.MinimumInventoryQuantity.Value;
         }
 
         // 4. Calcular costos usando las entidades que YA tenemos en memoria (evitamos 2 queries extra)
@@ -182,6 +201,9 @@ public class ProductStockService(ApplicationDbContext dbContext, IPrintPricingSe
             .Include(ps => ps.ModelPrint)
             .Include(ps => ps.Filament)
                 .ThenInclude(f => f!.Color)
+            .Include(ps => ps.Filament)
+                .ThenInclude(f => f!.Profile)
+                    .ThenInclude(p => p!.MaterialType)
             .FirstAsync(ps => ps.Id == productStockId, cancellationToken);
 
         return ToDto(updatedProductStock);
@@ -212,6 +234,9 @@ public class ProductStockService(ApplicationDbContext dbContext, IPrintPricingSe
             .Include(ps => ps.ModelPrint)
             .Include(ps => ps.Filament)
                 .ThenInclude(f => f!.Color)
+            .Include(ps => ps.Filament)
+                .ThenInclude(f => f!.Profile)
+                    .ThenInclude(p => p!.MaterialType)
             .FirstAsync(ps => ps.Id == productStockId, cancellationToken);
 
         return ToDto(updatedProductStock);
@@ -227,7 +252,9 @@ public class ProductStockService(ApplicationDbContext dbContext, IPrintPricingSe
             FilamentId = ps.FilamentId,
             FilamentColorName = ps.Filament?.Color != null ? ps.Filament.Color.Name : $"Unknown Color ({ps.FilamentId})",
             FilamentColorCode = ps.Filament?.Color?.ColorCode ?? string.Empty,
+            FilamentMaterialTypeName = ps.Filament?.Profile?.MaterialType != null ? ps.Filament.Profile.MaterialType.Name : string.Empty,
             QuantityInStock = ps.QuantityInStock,
+            MinimumInventoryQuantity = ps.MinimumInventoryQuantity,
             Version = ps.Version,
             CostToProduce = ps.CostToProduce,
             RecommendedSalePrice = ps.RecommendedSalePrice,

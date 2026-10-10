@@ -14,7 +14,11 @@ public class ProductStockDto
 
     public string FilamentColorCode { get; set; } = string.Empty;
 
+    public string FilamentMaterialTypeName { get; set; } = string.Empty;
+
     public int QuantityInStock { get; set; }
+
+    public int MinimumInventoryQuantity { get; set; }
 
     public int Version { get; set; }
 

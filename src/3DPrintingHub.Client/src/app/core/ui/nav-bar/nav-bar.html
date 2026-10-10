@@ -2,25 +2,33 @@
   <div class="nav-inner">
     <a class="brand" routerLink="/">3DPrintingHub</a>
     <div class="links">
-      <a class="nav-link" routerLink="/clients">Clients</a>
       <a class="nav-link" routerLink="/dashboard">Dashboard</a>
       <a class="nav-link" routerLink="/filaments">Filaments</a>
       <a class="nav-link" routerLink="/models">Models</a>
+      <a class="nav-link" routerLink="/stocked">Stocked</a>
       <a class="nav-link" routerLink="/print-jobs">Print Jobs</a>
       <a class="nav-link" routerLink="/sales">Sales</a>
+      <a class="nav-link" routerLink="/clients">Clients</a>
       <a class="nav-link" routerLink="/settings">Settings</a>
-      <a class="nav-link" routerLink="/stocked">Stocked</a>
-      <button class="nav-link" type="button" (click)="authService.logout()">Sign out</button>
+    </div>
+    <div class="nav-actions">
       <button
         class="nav-link theme-toggle"
+        [class.is-dark]="isDarkTheme()"
         type="button"
         (click)="toggleTheme()"
         [attr.aria-pressed]="themeTogglePressed()"
         [attr.aria-label]="themeToggleLabel()"
-        [attr.title]="themeToggleLabel()"
       >
-        {{ themeToggleLabel() }}
+        <svg class="theme-icon moon-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+          <path d="M20.4 15.2A8.5 8.5 0 0 1 8.8 3.6 8.5 8.5 0 1 0 20.4 15.2Z" />
+        </svg>
+        <svg class="theme-icon sun-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+          <circle cx="12" cy="12" r="4" />
+          <path d="M12 2v2m0 16v2M4.93 4.93l1.42 1.42m11.3 11.3 1.42 1.42M2 12h2m16 0h2M4.93 19.07l1.42-1.42m11.3-11.3 1.42-1.42" />
+        </svg>
       </button>
+      <button class="nav-link" type="button" (click)="authService.logout()">Sign out</button>
     </div>
   </div>
 </nav>

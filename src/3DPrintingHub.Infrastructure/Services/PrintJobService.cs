@@ -53,12 +53,14 @@ public class PrintJobService(ApplicationDbContext dbContext, IPrintPricingServic
                 filament.MaxCost,
                 cancellationToken);
             var recommendedSalePrice = costToProduce * 2;
+            var minimumInventoryQuantity = await ProductStockDefaults.GetMinimumInventoryQuantityAsync(dbContext, cancellationToken);
 
             productStock = new ProductStock
             {
                 ModelPrintId = dto.ModelPrintId,
                 FilamentId = dto.FilamentId,
                 QuantityInStock = dto.ProducedQuantity,
+                MinimumInventoryQuantity = minimumInventoryQuantity,
                 CostToProduce = costToProduce,
                 RecommendedSalePrice = recommendedSalePrice,
                 SalePrice = recommendedSalePrice,
@@ -113,6 +115,13 @@ public class PrintJobService(ApplicationDbContext dbContext, IPrintPricingServic
             .AsNoTracking()
             .Include(j => j.ModelPrint)
             .Include(j => j.Filament)
+                .ThenInclude(f => f!.Color)
+            .Include(j => j.Filament)
+                .ThenInclude(f => f!.Profile)
+                    .ThenInclude(p => p!.MaterialType)
+            .Include(j => j.Filament)
+                .ThenInclude(f => f!.Profile)
+                    .ThenInclude(p => p!.BrandName)
             .OrderByDescending(j => j.PrintedAt)
             .Select(j => new PrintJobDto
             {
@@ -121,6 +130,9 @@ public class PrintJobService(ApplicationDbContext dbContext, IPrintPricingServic
                 ModelPrintName = j.ModelPrint != null ? j.ModelPrint.Name : null,
                 FilamentId = j.FilamentId,
                 FilamentName = j.Filament != null && j.Filament.Color != null ? j.Filament.Color.Name : null,
+                FilamentColorCode = j.Filament != null && j.Filament.Color != null ? j.Filament.Color.ColorCode : null,
+                FilamentBrandName = j.Filament != null && j.Filament.Profile != null && j.Filament.Profile.BrandName != null ? j.Filament.Profile.BrandName.Name : null,
+                FilamentMaterialTypeName = j.Filament != null && j.Filament.Profile != null && j.Filament.Profile.MaterialType != null ? j.Filament.Profile.MaterialType.Name : null,
                 ProducedQuantity = j.ProducedQuantity,
                 UsedWeightGrams = j.UsedWeightGrams,
                 PrintedAt = j.PrintedAt,
@@ -137,6 +149,12 @@ public class PrintJobService(ApplicationDbContext dbContext, IPrintPricingServic
             .Include(j => j.ModelPrint)
             .Include(j => j.Filament)
             .ThenInclude(f => f.Color)
+            .Include(j => j.Filament)
+                .ThenInclude(f => f!.Profile)
+                    .ThenInclude(p => p!.MaterialType)
+            .Include(j => j.Filament)
+                .ThenInclude(f => f!.Profile)
+                    .ThenInclude(p => p!.BrandName)
             .FirstOrDefaultAsync(j => j.Id == id, cancellationToken)
             ?? throw new ResourceNotFoundException($"PrintJob with ID {id} was not found.");
 
@@ -147,6 +165,9 @@ public class PrintJobService(ApplicationDbContext dbContext, IPrintPricingServic
             ModelPrintName = printJob.ModelPrint?.Name,
             FilamentId = printJob.FilamentId,
             FilamentName = printJob.Filament?.Color?.Name,
+            FilamentColorCode = printJob.Filament?.Color?.ColorCode,
+            FilamentBrandName = printJob.Filament?.Profile?.BrandName?.Name,
+            FilamentMaterialTypeName = printJob.Filament?.Profile?.MaterialType?.Name,
             ProducedQuantity = printJob.ProducedQuantity,
             UsedWeightGrams = printJob.UsedWeightGrams,
             PrintedAt = printJob.PrintedAt,

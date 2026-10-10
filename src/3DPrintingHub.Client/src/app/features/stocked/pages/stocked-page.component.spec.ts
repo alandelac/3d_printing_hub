@@ -44,16 +44,18 @@ const filaments: Filament[] = [
   }
 ];
 
-const stock = (id: string, quantity: number): ProductStock => ({
+const stock = (id: string, quantity: number, minimumInventoryQuantity = 2): ProductStock => ({
   id,
   modelPrintId: 'm1',
   modelPrintName: 'Bracket',
   filamentId: 'f1',
   filamentColorName: 'Black',
   filamentColorCode: '#000000',
+  filamentMaterialTypeName: 'PLA',
   quantityInStock: quantity,
-  costToProduce: 2,
-  recommendedSalePrice: 4,
+  minimumInventoryQuantity,
+  costToProduce: 2.123456,
+  recommendedSalePrice: 4.987654,
   salePrice: 5,
   lastUpdated: '2026-01-02T00:00:00'
 });
@@ -141,7 +143,34 @@ describe('StockedPageComponent', () => {
     ]);
     expect(rows().length).toBe(1);
     expect(rows()[0].textContent).toContain('Bracket');
+    expect(rows()[0].textContent).toContain('Black - PLA');
+    expect(rows()[0].querySelector('.swatch')).not.toBeNull();
     expect(rows()[0].querySelector('.qty-display')?.textContent).toBe('4');
+    expect(rows()[0].querySelector('.stock-status')).toBeNull();
+    expect(rows()[0].cells[4].textContent?.trim()).toBe('2.12');
+    expect(rows()[0].cells[5].textContent?.trim()).toBe('4.99');
+  });
+
+  it('marks zero red, positive quantities below minimum yellow, and the threshold normal', async () => {
+    getAllProductStocks.mockReturnValue(of([
+      stock('out', 0, 2),
+      stock('low', 1, 2),
+      stock('at-minimum', 2, 2),
+      stock('above-minimum', 3, 2)
+    ]));
+
+    fixture.detectChanges();
+    await flush();
+
+    const quantities = Array.from(compiled().querySelectorAll<HTMLElement>('.qty-display'));
+    const statuses = Array.from(compiled().querySelectorAll<HTMLElement>('.stock-status'));
+
+    expect(quantities.find(element => element.textContent?.trim() === '0')?.classList.contains('qty-display--out-of-stock')).toBe(true);
+    expect(quantities.find(element => element.textContent?.trim() === '1')?.classList.contains('qty-display--low-stock')).toBe(true);
+    expect(quantities.find(element => element.textContent?.trim() === '2')?.classList.contains('qty-display--low-stock')).toBe(false);
+    expect(statuses.map(element => element.textContent?.trim()).sort()).toEqual(['Low stock', 'Out of stock']);
+    expect(quantities.find(element => element.textContent?.trim() === '1')?.getAttribute('aria-label'))
+      .toContain('Low stock');
   });
 
   it('shows the empty state when there is no product stock', async () => {
@@ -211,9 +240,46 @@ describe('StockedPageComponent', () => {
       modelPrintId: 'm1',
       filamentId: 'f1',
       quantityInStock: 4,
-      salePrice: 5
+      salePrice: 5,
+      minimumInventoryQuantity: 2
     });
     expect(alert).toHaveBeenCalledWith('Product stock updated successfully!');
+  });
+
+  it('rejects a fractional minimum before calling the API', async () => {
+    fixture.detectChanges();
+    await flush();
+
+    buttonWithText(rows()[0], 'Edit')?.click();
+    await flush();
+
+    const minimumInput = modal()!.querySelectorAll<HTMLInputElement>('input')[1];
+    minimumInput.value = '1.5';
+    minimumInput.dispatchEvent(new Event('input'));
+    buttonWithText(modal()!, 'Update')?.click();
+    await flush();
+
+    expect(alert).toHaveBeenCalledWith('Minimum inventory quantity must be a non-negative integer.');
+    expect(updateProductStock).not.toHaveBeenCalled();
+  });
+
+  it('reports an API error when updating a minimum quantity', async () => {
+    updateProductStock.mockReturnValue(throwError(() => new Error('offline')));
+
+    fixture.detectChanges();
+    await flush();
+
+    buttonWithText(rows()[0], 'Edit')?.click();
+    await flush();
+    buttonWithText(modal()!, 'Update')?.click();
+    await flush();
+
+    expect(updateProductStock).toHaveBeenCalledWith(expect.objectContaining({
+      id: 's1',
+      minimumInventoryQuantity: 2
+    }));
+    expect(alert).toHaveBeenCalledWith(expect.stringContaining('Error:'));
+    expect(modal()).not.toBeNull();
   });
 
   it('reports a failed save', async () => {

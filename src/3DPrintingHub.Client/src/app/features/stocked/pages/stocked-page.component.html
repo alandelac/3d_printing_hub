@@ -28,8 +28,22 @@
       (edit)="openEditStock($event)"
       (delete)="deleteStockConfirm($event)"
     >
+      <ng-template appTableCell="filamentColorName" let-stock>
+        <span class="swatch" [style.background]="stock.filamentColorCode"></span> {{ stock.filamentColorName }}<span *ngIf="stock.filamentMaterialTypeName"> - {{ stock.filamentMaterialTypeName }}</span>
+      </ng-template>
       <ng-template appTableCell="quantity" let-stock>
-        <span class="qty-display">{{ stock.quantityInStock }}</span>
+        <span
+          class="qty-display"
+          [class.qty-display--out-of-stock]="stock.quantityInStock === 0"
+          [class.qty-display--low-stock]="stock.quantityInStock > 0 && stock.quantityInStock < stock.minimumInventoryQuantity"
+          [attr.aria-label]="quantityAccessibleLabel(stock)"
+        >{{ stock.quantityInStock }}</span>
+        <span
+          *ngIf="stockStatus(stock) as status"
+          class="stock-status"
+          [class.stock-status--out-of-stock]="stock.quantityInStock === 0"
+          [class.stock-status--low-stock]="stock.quantityInStock > 0"
+        >{{ status }}</span>
         <span class="qty-adjust">
           <input
             type="number"
@@ -42,6 +56,12 @@
           <button class="secondary" (click)="adjustQuantity(stock, 'add')" [disabled]="adjustingId() === stock.id">+</button>
           <button class="secondary" (click)="adjustQuantity(stock, 'subtract')" [disabled]="adjustingId() === stock.id">−</button>
         </span>
+      </ng-template>
+      <ng-template appTableCell="costToProduce" let-stock>
+        {{ stock.costToProduce | number:'1.2-2' }}
+      </ng-template>
+      <ng-template appTableCell="recommendedSalePrice" let-stock>
+        {{ stock.recommendedSalePrice | number:'1.2-2' }}
       </ng-template>
       <ng-template appTableCell="lastUpdated" let-stock>{{ stock.lastUpdated | dateFormat }}</ng-template>
     </app-table>

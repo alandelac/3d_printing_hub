@@ -27,7 +27,7 @@
     </ng-template>
 
     <ng-template appTableCell="filamentName" let-job>
-      {{ job.filamentName ?? 'Unknown filament' }}
+      <span class="swatch" *ngIf="filamentSwatch(job)" [style.background]="filamentSwatch(job)"></span>{{ filamentLabel(job) }}
     </ng-template>
 
     <ng-template appTableCell="printedAt" let-job>
