@@ -5,6 +5,7 @@ export interface ProductStock {
   filamentId: string;
   filamentColorName: string;
   filamentColorCode: string;
+  filamentMaterialTypeName?: string;
   quantityInStock: number;
   minimumInventoryQuantity: number;
   costToProduce: number;

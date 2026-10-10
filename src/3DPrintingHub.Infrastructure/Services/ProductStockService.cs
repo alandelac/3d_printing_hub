@@ -59,6 +59,9 @@ public class ProductStockService(ApplicationDbContext dbContext, IPrintPricingSe
             .Include(ps => ps.ModelPrint)
             .Include(ps => ps.Filament)
                 .ThenInclude(f => f!.Color)
+            .Include(ps => ps.Filament)
+                .ThenInclude(f => f!.Profile)
+                    .ThenInclude(p => p!.MaterialType)
             .ToListAsync(cancellationToken);
 
         var result = productStocks.Select(ps => ToDto(ps)).ToList();
@@ -72,6 +75,9 @@ public class ProductStockService(ApplicationDbContext dbContext, IPrintPricingSe
             .Include(ps => ps.ModelPrint)
             .Include(ps => ps.Filament)
                 .ThenInclude(f => f!.Color)
+            .Include(ps => ps.Filament)
+                .ThenInclude(f => f!.Profile)
+                    .ThenInclude(p => p!.MaterialType)
             .FirstOrDefaultAsync(ps => ps.Id == id, cancellationToken)
             ?? throw new InvalidOperationException($"ProductStock with ID {id} does not exist.");
 
@@ -90,6 +96,9 @@ public class ProductStockService(ApplicationDbContext dbContext, IPrintPricingSe
             .Include(ps => ps.ModelPrint)
             .Include(ps => ps.Filament)
                 .ThenInclude(f => f!.Color)
+            .Include(ps => ps.Filament)
+                .ThenInclude(f => f!.Profile)
+                    .ThenInclude(p => p!.MaterialType)
             .FirstOrDefaultAsync(ps => ps.Id == dto.Id, cancellationToken)
             ?? throw new InvalidOperationException($"ProductStock with ID {dto.Id} does not exist.");
 
@@ -109,6 +118,8 @@ public class ProductStockService(ApplicationDbContext dbContext, IPrintPricingSe
         {
             var newFilament = await dbContext.Filaments
                 .Include(f => f!.Color) // Aseguramos incluir el color para el DTO
+                .Include(f => f!.Profile)
+                    .ThenInclude(p => p!.MaterialType)
                 .FirstOrDefaultAsync(f => f.Id == dto.FilamentId.Value, cancellationToken)
                 ?? throw new InvalidOperationException($"Filament with ID {dto.FilamentId.Value} does not exist.");
 
@@ -190,6 +201,9 @@ public class ProductStockService(ApplicationDbContext dbContext, IPrintPricingSe
             .Include(ps => ps.ModelPrint)
             .Include(ps => ps.Filament)
                 .ThenInclude(f => f!.Color)
+            .Include(ps => ps.Filament)
+                .ThenInclude(f => f!.Profile)
+                    .ThenInclude(p => p!.MaterialType)
             .FirstAsync(ps => ps.Id == productStockId, cancellationToken);
 
         return ToDto(updatedProductStock);
@@ -220,6 +234,9 @@ public class ProductStockService(ApplicationDbContext dbContext, IPrintPricingSe
             .Include(ps => ps.ModelPrint)
             .Include(ps => ps.Filament)
                 .ThenInclude(f => f!.Color)
+            .Include(ps => ps.Filament)
+                .ThenInclude(f => f!.Profile)
+                    .ThenInclude(p => p!.MaterialType)
             .FirstAsync(ps => ps.Id == productStockId, cancellationToken);
 
         return ToDto(updatedProductStock);
@@ -235,6 +252,7 @@ public class ProductStockService(ApplicationDbContext dbContext, IPrintPricingSe
             FilamentId = ps.FilamentId,
             FilamentColorName = ps.Filament?.Color != null ? ps.Filament.Color.Name : $"Unknown Color ({ps.FilamentId})",
             FilamentColorCode = ps.Filament?.Color?.ColorCode ?? string.Empty,
+            FilamentMaterialTypeName = ps.Filament?.Profile?.MaterialType != null ? ps.Filament.Profile.MaterialType.Name : string.Empty,
             QuantityInStock = ps.QuantityInStock,
             MinimumInventoryQuantity = ps.MinimumInventoryQuantity,
             Version = ps.Version,

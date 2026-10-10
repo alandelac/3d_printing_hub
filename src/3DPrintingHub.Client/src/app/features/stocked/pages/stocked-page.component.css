@@ -2,6 +2,8 @@
   padding: 1rem;
 }
 
+.swatch { display: inline-block; width: 16px; height: 16px; margin-right: 8px; vertical-align: middle; border-radius: 3px; border: 1px solid rgba(0,0,0,0.06); }
+
 .qty-display {
   display: inline-flex;
   min-width: 1.75rem;

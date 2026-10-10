@@ -28,6 +28,9 @@
       (edit)="openEditStock($event)"
       (delete)="deleteStockConfirm($event)"
     >
+      <ng-template appTableCell="filamentColorName" let-stock>
+        <span class="swatch" [style.background]="stock.filamentColorCode"></span> {{ stock.filamentColorName }}<span *ngIf="stock.filamentMaterialTypeName"> - {{ stock.filamentMaterialTypeName }}</span>
+      </ng-template>
       <ng-template appTableCell="quantity" let-stock>
         <span
           class="qty-display"

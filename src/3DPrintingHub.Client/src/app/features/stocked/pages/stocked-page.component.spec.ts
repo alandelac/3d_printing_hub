@@ -51,6 +51,7 @@ const stock = (id: string, quantity: number, minimumInventoryQuantity = 2): Prod
   filamentId: 'f1',
   filamentColorName: 'Black',
   filamentColorCode: '#000000',
+  filamentMaterialTypeName: 'PLA',
   quantityInStock: quantity,
   minimumInventoryQuantity,
   costToProduce: 2.123456,
@@ -142,6 +143,8 @@ describe('StockedPageComponent', () => {
     ]);
     expect(rows().length).toBe(1);
     expect(rows()[0].textContent).toContain('Bracket');
+    expect(rows()[0].textContent).toContain('Black - PLA');
+    expect(rows()[0].querySelector('.swatch')).not.toBeNull();
     expect(rows()[0].querySelector('.qty-display')?.textContent).toBe('4');
     expect(rows()[0].querySelector('.stock-status')).toBeNull();
     expect(rows()[0].cells[4].textContent?.trim()).toBe('2.12');

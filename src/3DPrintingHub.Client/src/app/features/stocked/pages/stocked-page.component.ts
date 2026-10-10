@@ -33,7 +33,7 @@ export class StockedPageComponent implements OnInit {
   protected readonly columns: TableColumn<ProductStock>[] = [
     { key: 'id', header: 'ID', value: stock => stock.id },
     { key: 'modelPrintName', header: 'Model', value: stock => stock.modelPrintName },
-    { key: 'filamentColorName', header: 'Filament', value: stock => stock.filamentColorName },
+    { key: 'filamentColorName', header: 'Filament', value: stock => `${stock.filamentColorName}${stock.filamentMaterialTypeName ? ` - ${stock.filamentMaterialTypeName}` : ''}` },
     { key: 'quantity', header: 'Quantity', value: stock => stock.quantityInStock },
     { key: 'costToProduce', header: 'Cost To Produce', value: stock => stock.costToProduce },
     { key: 'recommendedSalePrice', header: 'Recommended Sale Price', value: stock => stock.recommendedSalePrice },
