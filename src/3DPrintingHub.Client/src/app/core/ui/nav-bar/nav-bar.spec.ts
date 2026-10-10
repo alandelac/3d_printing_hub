@@ -45,32 +45,41 @@ describe('NavBar', () => {
     const links = Array.from(compiled.querySelectorAll<HTMLAnchorElement>('.links a'));
 
     expect(links.map(link => link.textContent?.trim())).toEqual([
-      'Clients',
       'Dashboard',
       'Filaments',
       'Models',
+      'Stocked',
       'Print Jobs',
       'Sales',
+      'Clients',
       'Settings',
-      'Stocked',
     ]);
     expect(links.map(link => link.getAttribute('href'))).toEqual([
-      '/clients',
       '/dashboard',
       '/filaments',
       '/models',
+      '/stocked',
       '/print-jobs',
       '/sales',
+      '/clients',
       '/settings',
-      '/stocked',
     ]);
     expect(links.every(link => link.classList.contains('nav-link'))).toBe(true);
+  });
+
+  it('keeps the brand on the left, links centered, and actions on the right', () => {
+    const compiled = fixture.nativeElement as HTMLElement;
+    const inner = compiled.querySelector('.nav-inner');
+    const children = Array.from(inner?.children ?? []).map(child => child.className);
+
+    expect(children).toEqual(['brand', 'links', 'nav-actions']);
+    expect(compiled.querySelector('.nav-actions .theme-toggle')).not.toBeNull();
   });
 
   it('renders the sign-out control with the shared navbar control convention and triggers logout', () => {
     const compiled = fixture.nativeElement as HTMLElement;
 
-    const buttons = Array.from(compiled.querySelectorAll<HTMLButtonElement>('.links button'));
+    const buttons = Array.from(compiled.querySelectorAll<HTMLButtonElement>('.nav-actions button'));
     const button = buttons.find(candidate => candidate.textContent?.trim() === 'Sign out');
 
     expect(button).not.toBeUndefined();
