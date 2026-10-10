@@ -210,6 +210,20 @@ td {
 }
 
 /* Shared layout styles (used across feature pages) */
+
+/* Page container padding - keeps all feature pages aligned */
+.dashboard-page,
+.filaments-page,
+.models-page,
+.stocked-page,
+.print-jobs-page,
+.sales-page,
+.clients-page,
+.client-detail-page,
+.settings-page {
+  padding: 1rem;
+}
+
 .actions {
   display: flex;
   gap: 0.5rem;
