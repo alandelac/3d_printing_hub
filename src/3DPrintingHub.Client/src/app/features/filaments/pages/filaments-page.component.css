@@ -1,5 +1,26 @@
 .filaments-page { padding: 1rem; }
 .actions { display: flex; gap: 0.5rem; margin-bottom: 1rem; flex-wrap: wrap; }
+.actions:last-child { margin-bottom: 0; }
+.top-row { display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; margin-bottom: 1rem; flex-wrap: wrap; }
+.actions-stack { display: flex; flex-direction: column; }
+.summary { display: flex; gap: 0.75rem; flex-wrap: wrap; justify-content: flex-end; margin-left: auto; }
+.summary-card {
+  background: var(--surface);
+  border: 1px solid var(--surface-border);
+  border-radius: 8px;
+  padding: 0.6rem 0.9rem;
+  min-width: 150px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+}
+.summary-label { font-size: 0.8rem; color: var(--text-muted); }
+.summary-value { font-size: 1.05rem; }
+@media (max-width: 700px) {
+  .top-row { flex-direction: column; align-items: stretch; }
+  .summary { justify-content: flex-start; margin-left: 0; }
+}
 .swatch { display: inline-block; width: 16px; height: 16px; margin-right: 8px; vertical-align: middle; border-radius: 3px; border: 1px solid rgba(0,0,0,0.06); }
 .weight-adjuster {
   display: inline-flex;
