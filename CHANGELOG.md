@@ -4,6 +4,56 @@ All notable changes to **3D Printing Hub** are recorded here, grouped by the dat
 landed. Every bullet keeps its commit subject and short SHA, so any line can be traced back
 to the commit that produced it.
 
+## 2026-10-10
+- feat: color filament weight adjuster buttons (96a93d6)
+- feat: show swatch color brand material in print job filament column (da8e7cd)
+- Feat: add filament summary panel with totals, avg price, brand and weight extremes (263c014)
+
+## 2026-10-09
+- feat: reorder navbar with centered links and right-aligned actions (695c6ba)
+- feat: add color swatch dropdown to filament form (2e9f8a1)
+- feat: show filament color swatch and material type in stock table (2075c0a)
+- fix: align page container padding across feature pages (a019368)
+
+## 2026-10-06
+- Add animated navbar theme toggle (5d3441a)
+- Format stock prices to two decimals (c3a47dd)
+- docs: add low-stock alerts specification (3892188)
+- feat: add per-product low-stock alerts (2ac5916)
+
+## 2026-10-05
+- docs: update phase 12a (bce6d0d)
+- docs: add sales backend spec (0d985cc)
+- Add sales backend (270c51c)
+- Add phase 12b sales frontend spec (68da97e)
+- feat: add sales money owed frontend (9377892)
+- docs: specify print job registry phase (0a52c2e)
+- feat: complete print job registry (21874a7)
+- feat: add persisted dark/light theme toggle (5ce143d)
+- feat: include filament details in print job selector (9e80ecd)
+- Improve print job form and service (c4e0473)
+- test: cover print job form open and cancel (b71e273)
+
+## 2026-10-04
+- docs: specify clients frontend phase (b9dfff6)
+- Add clients frontend phase 11b (e0ca042)
+- docs: specify client archiving phase (60601b1)
+- feat: archive clients without deleting data (ffabafa)
+
+## 2026-10-01
+- Add client backend CRUD and validation (4ab4dc9)
+
+## 2026-09-30
+- docs: specify clients backend phase (98eb61d)
+
+## 2026-09-28
+- Phase 9: Complete global table component - shared table implementation with sorting and filtering (18b2993)
+- feat(specs): add phase 10 filament weight adjuster specifications (bdec72d)
+- feat: add filament weight adjuster (0c84177)
+
+## 2026-09-21
+- Add Phase 9 global table component spec (dde137d)
+
 ## 2026-09-20
 - docs: add phase 6 sign-out styling spec (369eee1)
 - feat(nav-bar): apply shared nav-link convention to sign-out control (2317fbd)
@@ -11,6 +61,11 @@ to the commit that produced it.
 - docs: specify Phase 7 frontend architecture consolidation (49e85ea)
 - feat: consolidate frontend architecture (b252743)
 - merge: phase 7 frontend architecture consolidation (2819d1c)
+- docs: check phase 7 completed (d95e579)
+- cos: syntax error on prompting (ca8d4db)
+- docs: specs for phase 8 (0932f9a)
+- feat: add global timestamp formatter (2109cbb)
+- docs: broaden phase 9 shared table scope (1013ae7)
 
 ## 2026-09-19
 - docs: spec for nginx docker error created (71ed63e)
