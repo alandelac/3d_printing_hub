@@ -17,6 +17,10 @@ import { PrintJobFormComponent, PrintJobFormValue } from '../components/print-jo
   standalone: true,
   imports: [CommonModule, TableComponent, TableCellDirective, DateFormatPipe, ModalComponent, PrintJobFormComponent],
   templateUrl: './print-jobs-page.component.html',
+  styles: [`
+    .print-jobs-page { padding: 1rem; }
+    .swatch { display: inline-block; width: 16px; height: 16px; margin-right: 8px; vertical-align: middle; border-radius: 3px; border: 1px solid rgba(0,0,0,0.06); }
+  `],
 })
 export class PrintJobsPageComponent implements OnInit {
   private readonly printJobRepository = inject(PrintJobRepository);
@@ -33,12 +37,33 @@ export class PrintJobsPageComponent implements OnInit {
 
   protected readonly columns: TableColumn<PrintJob>[] = [
     { key: 'modelPrintName', header: 'Model', value: job => job.modelPrintName ?? 'Unknown model' },
-    { key: 'filamentName', header: 'Filament', value: job => job.filamentName ?? 'Unknown filament' },
+    { key: 'filamentName', header: 'Filament', value: job => this.filamentLabel(job) },
     { key: 'producedQuantity', header: 'Produced', value: job => job.producedQuantity },
     { key: 'usedWeightGrams', header: 'Used (g)', value: job => job.usedWeightGrams },
     { key: 'calculatedMaterialCost', header: 'Material cost', value: job => job.calculatedMaterialCost },
     { key: 'printedAt', header: 'Printed', value: job => job.printedAt },
   ];
+
+  protected filamentLabel(job: PrintJob): string {
+    const color = job.filamentName?.trim();
+    const brand = job.filamentBrandName?.trim();
+    const material = job.filamentMaterialTypeName?.trim();
+
+    if (!color && !brand && !material) {
+      return 'Unknown filament';
+    }
+
+    const brandMaterial = [brand, material].filter(Boolean).join(' ');
+    if (!color) {
+      return brandMaterial;
+    }
+
+    return brandMaterial ? `${color} - ${brandMaterial}` : color;
+  }
+
+  protected filamentSwatch(job: PrintJob): string | null {
+    return job.filamentColorCode?.trim() ? job.filamentColorCode : null;
+  }
 
   async ngOnInit(): Promise<void> {
     await Promise.all([
@@ -107,7 +132,7 @@ export class PrintJobsPageComponent implements OnInit {
     }
   }
 
-  private async loadPrintJobs(): Promise<void> {
+  protected async loadPrintJobs(): Promise<void> {
     try {
       const printJobs = await firstValueFrom(this.printJobRepository.getPrintJobs());
       this.printJobs.set(printJobs);

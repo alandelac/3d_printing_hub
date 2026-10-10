@@ -116,4 +116,44 @@ describe('PrintJobsPageComponent', () => {
     expect(fixture.nativeElement.querySelector('app-modal')).not.toBeNull();
     expect(fixture.nativeElement.textContent).toContain('There is not enough filament remaining for this print.');
   });
+
+  it('formats the filament label as color, brand and material', () => {
+    const component = fixture.componentInstance as any;
+
+    expect(component.filamentLabel({
+      filamentName: 'Black',
+      filamentBrandName: 'Prusa',
+      filamentMaterialTypeName: 'PLA'
+    })).toBe('Black - Prusa PLA');
+    expect(component.filamentLabel({ filamentName: 'Black' })).toBe('Black');
+    expect(component.filamentLabel({})).toBe('Unknown filament');
+    expect(component.filamentSwatch({ filamentColorCode: '#000000' })).toBe('#000000');
+    expect(component.filamentSwatch({})).toBeNull();
+  });
+
+  it('renders the filament swatch with color, brand and material', async () => {
+    getPrintJobs.mockReturnValue(of([{
+      id: 'job1',
+      modelPrintId: 'm1',
+      modelPrintName: 'Bracket',
+      filamentId: 'f1',
+      filamentName: 'Black',
+      filamentColorCode: '#000000',
+      filamentBrandName: 'Prusa',
+      filamentMaterialTypeName: 'PLA',
+      producedQuantity: 2,
+      usedWeightGrams: 84,
+      printedAt: '2026-10-05T12:00:00Z',
+      calculatedMaterialCost: 1.5
+    }]));
+    await (fixture.componentInstance as any).loadPrintJobs();
+    await flush();
+
+    const rows = Array.from(fixture.nativeElement.querySelectorAll('tbody tr')) as HTMLElement[];
+    expect(rows.length).toBe(1);
+    expect(rows[0].textContent ?? '').toContain('Black - Prusa PLA');
+    const swatch = rows[0].querySelector('.swatch') as HTMLElement | null;
+    expect(swatch).not.toBeNull();
+    expect(swatch!.style.background).toBe('rgb(0, 0, 0)');
+  });
 });

@@ -4,6 +4,9 @@ export interface PrintJob {
   modelPrintName?: string | null;
   filamentId: string;
   filamentName?: string | null;
+  filamentColorCode?: string | null;
+  filamentBrandName?: string | null;
+  filamentMaterialTypeName?: string | null;
   producedQuantity: number;
   usedWeightGrams: number;
   printedAt: string;
