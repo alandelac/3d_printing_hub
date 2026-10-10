@@ -12,13 +12,14 @@ import { TableCellDirective, TableColumn, TableComponent } from '../../../shared
 import { ConfirmDeleteComponent } from '../../../shared/ui/confirm-delete/confirm-delete.component';
 import { DateFormatPipe } from '../../../shared/pipes/date-format.pipe';
 import { ColorsModalComponent } from '../components/colors-modal/colors-modal.component';
+import { ColorSelectComponent } from '../components/color-select/color-select.component';
 import { BrandsModalComponent } from '../components/brands-modal/brands-modal.component';
 import { MaterialTypesModalComponent } from '../components/material-types-modal/material-types-modal.component';
 
 @Component({
   selector: 'app-filaments-page',
   standalone: true,
-  imports: [CommonModule, ModalComponent, TableComponent, TableCellDirective, ConfirmDeleteComponent, DateFormatPipe, ColorsModalComponent, BrandsModalComponent, MaterialTypesModalComponent],
+  imports: [CommonModule, ModalComponent, TableComponent, TableCellDirective, ConfirmDeleteComponent, DateFormatPipe, ColorsModalComponent, BrandsModalComponent, MaterialTypesModalComponent, ColorSelectComponent],
   templateUrl: './filaments-page.component.html',
   styleUrls: ['./filaments-page.component.css']
 })

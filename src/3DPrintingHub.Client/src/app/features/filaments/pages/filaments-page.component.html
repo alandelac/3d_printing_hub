@@ -21,10 +21,11 @@
           </select>
 
           <label>Color:</label>
-          <select [value]="filamentColorId()" (change)="filamentColorId.set($any($event.target).value)">
-            <option value="">Select Color</option>
-            <option *ngFor="let c of colors()" [value]="c.id">{{ c.color }} ({{ c.colorCode }})</option>
-          </select>
+          <app-color-select
+            [colors]="colors()"
+            [value]="filamentColorId()"
+            (valueChange)="filamentColorId.set($event)"
+          />
 
           <label>Min Cost:</label>
           <input type="number" placeholder="Min Cost" [value]="filamentMinCost()" (input)="filamentMinCost.set($any($event.target).value ? +$any($event.target).value : null)" />
