@@ -276,6 +276,7 @@ This is the **single source of truth for planned work**. `TODO.md` has been reti
 - Roles and authorization policies (`Admin`/`Operator`), restricting cost and margin data.
 - Pagination on list endpoints.
 - Structured logging and a health/readiness endpoint.
+- Database backup and restore through the UI: download the SQLite database from one instance and upload it to another (for example, migrate from Linux to Windows). Restore must validate the backup, require confirmation, and preserve a pre-restore backup of the destination database.
 - Any item promoted out of the Gap Register in `tech-stack.md`.
 
 **Acceptance:** The chosen item ships with tests, and its Gap Register row is updated or removed.
