@@ -138,6 +138,7 @@ describe('StockedPageComponent', () => {
       'Cost To Produce',
       'Recommended Sale Price',
       'Sale Price',
+      'Margin',
       'Last Updated',
       'Actions'
     ]);
@@ -149,6 +150,17 @@ describe('StockedPageComponent', () => {
     expect(rows()[0].querySelector('.stock-status')).toBeNull();
     expect(rows()[0].cells[4].textContent?.trim()).toBe('2.12');
     expect(rows()[0].cells[5].textContent?.trim()).toBe('4.99');
+    expect(rows()[0].cells[7].textContent?.trim()).toBe('57.53%');
+    expect(rows()[0].cells[7].querySelector('.margin--green-strong')).not.toBeNull();
+  });
+
+  it('shows no margin when the production cost is zero', async () => {
+    getAllProductStocks.mockReturnValue(of([{ ...stock('s1', 4), costToProduce: 0 }]));
+
+    fixture.detectChanges();
+    await flush();
+
+    expect(rows()[0].cells[7].textContent?.trim()).toBe('—');
   });
 
   it('marks zero red, positive quantities below minimum yellow, and the threshold normal', async () => {

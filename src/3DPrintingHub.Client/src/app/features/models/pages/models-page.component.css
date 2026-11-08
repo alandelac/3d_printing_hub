@@ -1,3 +1,23 @@
 .models-page {
   padding: 1rem;
 }
+
+.margin--red {
+  color: #b91c1c;
+  font-weight: 600;
+}
+
+.margin--yellow {
+  color: #a16207;
+  font-weight: 600;
+}
+
+.margin--green {
+  color: #15803d;
+  font-weight: 600;
+}
+
+.margin--green-strong {
+  color: #14532d;
+  font-weight: 700;
+}

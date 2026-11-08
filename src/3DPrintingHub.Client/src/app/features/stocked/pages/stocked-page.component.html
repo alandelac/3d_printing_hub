@@ -63,6 +63,14 @@
       <ng-template appTableCell="recommendedSalePrice" let-stock>
         {{ stock.recommendedSalePrice | number:'1.2-2' }}
       </ng-template>
+      <ng-template appTableCell="margin" let-stock>
+        <ng-container *ngIf="marginPercent(stock.costToProduce, stock.salePrice) !== null; else unavailableMargin">
+          <span [ngClass]="marginClass(marginPercent(stock.costToProduce, stock.salePrice))">
+            {{ marginPercent(stock.costToProduce, stock.salePrice) | number:'1.0-2' }}%
+          </span>
+        </ng-container>
+        <ng-template #unavailableMargin>—</ng-template>
+      </ng-template>
       <ng-template appTableCell="lastUpdated" let-stock>{{ stock.lastUpdated | dateFormat }}</ng-template>
     </app-table>
   </div>
