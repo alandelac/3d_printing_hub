@@ -6,6 +6,7 @@ import { ModelPrintCategory } from '../../../domain/models/model-print-category.
 import { ModelPrint, ModelPrintCreate, ModelPrintUpdate } from '../../../domain/models/model-print.model';
 import { ConfirmDeleteComponent } from '../../../shared/ui/confirm-delete/confirm-delete.component';
 import { TableCellDirective, TableColumn, TableComponent } from '../../../shared/ui/table/table.component';
+import { calculateMarginPercent, getMarginClass } from '../../../shared/utils/calculate-margin';
 import { CategoryFormValue, CategoryModalComponent } from '../components/category-modal/category-modal.component';
 import { ModelFormModalComponent, ModelFormValue } from '../components/model-form-modal/model-form-modal.component';
 
@@ -26,6 +27,8 @@ import { ModelFormModalComponent, ModelFormValue } from '../components/model-for
 export class ModelsPageComponent implements OnInit {
   private modelRepository = inject(ModelRepository);
   protected readonly title = signal('Models');
+  protected readonly marginPercent = calculateMarginPercent;
+  protected readonly marginClass = getMarginClass;
 
   /**
    * Column metadata only: the shared table owns the ordering (from `sortValue` /
@@ -37,7 +40,8 @@ export class ModelsPageComponent implements OnInit {
     { key: 'weight', header: 'Weight (g)', value: model => model.estimatedWeightGrams },
     { key: 'time', header: 'Time (min)', value: model => model.estimatedTimeMinutes },
     { key: 'defaultCost', header: 'Default Cost', value: model => model.defaultCost },
-    { key: 'defaultSalePrice', header: 'Sale Price', value: model => model.defaultSalePrice }
+    { key: 'defaultSalePrice', header: 'Sale Price', value: model => model.defaultSalePrice },
+    { key: 'margin', header: 'Margin', value: model => calculateMarginPercent(model.defaultCost, model.defaultSalePrice) }
   ];
 
   // Category functionality

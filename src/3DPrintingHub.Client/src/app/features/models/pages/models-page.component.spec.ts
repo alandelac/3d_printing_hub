@@ -99,10 +99,21 @@ describe('ModelsPageComponent', () => {
     );
 
     expect(compiled().querySelector('app-table table')).not.toBeNull();
-    expect(headers).toEqual(['Name', 'Category', 'Weight (g)', 'Time (min)', 'Default Cost', 'Sale Price', 'Actions']);
+    expect(headers).toEqual(['Name', 'Category', 'Weight (g)', 'Time (min)', 'Default Cost', 'Sale Price', 'Margin', 'Actions']);
     expect(modelRows().length).toBe(2);
     expect(modelRows()[0].textContent).toContain('Bracket');
     expect(modelRows()[0].textContent).toContain('2.50');
+    expect(modelRows()[0].textContent).toContain('100.0%');
+    expect(modelRows()[0].querySelector('.margin--green-strong')).not.toBeNull();
+  });
+
+  it('shows no margin when the default cost is zero', async () => {
+    getAllModelPrints.mockReturnValue(of([{ ...model('m1', 'Bracket', 0), defaultSalePrice: 3 }]));
+
+    fixture.detectChanges();
+    await flush();
+
+    expect(modelRows()[0].textContent).toContain('—');
   });
 
   it('filters the rows through the shared filter input', async () => {

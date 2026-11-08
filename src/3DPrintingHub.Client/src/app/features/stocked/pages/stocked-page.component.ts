@@ -10,6 +10,7 @@ import { ProductStock, ProductStockCreate, ProductStockUpdate } from '../../../d
 import { ConfirmDeleteComponent } from '../../../shared/ui/confirm-delete/confirm-delete.component';
 import { TableCellDirective, TableColumn, TableComponent } from '../../../shared/ui/table/table.component';
 import { DateFormatPipe } from '../../../shared/pipes/date-format.pipe';
+import { calculateMarginPercent, getMarginClass } from '../../../shared/utils/calculate-margin';
 import { StockFormModalComponent, StockFormValue } from '../components/stock-form-modal/stock-form-modal.component';
 
 @Component({
@@ -25,6 +26,8 @@ export class StockedPageComponent implements OnInit {
   private filamentRepository = inject(FilamentRepository);
 
   protected readonly title = signal('Stock');
+  protected readonly marginPercent = calculateMarginPercent;
+  protected readonly marginClass = getMarginClass;
 
   /**
    * Column metadata only: the `value` functions feed the shared table's filter
@@ -38,6 +41,7 @@ export class StockedPageComponent implements OnInit {
     { key: 'costToProduce', header: 'Cost To Produce', value: stock => stock.costToProduce },
     { key: 'recommendedSalePrice', header: 'Recommended Sale Price', value: stock => stock.recommendedSalePrice },
     { key: 'salePrice', header: 'Sale Price', value: stock => stock.salePrice },
+    { key: 'margin', header: 'Margin', value: stock => calculateMarginPercent(stock.costToProduce, stock.salePrice) },
     { key: 'lastUpdated', header: 'Last Updated', value: stock => stock.lastUpdated }
   ];
 
