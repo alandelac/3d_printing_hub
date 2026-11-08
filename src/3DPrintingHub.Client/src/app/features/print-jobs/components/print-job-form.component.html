@@ -3,21 +3,25 @@
 
   <form (ngSubmit)="onSubmit()">
     <div class="field-row">
-      <label>
-        Model
-        <select [value]="modelPrintId()" (change)="modelPrintId.set($any($event.target).value)">
+      <div>
+        <label for="modelSearch">Search models</label>
+        <input id="modelSearch" type="search" placeholder="Search by model name" [value]="modelSearch()" (input)="modelSearch.set($any($event.target).value)" />
+        <label for="modelPrintId">Model</label>
+        <select id="modelPrintId" [ngModel]="modelPrintId()" (ngModelChange)="modelPrintId.set($event)" [ngModelOptions]="{standalone: true}">
           <option value="">Select model</option>
-          <option *ngFor="let model of models" [value]="model.id">{{ model.name }}</option>
+          <option *ngFor="let model of filteredModels()" [value]="model.id">{{ model.name }}</option>
         </select>
-      </label>
+      </div>
 
-      <label>
-        Filament
-        <select [value]="filamentId()" (change)="filamentId.set($any($event.target).value)">
+      <div>
+        <label for="filamentSearch">Search filaments</label>
+        <input id="filamentSearch" type="search" placeholder="Search by brand, material, or color" [value]="filamentSearch()" (input)="filamentSearch.set($any($event.target).value)" />
+        <label for="filamentId">Filament</label>
+        <select id="filamentId" [ngModel]="filamentId()" (ngModelChange)="filamentId.set($event)" [ngModelOptions]="{standalone: true}">
           <option value="">Select filament</option>
-          <option *ngFor="let filament of filaments" [value]="filament.id">{{ filament.filamentProfile.brandName }} {{ filament.filamentProfile.materialTypeName }} - {{ filament.colorName }} ({{ filament.remainingWeightGrams }}g left)</option>
+          <option *ngFor="let filament of filteredFilaments()" [value]="filament.id">{{ filament.filamentProfile.brandName }} {{ filament.filamentProfile.materialTypeName }} - {{ filament.colorName }} ({{ filament.remainingWeightGrams }}g left)</option>
         </select>
-      </label>
+      </div>
     </div>
 
     <div class="field-row">

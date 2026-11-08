@@ -28,9 +28,31 @@ export class PrintJobFormComponent implements OnChanges {
 
   protected readonly modelPrintId = signal('');
   protected readonly filamentId = signal('');
+  protected readonly modelSearch = signal('');
+  protected readonly filamentSearch = signal('');
   protected readonly producedQuantity = signal<number | string>('');
   protected readonly usedWeightGrams = signal<number | string>('');
   protected readonly notes = signal('');
+
+  protected filteredModels(): ModelPrint[] {
+    const searchTerm = this.modelSearch().trim().toLowerCase();
+
+    return this.models.filter(model => model.name.toLowerCase().includes(searchTerm));
+  }
+
+  protected filteredFilaments(): Filament[] {
+    const searchTerm = this.filamentSearch().trim().toLowerCase();
+
+    return this.filaments.filter(filament => {
+      const searchableText = [
+        filament.filamentProfile.brandName,
+        filament.filamentProfile.materialTypeName,
+        filament.colorName
+      ].join(' ').toLowerCase();
+
+      return searchableText.includes(searchTerm);
+    });
+  }
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['models'] && this.models.length > 0 && !this.modelPrintId()) {
