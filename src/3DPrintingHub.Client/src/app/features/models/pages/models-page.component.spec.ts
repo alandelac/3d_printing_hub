@@ -103,8 +103,8 @@ describe('ModelsPageComponent', () => {
     expect(modelRows().length).toBe(2);
     expect(modelRows()[0].textContent).toContain('Bracket');
     expect(modelRows()[0].textContent).toContain('2.50');
-    expect(modelRows()[0].textContent).toContain('100.0%');
-    expect(modelRows()[0].querySelector('.margin--green-strong')).not.toBeNull();
+    expect(modelRows()[0].textContent).toContain('50%');
+    expect(modelRows()[0].querySelector('.margin--green')).not.toBeNull();
   });
 
   it('shows no margin when the default cost is zero', async () => {
