@@ -4,10 +4,9 @@
     Runs the whole 3D Printing Hub stack for local development.
 
 .DESCRIPTION
-    Starts the .NET API with `dotnet run` from src/3DPrintingHub.Api and the
-    Angular client with `npm start` from src/3DPrintingHub.Client. Each one runs
-    in its own PowerShell window so both keep running in parallel and you can
-    read their logs independently.
+    Starts the .NET API (when the .NET SDK is installed) and the Angular client.
+    Each one runs in its own PowerShell window. Without the .NET SDK, only the
+    client is started.
 
 .PARAMETER Wait
     Keeps this console attached and waits until both development windows are
@@ -47,24 +46,59 @@ function Start-DevWindow {
 
     Write-Host "Starting $Title ($Command) in $WorkingDirectory" -ForegroundColor Cyan
 
-    $arguments = @(
+    $escapedTitle = $Title.Replace("'", "''")
+    $escapedWorkingDirectory = $WorkingDirectory.Replace("'", "''")
+    $childScript = "`$Host.UI.RawUI.WindowTitle = '$escapedTitle'; Set-Location -LiteralPath '$escapedWorkingDirectory'; $Command"
+    $encodedCommand = [Convert]::ToBase64String([Text.Encoding]::Unicode.GetBytes($childScript))
+
+    Start-Process -FilePath 'powershell.exe' -ArgumentList @(
         '-NoExit'
         '-NoProfile'
-        '-Command'
-        "`$Host.UI.RawUI.WindowTitle = '$Title'; Set-Location -LiteralPath '$WorkingDirectory'; & $Command"
-    )
-
-    Start-Process -FilePath 'powershell.exe' -ArgumentList $arguments -PassThru
+        '-EncodedCommand'
+        $encodedCommand
+    ) -PassThru
 }
 
-$api    = Start-DevWindow -Title '3DPrintingHub API'    -WorkingDirectory $apiProject    -Command 'dotnet run'
-$client = Start-DevWindow -Title '3DPrintingHub Client' -WorkingDirectory $clientProject -Command 'npm start'
+$nodeInstall = Join-Path $env:ProgramFiles 'nodejs'
+if (-not (Get-Command 'node.exe' -ErrorAction SilentlyContinue) -or
+    -not (Get-Command 'npm.cmd' -ErrorAction SilentlyContinue)) {
+    if ((Test-Path -LiteralPath (Join-Path $nodeInstall 'node.exe') -PathType Leaf) -and
+        (Test-Path -LiteralPath (Join-Path $nodeInstall 'npm.cmd') -PathType Leaf)) {
+        $env:Path = "$nodeInstall;$env:Path"
+    }
+}
+
+$node = Get-Command 'node.exe' -ErrorAction SilentlyContinue
+$npm = Get-Command 'npm.cmd' -ErrorAction SilentlyContinue
+if (-not $node -or -not $npm) {
+    throw 'Node.js and npm were not found in PATH. Install Node.js or reopen PowerShell/VS Code so its PATH is refreshed.'
+}
+
+$angularCli = Join-Path $clientProject 'node_modules/.bin/ng.cmd'
+if (-not (Test-Path -LiteralPath $angularCli -PathType Leaf)) {
+    throw "Angular dependencies are missing. Run 'npm ci' in $clientProject, then run this script again."
+}
+
+$api = $null
+if (Get-Command 'dotnet.exe' -ErrorAction SilentlyContinue) {
+    $api = Start-DevWindow -Title '3DPrintingHub API' -WorkingDirectory $apiProject -Command 'dotnet run'
+    Write-Host 'API -> http://localhost:5033' -ForegroundColor Green
+}
+else {
+    Write-Warning 'The .NET SDK was not found; starting the client only. API-backed features will not work until the API is started (with .NET or Docker).'
+}
+
+$client = Start-DevWindow -Title '3DPrintingHub Client' -WorkingDirectory $clientProject -Command 'npm.cmd start'
 
 Write-Host ''
-Write-Host 'API    -> http://localhost:5033 (see src/3DPrintingHub.Api/Properties/launchSettings.json)' -ForegroundColor Green
 Write-Host 'Client -> http://localhost:4200' -ForegroundColor Green
 
 if ($Wait) {
-    Wait-Process -Id @($api.Id, $client.Id) -ErrorAction SilentlyContinue
-    Write-Host 'Both development processes have stopped.' -ForegroundColor Yellow
+    $processIds = @($client.Id)
+    if ($api) {
+        $processIds += $api.Id
+    }
+
+    Wait-Process -Id $processIds -ErrorAction SilentlyContinue
+    Write-Host 'Development processes have stopped.' -ForegroundColor Yellow
 }

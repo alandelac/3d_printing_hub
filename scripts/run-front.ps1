@@ -22,7 +22,18 @@ if (-not (Test-Path -LiteralPath $clientProject -PathType Container)) {
     throw "Project folder not found: $clientProject"
 }
 
+$nodeInstall = Join-Path $env:ProgramFiles 'nodejs'
+if (-not (Get-Command 'npm.cmd' -ErrorAction SilentlyContinue) -and
+    (Test-Path -LiteralPath (Join-Path $nodeInstall 'node.exe') -PathType Leaf) -and
+    (Test-Path -LiteralPath (Join-Path $nodeInstall 'npm.cmd') -PathType Leaf)) {
+    $env:Path = "$nodeInstall;$env:Path"
+}
+
+if (-not (Get-Command 'npm.cmd' -ErrorAction SilentlyContinue)) {
+    throw 'npm was not found in PATH. Install Node.js or reopen PowerShell/VS Code so its PATH is refreshed.'
+}
+
 Write-Host 'Client -> http://localhost:4200' -ForegroundColor Green
 
 Set-Location -LiteralPath $clientProject
-npm start
+npm.cmd start
