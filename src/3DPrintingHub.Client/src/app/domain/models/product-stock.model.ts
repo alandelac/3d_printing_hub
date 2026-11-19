@@ -12,6 +12,7 @@ export interface ProductStock {
   recommendedSalePrice: number;
   salePrice: number;
   lastUpdated: string;
+  lastPublishedDate: string | null;
 }
 
 export interface ProductStockCreate {

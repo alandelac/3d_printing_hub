@@ -97,4 +97,14 @@ public class ProductStockController(IProductStockService productStockService) : 
             cancellationToken);
         return Ok(updatedProductStock);
     }
+
+    /// <summary>
+    /// Manually records today as the product stock's last published date.
+    /// </summary>
+    [HttpPut("{id}/mark-published-today")]
+    public async Task<IActionResult> MarkPublishedToday(Guid id, CancellationToken cancellationToken)
+    {
+        var updatedProductStock = await productStockService.MarkPublishedTodayAsync(id, cancellationToken);
+        return Ok(updatedProductStock);
+    }
 }
