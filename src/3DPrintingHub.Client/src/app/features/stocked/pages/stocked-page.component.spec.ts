@@ -58,7 +58,8 @@ const stock = (id: string, quantity: number, minimumInventoryQuantity = 2): Prod
   recommendedSalePrice: 4.987654,
   salePrice: 5,
   lastUpdated: '2026-01-02T00:00:00',
-  lastSaleDateUtc: null
+  lastSaleDateUtc: null,
+  lastPublishedDate: null
 });
 
 describe('StockedPageComponent', () => {
@@ -68,6 +69,7 @@ describe('StockedPageComponent', () => {
   let updateProductStock: ReturnType<typeof vi.fn>;
   let deleteProductStock: ReturnType<typeof vi.fn>;
   let adjustProductStockQuantity: ReturnType<typeof vi.fn>;
+  let markPublishedToday: ReturnType<typeof vi.fn>;
 
   const compiled = (): HTMLElement => fixture.nativeElement as HTMLElement;
   const rows = (): HTMLTableRowElement[] =>
@@ -89,6 +91,10 @@ describe('StockedPageComponent', () => {
     updateProductStock = vi.fn().mockReturnValue(of(stock('s1', 4)));
     deleteProductStock = vi.fn().mockReturnValue(of(undefined));
     adjustProductStockQuantity = vi.fn().mockReturnValue(of(stock('s1', 6)));
+    markPublishedToday = vi.fn().mockReturnValue(of({
+      ...stock('s1', 4),
+      lastPublishedDate: '2026-11-19'
+    }));
     vi.stubGlobal('alert', vi.fn());
 
     await TestBed.configureTestingModule({
@@ -101,7 +107,8 @@ describe('StockedPageComponent', () => {
             createProductStock,
             updateProductStock,
             deleteProductStock,
-            adjustProductStockQuantity
+            adjustProductStockQuantity,
+            markPublishedToday
           }
         },
         {
@@ -142,6 +149,7 @@ describe('StockedPageComponent', () => {
       'Margin',
       'Last Sale Date',
       'Last Updated',
+      'Last Published Date',
       'Actions'
     ]);
     expect(rows().length).toBe(1);
@@ -155,6 +163,8 @@ describe('StockedPageComponent', () => {
     expect(rows()[0].cells[7].textContent?.trim()).toBe('57.53%');
     expect(rows()[0].cells[7].querySelector('.margin--green-strong')).not.toBeNull();
     expect(rows()[0].cells[8].textContent?.trim()).toBe('—');
+    expect(rows()[0].cells[10].textContent).toContain('-');
+    expect(buttonWithText(rows()[0], 'Mark Published Today')).toBeDefined();
   });
 
   it('formats the most recent sale date in the stock table', async () => {
@@ -166,6 +176,30 @@ describe('StockedPageComponent', () => {
     await flush();
 
     expect(rows()[0].cells[8].textContent?.trim()).toBe('2026-02-05');
+  });
+
+  it('marks a stock row published today and displays the returned date', async () => {
+    fixture.detectChanges();
+    await flush();
+
+    buttonWithText(rows()[0], 'Mark Published Today')?.click();
+    await flush();
+
+    expect(markPublishedToday).toHaveBeenCalledWith('s1');
+    expect(rows()[0].cells[10].textContent).toContain('2026-11-19');
+  });
+
+  it('reports an error when marking a stock row published today fails', async () => {
+    markPublishedToday.mockReturnValue(throwError(() => new Error('offline')));
+
+    fixture.detectChanges();
+    await flush();
+
+    buttonWithText(rows()[0], 'Mark Published Today')?.click();
+    await flush();
+
+    expect(alert).toHaveBeenCalledWith(expect.stringContaining('Error:'));
+    expect(rows()[0].cells[10].textContent).toContain('-');
   });
 
   it('shows no margin when the production cost is zero', async () => {

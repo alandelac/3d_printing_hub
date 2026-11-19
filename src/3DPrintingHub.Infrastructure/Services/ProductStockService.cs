@@ -280,7 +280,26 @@ public class ProductStockService(ApplicationDbContext dbContext, IPrintPricingSe
             RecommendedSalePrice = ps.RecommendedSalePrice,
             SalePrice = ps.SalePrice,
             LastUpdated = ps.LastUpdated,
-            LastSaleDateUtc = lastSaleDateUtc
+            LastSaleDateUtc = lastSaleDateUtc,
+            LastPublishedDate = ps.LastPublishedDate
         };
+    }
+
+    public async Task<ProductStockDto> MarkPublishedTodayAsync(Guid productStockId, CancellationToken cancellationToken = default)
+    {
+        var productStock = await dbContext.ProductStocks
+            .Include(ps => ps.ModelPrint)
+            .Include(ps => ps.Filament)
+                .ThenInclude(f => f!.Color)
+            .Include(ps => ps.Filament)
+                .ThenInclude(f => f!.Profile)
+                    .ThenInclude(p => p!.MaterialType)
+            .FirstOrDefaultAsync(ps => ps.Id == productStockId, cancellationToken)
+            ?? throw new InvalidOperationException($"ProductStock with ID {productStockId} does not exist.");
+
+        productStock.LastPublishedDate = DateOnly.FromDateTime(DateTime.UtcNow);
+        await dbContext.SaveChangesAsync(cancellationToken);
+
+        return await ToDtoAsync(productStock, cancellationToken);
     }
 }

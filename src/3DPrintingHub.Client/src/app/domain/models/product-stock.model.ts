@@ -13,6 +13,7 @@ export interface ProductStock {
   salePrice: number;
   lastUpdated: string;
   lastSaleDateUtc: string | null;
+  lastPublishedDate: string | null;
 }
 
 export interface ProductStockCreate {

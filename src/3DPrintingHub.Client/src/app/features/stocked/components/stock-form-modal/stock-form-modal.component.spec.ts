@@ -64,7 +64,8 @@ const stock: ProductStock = {
   recommendedSalePrice: 4,
   salePrice: 5,
   lastUpdated: '2026-01-02T00:00:00',
-  lastSaleDateUtc: null
+  lastSaleDateUtc: null,
+  lastPublishedDate: null
 };
 
 describe('StockFormModalComponent', () => {

@@ -32,11 +32,12 @@ public class ProductStockServiceIntegrationTests
             VALUES ({stockId}, {model.Id}, {filament.Id}, {4}, {0}, {10m}, {20m}, {20m}, {DateTime.UtcNow})
             """);
 
-        await migrator.MigrateAsync("20261006232656_AddProductStockMinimumInventoryQuantity");
+        await migrator.MigrateAsync("20261119205703_AddProductStockLastPublishedDate");
 
         var persistedStock = await dbContext.ProductStocks.AsNoTracking().SingleAsync(stock => stock.Id == stockId);
         Assert.Equal(4, persistedStock.QuantityInStock);
         Assert.Equal(2, persistedStock.MinimumInventoryQuantity);
+        Assert.Null(persistedStock.LastPublishedDate);
     }
 
     [Fact]
@@ -144,6 +145,48 @@ public class ProductStockServiceIntegrationTests
 
         Assert.Equal(latestSaleDate, productStocks[soldStockId].LastSaleDateUtc);
         Assert.Null(productStocks[neverSoldStockId].LastSaleDateUtc);
+    }
+
+    [Fact]
+    public async Task MarkPublishedToday_PersistsTheDateAndStockUpdatesLeaveItUnchanged()
+    {
+        await using var connection = new SqliteConnection("Filename=:memory:");
+        await connection.OpenAsync();
+        var options = new DbContextOptionsBuilder<ApplicationDbContext>()
+            .UseSqlite(connection)
+            .Options;
+
+        await using var dbContext = new ApplicationDbContext(options);
+        await dbContext.Database.EnsureCreatedAsync();
+        var (model, _, filament) = await AddReferencesAsync(dbContext);
+        await SettingsSeeder.SeedAsync(dbContext);
+
+        var service = new ProductStockService(dbContext, new PrintPricingService(dbContext));
+        var stockId = await service.CreateProductStockAsync(new ProductStockCreateDto
+        {
+            ModelPrintId = model.Id,
+            FilamentId = filament.Id,
+            QuantityInStock = 2
+        });
+
+        var createdStock = (await service.GetAllProductStocksAsync()).Single();
+        Assert.Null(createdStock.LastPublishedDate);
+
+        var markedStock = await service.MarkPublishedTodayAsync(stockId);
+        var today = DateOnly.FromDateTime(DateTime.UtcNow);
+        Assert.Equal(today, markedStock.LastPublishedDate);
+
+        var editedStock = await service.UpdateProductStockAsync(new ProductStockUpdateDto
+        {
+            Id = stockId,
+            QuantityInStock = 3
+        });
+        var adjustedStock = await service.AdjustProductStockQuantityAsync(stockId, 1);
+        var persistedStock = await dbContext.ProductStocks.AsNoTracking().SingleAsync(stock => stock.Id == stockId);
+
+        Assert.Equal(today, editedStock.LastPublishedDate);
+        Assert.Equal(today, adjustedStock.LastPublishedDate);
+        Assert.Equal(today, persistedStock.LastPublishedDate);
     }
 
     private static async Task<(ModelPrint FirstModel, ModelPrint SecondModel, Filament Filament)> AddReferencesAsync(

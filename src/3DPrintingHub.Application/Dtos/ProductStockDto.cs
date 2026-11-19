@@ -31,4 +31,5 @@ public class ProductStockDto
     public DateTime LastUpdated { get; set; }
 
     public DateTime? LastSaleDateUtc { get; set; }
+    public DateOnly? LastPublishedDate { get; set; }
 }
