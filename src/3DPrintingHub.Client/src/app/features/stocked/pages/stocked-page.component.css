@@ -87,3 +87,14 @@
   line-height: 1;
 }
 
+.published-date {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  white-space: nowrap;
+}
+
+.mark-published-button {
+  padding: 0.3rem 0.6rem;
+}
+

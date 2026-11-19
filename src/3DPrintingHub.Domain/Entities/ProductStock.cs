@@ -17,6 +17,7 @@ public class ProductStock
     public decimal RecommendedSalePrice { get; set; }
     public decimal SalePrice { get; set; }
     public DateTime LastUpdated { get; set; } = DateTime.UtcNow;
+    public DateOnly? LastPublishedDate { get; set; }
 
     public ICollection<PublishedModels> PublishedModels { get; set; } = [];
     public ICollection<Sale> Sales { get; set; } = [];

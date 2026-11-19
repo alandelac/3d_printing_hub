@@ -512,6 +512,9 @@ namespace _3DPrintingHub.Infrastructure.Migrations
                     b.Property<Guid>("FilamentId")
                         .HasColumnType("TEXT");
 
+                    b.Property<DateOnly?>("LastPublishedDate")
+                        .HasColumnType("TEXT");
+
                     b.Property<DateTime>("LastUpdated")
                         .HasColumnType("TEXT");
 

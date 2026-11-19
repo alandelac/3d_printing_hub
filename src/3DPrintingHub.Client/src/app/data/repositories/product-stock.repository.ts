@@ -25,4 +25,8 @@ export class ProductStockRepository {
   adjustProductStockQuantity(payload: { productStockId: string; quantity: number }) {
     return this.api.put<ProductStock>(`/productstock/${payload.productStockId}/adjust-quantity`, payload);
   }
+
+  markPublishedToday(id: string) {
+    return this.api.put<ProductStock>(`/productstock/${id}/mark-published-today`, {});
+  }
 }
