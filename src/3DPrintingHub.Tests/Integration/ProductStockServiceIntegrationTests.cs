@@ -27,7 +27,7 @@ public class ProductStockServiceIntegrationTests
 
         var (model, _, filament) = await AddReferencesAsync(dbContext);
         var stockId = Guid.NewGuid();
-        await dbContext.Database.ExecuteSqlInterpolatedAsync($"""
+        await dbContext.Database.ExecuteSqlAsync($"""
             INSERT INTO ProductStocks (Id, ModelPrintId, FilamentId, QuantityInStock, Version, CostToProduce, RecommendedSalePrice, SalePrice, LastUpdated)
             VALUES ({stockId}, {model.Id}, {filament.Id}, {4}, {0}, {10m}, {20m}, {20m}, {DateTime.UtcNow})
             """);

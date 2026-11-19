@@ -6,7 +6,7 @@ This is the constitution for *what we build with*. The stack below is the one al
 
 ## Backend — .NET
 
-Target framework `net10.0` across all projects; `Nullable` and `ImplicitUsings` enabled; root namespaces follow `_3DPrintingHub.<Layer>` (note the leading underscore). Solution: `src/3DPrintingHub.slnx`.
+Target framework `net11.0` across all projects; `Nullable` and `ImplicitUsings` enabled; root namespaces follow `_3DPrintingHub.<Layer>` (note the leading underscore). Solution: `src/3DPrintingHub.slnx`.
 
 Four projects, one direction of dependency:
 
@@ -21,8 +21,8 @@ Four projects, one direction of dependency:
 |---|---|---|
 | `Domain` | — | none |
 | `Application` | `Domain` | `FluentValidation.DependencyInjectionExtensions` 12.1.1 |
-| `Infrastructure` | `Application` | `Microsoft.AspNetCore.Identity.EntityFrameworkCore` 10.0.11, `Microsoft.EntityFrameworkCore.Sqlite` 10.0.10, `Microsoft.EntityFrameworkCore.Design` 10.0.10, `SQLitePCLRaw.bundle_e_sqlite3` 3.0.5, `Microsoft.Extensions.Configuration` 10.0.11, `Microsoft.Extensions.Configuration.Json` 10.0.0 |
-| `Api` | `Application`, `Infrastructure` | `FluentValidation.AspNetCore` 11.3.1, `Microsoft.EntityFrameworkCore.Design` 10.0.10, `Microsoft.OpenApi` 3.9.0, `Microsoft.AspNetCore.Components.WebAssembly.Server` 10.0.10 |
+| `Infrastructure` | `Application` | `Microsoft.AspNetCore.Identity.EntityFrameworkCore` 11.0.0, `Microsoft.EntityFrameworkCore.Sqlite` 11.0.0, `Microsoft.EntityFrameworkCore.Design` 11.0.0, `SQLitePCLRaw.bundle_e_sqlite3` 3.0.5, `Microsoft.Extensions.Configuration` 11.0.0, `Microsoft.Extensions.Configuration.Json` 11.0.0 |
+| `Api` | `Application`, `Infrastructure` | `FluentValidation.AspNetCore` 11.3.1, `Microsoft.EntityFrameworkCore.Design` 11.0.0, `Microsoft.OpenApi` 3.9.0, `Microsoft.AspNetCore.Components.WebAssembly.Server` 11.0.0 |
 
 **Persistence:** EF Core with **SQLite**. No database server, no external storage service. Migrations live in `src/3DPrintingHub.Infrastructure/Migrations` and are applied automatically at startup (`dbContext.Database.Migrate()`), immediately followed by `SettingsSeeder.SeedAsync(dbContext)`.
 
@@ -77,7 +77,7 @@ shared/ui/     # modal, list-state, table-actions, confirm-delete
 
 ## Ops and deployment
 
-- `Dockerfile.api` and `Dockerfile.frontend`, both multi-stage. The client is served by **Nginx**, which also acts as the reverse proxy via `nginx.conf`.
+- `Dockerfile.api` and `Dockerfile.frontend`, both multi-stage. The API uses the .NET 11 SDK and ASP.NET Core runtime images. The client is served by **Nginx**, which also acts as the reverse proxy via `nginx.conf`.
 - `docker-compose.yml`: the API listens internally on `8080` with SQLite at `/data/printinghub.db` on the named volume `printinghub-data`; the frontend is published on host port `8081`. `AllowedOrigin` is supplied through `FRONTEND_URL`.
 - Liveness: the API exposes anonymous `GET /health`; Compose probes the API on port `8080` and the frontend with Nginx, with the frontend gated on API health.
 - `.github/workflows/build-publish.yml`: GitHub Actions runs validation on pull requests to `main` and on pushes to `main`. The required status checks are `build`, `backend-tests`, `frontend-tests`, and `frontend-coverage`; image publication only occurs after those checks succeed on `main`. The workflow publishes `ghcr.io/alandelac/3d_printing_hub_api:latest` and `ghcr.io/alandelac/3d_printing_hub_frontend:latest` and **does not deploy or run them**.
