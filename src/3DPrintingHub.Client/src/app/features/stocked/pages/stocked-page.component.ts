@@ -42,7 +42,8 @@ export class StockedPageComponent implements OnInit {
     { key: 'recommendedSalePrice', header: 'Recommended Sale Price', value: stock => stock.recommendedSalePrice },
     { key: 'salePrice', header: 'Sale Price', value: stock => stock.salePrice },
     { key: 'margin', header: 'Margin', value: stock => calculateMarginPercent(stock.costToProduce, stock.salePrice) },
-    { key: 'lastUpdated', header: 'Last Updated', value: stock => stock.lastUpdated }
+    { key: 'lastUpdated', header: 'Last Updated', value: stock => stock.lastUpdated },
+    { key: 'lastPublishedDate', header: 'Last Published Date', value: stock => stock.lastPublishedDate ?? '' }
   ];
 
   // Create / edit modal state
@@ -98,6 +99,7 @@ export class StockedPageComponent implements OnInit {
   // Per-row quantity adjustment state
   protected adjustInputs = signal<Record<string, number>>({});
   protected adjustingId = signal<string>('');
+  protected markingPublishedId = signal<string>('');
 
   protected getAdjustInput(id: string): number {
     return this.adjustInputs()[id] ?? 0;
@@ -127,6 +129,25 @@ export class StockedPageComponent implements OnInit {
       alert(`Error: ${error}`);
     } finally {
       this.adjustingId.set('');
+    }
+  }
+
+  protected async markPublishedToday(stock: ProductStock): Promise<void> {
+    this.markingPublishedId.set(stock.id);
+    try {
+      const updatedStock = await firstValueFrom(
+        this.productStockRepository.markPublishedToday(stock.id)
+      );
+      this.productStocks.update(stocks => stocks.map(current =>
+        current.id === updatedStock.id
+          ? { ...current, lastPublishedDate: updatedStock.lastPublishedDate }
+          : current
+      ));
+    } catch (error) {
+      console.error('Error marking product stock as published:', error);
+      alert(`Error: ${error}`);
+    } finally {
+      this.markingPublishedId.set('');
     }
   }
 

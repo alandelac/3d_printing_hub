@@ -35,4 +35,9 @@ public interface IProductStockService
     /// If the provided quantity is less than 0, it will be set to 0.
     /// </summary>
     Task<ProductStockDto> UpdateProductStockQuantityAsync(Guid productStockId, int quantity, int expectedVersion, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Manually records the current UTC date as the product stock's last published date.
+    /// </summary>
+    Task<ProductStockDto> MarkPublishedTodayAsync(Guid productStockId, CancellationToken cancellationToken = default);
 }

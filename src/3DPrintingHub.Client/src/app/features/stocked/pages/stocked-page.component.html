@@ -72,6 +72,20 @@
         <ng-template #unavailableMargin>—</ng-template>
       </ng-template>
       <ng-template appTableCell="lastUpdated" let-stock>{{ stock.lastUpdated | dateFormat }}</ng-template>
+      <ng-template appTableCell="lastPublishedDate" let-stock>
+        <span class="published-date">
+          <ng-container *ngIf="stock.lastPublishedDate; else neverPublished">
+            {{ stock.lastPublishedDate | dateFormat }}
+          </ng-container>
+          <ng-template #neverPublished>-</ng-template>
+          <button
+            class="secondary mark-published-button"
+            [disabled]="markingPublishedId() === stock.id"
+            [attr.aria-label]="'Mark ' + stock.modelPrintName + ' published today'"
+            (click)="markPublishedToday(stock)"
+          >{{ markingPublishedId() === stock.id ? 'Updating…' : 'Mark Published Today' }}</button>
+        </span>
+      </ng-template>
     </app-table>
   </div>
 
