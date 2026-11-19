@@ -42,6 +42,7 @@ export class StockedPageComponent implements OnInit {
     { key: 'recommendedSalePrice', header: 'Recommended Sale Price', value: stock => stock.recommendedSalePrice },
     { key: 'salePrice', header: 'Sale Price', value: stock => stock.salePrice },
     { key: 'margin', header: 'Margin', value: stock => calculateMarginPercent(stock.costToProduce, stock.salePrice) },
+    { key: 'lastSaleDateUtc', header: 'Last Sale Date', value: stock => stock.lastSaleDateUtc },
     { key: 'lastUpdated', header: 'Last Updated', value: stock => stock.lastUpdated }
   ];
 

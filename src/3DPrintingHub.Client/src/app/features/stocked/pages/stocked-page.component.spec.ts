@@ -57,7 +57,8 @@ const stock = (id: string, quantity: number, minimumInventoryQuantity = 2): Prod
   costToProduce: 2.123456,
   recommendedSalePrice: 4.987654,
   salePrice: 5,
-  lastUpdated: '2026-01-02T00:00:00'
+  lastUpdated: '2026-01-02T00:00:00',
+  lastSaleDateUtc: null
 });
 
 describe('StockedPageComponent', () => {
@@ -139,6 +140,7 @@ describe('StockedPageComponent', () => {
       'Recommended Sale Price',
       'Sale Price',
       'Margin',
+      'Last Sale Date',
       'Last Updated',
       'Actions'
     ]);
@@ -152,6 +154,18 @@ describe('StockedPageComponent', () => {
     expect(rows()[0].cells[5].textContent?.trim()).toBe('4.99');
     expect(rows()[0].cells[7].textContent?.trim()).toBe('57.53%');
     expect(rows()[0].cells[7].querySelector('.margin--green-strong')).not.toBeNull();
+    expect(rows()[0].cells[8].textContent?.trim()).toBe('—');
+  });
+
+  it('formats the most recent sale date in the stock table', async () => {
+    getAllProductStocks.mockReturnValue(of([
+      { ...stock('s1', 4), lastSaleDateUtc: '2026-02-05T09:30:00Z' }
+    ]));
+
+    fixture.detectChanges();
+    await flush();
+
+    expect(rows()[0].cells[8].textContent?.trim()).toBe('2026-02-05');
   });
 
   it('shows no margin when the production cost is zero', async () => {

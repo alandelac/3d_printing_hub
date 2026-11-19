@@ -71,6 +71,12 @@
         </ng-container>
         <ng-template #unavailableMargin>—</ng-template>
       </ng-template>
+      <ng-template appTableCell="lastSaleDateUtc" let-stock>
+        <ng-container *ngIf="stock.lastSaleDateUtc; else neverSold">
+          {{ stock.lastSaleDateUtc | dateFormat }}
+        </ng-container>
+        <ng-template #neverSold>—</ng-template>
+      </ng-template>
       <ng-template appTableCell="lastUpdated" let-stock>{{ stock.lastUpdated | dateFormat }}</ng-template>
     </app-table>
   </div>

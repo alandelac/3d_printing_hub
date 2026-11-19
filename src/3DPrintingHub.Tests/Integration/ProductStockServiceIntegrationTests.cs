@@ -90,6 +90,62 @@ public class ProductStockServiceIntegrationTests
         Assert.Equal(3, stocks.Single(stock => stock.Id == secondId).QuantityInStock);
     }
 
+    [Fact]
+    public async Task GetAllProductStocks_ReturnsLatestSaleDateAndNullForNeverSoldStock()
+    {
+        await using var connection = new SqliteConnection("Filename=:memory:");
+        await connection.OpenAsync();
+        var options = new DbContextOptionsBuilder<ApplicationDbContext>()
+            .UseSqlite(connection)
+            .Options;
+
+        await using var dbContext = new ApplicationDbContext(options);
+        await dbContext.Database.EnsureCreatedAsync();
+        var (firstModel, secondModel, filament) = await AddReferencesAsync(dbContext);
+        await SettingsSeeder.SeedAsync(dbContext);
+
+        var service = new ProductStockService(dbContext, new PrintPricingService(dbContext));
+        var soldStockId = await service.CreateProductStockAsync(new ProductStockCreateDto
+        {
+            ModelPrintId = firstModel.Id,
+            FilamentId = filament.Id,
+            QuantityInStock = 2
+        });
+        var neverSoldStockId = await service.CreateProductStockAsync(new ProductStockCreateDto
+        {
+            ModelPrintId = secondModel.Id,
+            FilamentId = filament.Id,
+            QuantityInStock = 2
+        });
+        var earlierSaleDate = new DateTime(2026, 1, 10, 12, 0, 0, DateTimeKind.Utc);
+        var latestSaleDate = new DateTime(2026, 2, 5, 9, 30, 0, DateTimeKind.Utc);
+
+        dbContext.Sales.AddRange(
+            new Sale
+            {
+                ProductStockId = soldStockId,
+                Quantity = 1,
+                SalePrice = 10m,
+                PaymentReceived = true,
+                SoldAtUtc = earlierSaleDate
+            },
+            new Sale
+            {
+                ProductStockId = soldStockId,
+                Quantity = 1,
+                SalePrice = 10m,
+                PaymentReceived = false,
+                SoldAtUtc = latestSaleDate
+            });
+        await dbContext.SaveChangesAsync();
+
+        var productStocks = (await service.GetAllProductStocksAsync())
+            .ToDictionary(stock => stock.Id);
+
+        Assert.Equal(latestSaleDate, productStocks[soldStockId].LastSaleDateUtc);
+        Assert.Null(productStocks[neverSoldStockId].LastSaleDateUtc);
+    }
+
     private static async Task<(ModelPrint FirstModel, ModelPrint SecondModel, Filament Filament)> AddReferencesAsync(
         ApplicationDbContext dbContext)
     {

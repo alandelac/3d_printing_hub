@@ -29,4 +29,6 @@ public class ProductStockDto
     public decimal SalePrice { get; set; }
 
     public DateTime LastUpdated { get; set; }
+
+    public DateTime? LastSaleDateUtc { get; set; }
 }
