@@ -14,6 +14,16 @@ export interface RegisterRequest {
   password: string;
 }
 
+export interface ForgotPasswordRequest {
+  email: string;
+}
+
+export interface ResetPasswordRequest {
+  email: string;
+  resetCode: string;
+  newPassword: string;
+}
+
 export interface LoginResponse {
   tokenType: string;
   accessToken: string;
@@ -43,6 +53,14 @@ export class AuthService {
 
   register(payload: RegisterRequest): Observable<void> {
     return this.http.post<void>(`${this.identityUrl}/register`, payload);
+  }
+
+  forgotPassword(payload: ForgotPasswordRequest): Observable<void> {
+    return this.http.post<void>(`${this.identityUrl}/forgotPassword`, payload);
+  }
+
+  resetPassword(payload: ResetPasswordRequest): Observable<void> {
+    return this.http.post<void>(`${this.identityUrl}/resetPassword`, payload);
   }
 
   logout(): void {

@@ -4,6 +4,7 @@ using _3DPrintingHub.Application;
 using _3DPrintingHub.Api.Data;
 using _3DPrintingHub.Api.HealthChecks;
 using _3DPrintingHub.Api.Middleware;
+using _3DPrintingHub.Api.Services;
 using _3DPrintingHub.Infrastructure.Data;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -24,6 +25,7 @@ builder.Services.AddProblemDetails();
 builder.Services.AddHealthChecks()
     .AddCheck<DatabaseHealthCheck>("database");
 
+builder.Services.AddTransient<IEmailSender<IdentityUser>, IdentityEmailSender>();
 builder.Services.AddIdentityApiEndpoints<IdentityUser>()
     .AddEntityFrameworkStores<ApplicationDbContext>();
 
@@ -65,6 +67,7 @@ using (var scope = app.Services.CreateScope())
     dbContext.Database.Migrate();
     
     await SettingsSeeder.SeedAsync(dbContext);
+    await dbContext.Database.ExecuteSqlRawAsync("UPDATE AspNetUsers SET EmailConfirmed = 1 WHERE EmailConfirmed = 0");
 }
 
 app.UseHttpsRedirection();
@@ -81,6 +84,56 @@ app.MapControllers();
 // Liveness probe consumed by docker-compose.yml.
 app.MapHealthChecks("/health");
 app.MapIdentityApi<IdentityUser>(); // <-- Genera las rutas /login, /register, /manage/info, etc.
+
+if (args.Length > 0 && args[0] == "--reset-password")
+{
+    using var scope = app.Services.CreateScope();
+    var userManager = scope.ServiceProvider.GetRequiredService<UserManager<IdentityUser>>();
+    var email = args.Length > 1 ? args[1] : null;
+    var newPassword = args.Length > 2 ? args[2] : null;
+
+    if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(newPassword))
+    {
+        Console.ForegroundColor = ConsoleColor.Red;
+        Console.Error.WriteLine("Usage: dotnet run --project src/3DPrintingHub.Api -- --reset-password <email> <newPassword>");
+        Console.ResetColor();
+        Environment.ExitCode = 1;
+        return;
+    }
+
+    var user = await userManager.FindByEmailAsync(email);
+    if (user is null)
+    {
+        Console.ForegroundColor = ConsoleColor.Red;
+        Console.Error.WriteLine($"User not found with email: {email}");
+        Console.ResetColor();
+        Environment.ExitCode = 1;
+        return;
+    }
+
+    var resetToken = await userManager.GeneratePasswordResetTokenAsync(user);
+    var result = await userManager.ResetPasswordAsync(user, resetToken, newPassword);
+    if (!result.Succeeded)
+    {
+        Console.ForegroundColor = ConsoleColor.Red;
+        Console.Error.WriteLine("Password reset failed:");
+        foreach (var error in result.Errors)
+        {
+            Console.Error.WriteLine($" - {error.Description}");
+        }
+        Console.ResetColor();
+        Environment.ExitCode = 1;
+        return;
+    }
+
+    user.EmailConfirmed = true;
+    await userManager.UpdateAsync(user);
+
+    Console.ForegroundColor = ConsoleColor.Green;
+    Console.WriteLine($"Password for user '{email}' was reset successfully.");
+    Console.ResetColor();
+    return;
+}
 
 app.Run();
 
