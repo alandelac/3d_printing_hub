@@ -37,7 +37,10 @@
         {{ loading() ? 'Signing in...' : 'Sign in' }}
       </button>
 
-      <a class="register-link" routerLink="/register">Create an account</a>
+      <div class="auth-links">
+        <a class="forgot-link" routerLink="/forgot-password">Forgot password?</a>
+        <a class="register-link" routerLink="/register">Create an account</a>
+      </div>
     </form>
   </section>
 </main>

@@ -53,6 +53,24 @@ describe('AuthService', () => {
     req.flush(null);
   });
 
+  it('sends forgot password request', () => {
+    service.forgotPassword({ email: 'user@example.com' }).subscribe();
+
+    const req = httpMock.expectOne('http://localhost:5033/forgotPassword');
+    expect(req.request.method).toBe('POST');
+    expect(req.request.body).toEqual({ email: 'user@example.com' });
+    req.flush(null);
+  });
+
+  it('sends reset password request', () => {
+    service.resetPassword({ email: 'user@example.com', resetCode: 'code123', newPassword: 'NewPassword123!' }).subscribe();
+
+    const req = httpMock.expectOne('http://localhost:5033/resetPassword');
+    expect(req.request.method).toBe('POST');
+    expect(req.request.body).toEqual({ email: 'user@example.com', resetCode: 'code123', newPassword: 'NewPassword123!' });
+    req.flush(null);
+  });
+
   it('logs out and clears session data', () => {
     sessionStorage.setItem('3dprintinghub.accessToken', 'x');
     sessionStorage.setItem('3dprintinghub.refreshToken', 'y');

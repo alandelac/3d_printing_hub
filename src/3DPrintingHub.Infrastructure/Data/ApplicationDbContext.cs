@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using _3DPrintingHub.Domain.Entities;
@@ -200,5 +200,28 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
                 .HasForeignKey(j => j.ModelPrintId)
                 .OnDelete(DeleteBehavior.Restrict);
         });
+    }
+
+    public override int SaveChanges()
+    {
+        EnsureNewIdentityUsersEmailConfirmed();
+        return base.SaveChanges();
+    }
+
+    public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+    {
+        EnsureNewIdentityUsersEmailConfirmed();
+        return base.SaveChangesAsync(cancellationToken);
+    }
+
+    private void EnsureNewIdentityUsersEmailConfirmed()
+    {
+        foreach (var entry in ChangeTracker.Entries<IdentityUser>())
+        {
+            if (entry.State == EntityState.Added)
+            {
+                entry.Entity.EmailConfirmed = true;
+            }
+        }
     }
 }

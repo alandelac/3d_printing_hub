@@ -90,13 +90,23 @@ button:disabled {
   opacity: 0.65;
 }
 
-.register-link {
-  margin-top: 0.7rem;
-  color: #9a3412;
-  text-align: center;
-  font-size: 0.9rem;
+.auth-links {
+  margin-top: 0.75rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.88rem;
   font-weight: 700;
+}
+
+.auth-links a {
+  color: #9a3412;
   text-decoration: none;
+}
+
+.auth-links a:hover {
+  text-decoration: underline;
 }
 
 .register-link:hover {
