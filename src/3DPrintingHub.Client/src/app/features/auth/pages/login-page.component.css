@@ -8,14 +8,14 @@
   display: grid;
   place-items: center;
   padding: 2rem 1rem;
-  background: linear-gradient(135deg, #fff7ed 0%, #fef2f2 52%, #f0fdf4 100%);
+  background: var(--bg);
 }
 
 .login-panel {
   width: min(100%, 26rem);
   padding: 2.25rem;
-  background: #ffffff;
-  border: 1px solid #fed7aa;
+  background: var(--surface);
+  border: 1px solid var(--surface-border);
   border-radius: 0.75rem;
   box-shadow: 0 1rem 2.5rem rgba(124, 45, 18, 0.12);
 }
