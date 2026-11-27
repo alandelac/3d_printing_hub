@@ -64,7 +64,17 @@ public class ProductStockService(ApplicationDbContext dbContext, IPrintPricingSe
                     .ThenInclude(p => p!.MaterialType)
             .ToListAsync(cancellationToken);
 
-        var result = productStocks.Select(ps => ToDto(ps)).ToList();
+        var lastSaleDates = await dbContext.Sales
+            .AsNoTracking()
+            .GroupBy(sale => sale.ProductStockId)
+            .ToDictionaryAsync(
+                sales => sales.Key,
+                sales => (DateTime?)sales.Max(sale => sale.SoldAtUtc),
+                cancellationToken);
+
+        var result = productStocks
+            .Select(ps => ToDto(ps, lastSaleDates.GetValueOrDefault(ps.Id)))
+            .ToList();
 
         return result;
     }
@@ -81,7 +91,7 @@ public class ProductStockService(ApplicationDbContext dbContext, IPrintPricingSe
             .FirstOrDefaultAsync(ps => ps.Id == id, cancellationToken)
             ?? throw new InvalidOperationException($"ProductStock with ID {id} does not exist.");
 
-        var deletedDto = ToDto(productStock);
+        var deletedDto = await ToDtoAsync(productStock, cancellationToken);
 
         dbContext.ProductStocks.Remove(productStock);
         await dbContext.SaveChangesAsync(cancellationToken);
@@ -164,7 +174,7 @@ public class ProductStockService(ApplicationDbContext dbContext, IPrintPricingSe
         // 6. ¡Ya no necesitamos hacer un Re-fetch! 
         // Como actualizamos productStock.ModelPrint y productStock.Filament manualmente arriba,
         // el objeto 'productStock' ya está completo y listo para tu mapeador.
-        return ToDto(productStock);
+        return await ToDtoAsync(productStock, cancellationToken);
     }
 
     public async Task<ProductStockDto> AdjustProductStockQuantityAsync(Guid productStockId, int quantity, CancellationToken cancellationToken = default)
@@ -206,7 +216,7 @@ public class ProductStockService(ApplicationDbContext dbContext, IPrintPricingSe
                     .ThenInclude(p => p!.MaterialType)
             .FirstAsync(ps => ps.Id == productStockId, cancellationToken);
 
-        return ToDto(updatedProductStock);
+        return await ToDtoAsync(updatedProductStock, cancellationToken);
     }
 
     public async Task<ProductStockDto> UpdateProductStockQuantityAsync(Guid productStockId, int quantity, int expectedVersion, CancellationToken cancellationToken = default)
@@ -239,28 +249,20 @@ public class ProductStockService(ApplicationDbContext dbContext, IPrintPricingSe
                     .ThenInclude(p => p!.MaterialType)
             .FirstAsync(ps => ps.Id == productStockId, cancellationToken);
 
-        return ToDto(updatedProductStock);
+        return await ToDtoAsync(updatedProductStock, cancellationToken);
     }
 
-    public async Task<ProductStockDto> MarkPublishedTodayAsync(Guid productStockId, CancellationToken cancellationToken = default)
+    private async Task<ProductStockDto> ToDtoAsync(ProductStock ps, CancellationToken cancellationToken)
     {
-        var productStock = await dbContext.ProductStocks
-            .Include(ps => ps.ModelPrint)
-            .Include(ps => ps.Filament)
-                .ThenInclude(f => f!.Color)
-            .Include(ps => ps.Filament)
-                .ThenInclude(f => f!.Profile)
-                    .ThenInclude(p => p!.MaterialType)
-            .FirstOrDefaultAsync(ps => ps.Id == productStockId, cancellationToken)
-            ?? throw new InvalidOperationException($"ProductStock with ID {productStockId} does not exist.");
+        var lastSaleDateUtc = await dbContext.Sales
+            .AsNoTracking()
+            .Where(sale => sale.ProductStockId == ps.Id)
+            .MaxAsync(sale => (DateTime?)sale.SoldAtUtc, cancellationToken);
 
-        productStock.LastPublishedDate = DateOnly.FromDateTime(DateTime.UtcNow);
-        await dbContext.SaveChangesAsync(cancellationToken);
-
-        return ToDto(productStock);
+        return ToDto(ps, lastSaleDateUtc);
     }
 
-    private static ProductStockDto ToDto(ProductStock ps)
+    private static ProductStockDto ToDto(ProductStock ps, DateTime? lastSaleDateUtc)
     {
         return new ProductStockDto
         {
@@ -278,7 +280,26 @@ public class ProductStockService(ApplicationDbContext dbContext, IPrintPricingSe
             RecommendedSalePrice = ps.RecommendedSalePrice,
             SalePrice = ps.SalePrice,
             LastUpdated = ps.LastUpdated,
+            LastSaleDateUtc = lastSaleDateUtc,
             LastPublishedDate = ps.LastPublishedDate
         };
+    }
+
+    public async Task<ProductStockDto> MarkPublishedTodayAsync(Guid productStockId, CancellationToken cancellationToken = default)
+    {
+        var productStock = await dbContext.ProductStocks
+            .Include(ps => ps.ModelPrint)
+            .Include(ps => ps.Filament)
+                .ThenInclude(f => f!.Color)
+            .Include(ps => ps.Filament)
+                .ThenInclude(f => f!.Profile)
+                    .ThenInclude(p => p!.MaterialType)
+            .FirstOrDefaultAsync(ps => ps.Id == productStockId, cancellationToken)
+            ?? throw new InvalidOperationException($"ProductStock with ID {productStockId} does not exist.");
+
+        productStock.LastPublishedDate = DateOnly.FromDateTime(DateTime.UtcNow);
+        await dbContext.SaveChangesAsync(cancellationToken);
+
+        return await ToDtoAsync(productStock, cancellationToken);
     }
 }

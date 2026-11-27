@@ -18,6 +18,7 @@ const productStocks: ProductStock[] = [
     recommendedSalePrice: 8,
     salePrice: 10,
     lastUpdated: '2026-01-01T00:00:00Z',
+    lastSaleDateUtc: null,
     lastPublishedDate: null
   },
   {
@@ -33,6 +34,7 @@ const productStocks: ProductStock[] = [
     recommendedSalePrice: 12,
     salePrice: 20,
     lastUpdated: '2026-01-01T00:00:00Z',
+    lastSaleDateUtc: null,
     lastPublishedDate: null
   }
 ];

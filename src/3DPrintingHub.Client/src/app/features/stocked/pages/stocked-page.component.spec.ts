@@ -58,6 +58,7 @@ const stock = (id: string, quantity: number, minimumInventoryQuantity = 2): Prod
   recommendedSalePrice: 4.987654,
   salePrice: 5,
   lastUpdated: '2026-01-02T00:00:00',
+  lastSaleDateUtc: null,
   lastPublishedDate: null
 });
 
@@ -146,6 +147,7 @@ describe('StockedPageComponent', () => {
       'Recommended Sale Price',
       'Sale Price',
       'Margin',
+      'Last Sale Date',
       'Last Updated',
       'Last Published Date',
       'Actions'
@@ -160,8 +162,20 @@ describe('StockedPageComponent', () => {
     expect(rows()[0].cells[5].textContent?.trim()).toBe('4.99');
     expect(rows()[0].cells[7].textContent?.trim()).toBe('57.53%');
     expect(rows()[0].cells[7].querySelector('.margin--green-strong')).not.toBeNull();
-    expect(rows()[0].cells[9].textContent).toContain('-');
+    expect(rows()[0].cells[8].textContent?.trim()).toBe('—');
+    expect(rows()[0].cells[10].textContent).toContain('-');
     expect(buttonWithText(rows()[0], 'Mark Published Today')).toBeDefined();
+  });
+
+  it('formats the most recent sale date in the stock table', async () => {
+    getAllProductStocks.mockReturnValue(of([
+      { ...stock('s1', 4), lastSaleDateUtc: '2026-02-05T09:30:00Z' }
+    ]));
+
+    fixture.detectChanges();
+    await flush();
+
+    expect(rows()[0].cells[8].textContent?.trim()).toBe('2026-02-05');
   });
 
   it('marks a stock row published today and displays the returned date', async () => {
@@ -172,7 +186,7 @@ describe('StockedPageComponent', () => {
     await flush();
 
     expect(markPublishedToday).toHaveBeenCalledWith('s1');
-    expect(rows()[0].cells[9].textContent).toContain('2026-11-19');
+    expect(rows()[0].cells[10].textContent).toContain('2026-11-19');
   });
 
   it('reports an error when marking a stock row published today fails', async () => {
@@ -185,7 +199,7 @@ describe('StockedPageComponent', () => {
     await flush();
 
     expect(alert).toHaveBeenCalledWith(expect.stringContaining('Error:'));
-    expect(rows()[0].cells[9].textContent).toContain('-');
+    expect(rows()[0].cells[10].textContent).toContain('-');
   });
 
   it('shows no margin when the production cost is zero', async () => {

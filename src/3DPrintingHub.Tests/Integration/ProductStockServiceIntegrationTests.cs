@@ -27,7 +27,7 @@ public class ProductStockServiceIntegrationTests
 
         var (model, _, filament) = await AddReferencesAsync(dbContext);
         var stockId = Guid.NewGuid();
-        await dbContext.Database.ExecuteSqlInterpolatedAsync($"""
+        await dbContext.Database.ExecuteSqlAsync($"""
             INSERT INTO ProductStocks (Id, ModelPrintId, FilamentId, QuantityInStock, Version, CostToProduce, RecommendedSalePrice, SalePrice, LastUpdated)
             VALUES ({stockId}, {model.Id}, {filament.Id}, {4}, {0}, {10m}, {20m}, {20m}, {DateTime.UtcNow})
             """);
@@ -92,6 +92,62 @@ public class ProductStockServiceIntegrationTests
     }
 
     [Fact]
+    public async Task GetAllProductStocks_ReturnsLatestSaleDateAndNullForNeverSoldStock()
+    {
+        await using var connection = new SqliteConnection("Filename=:memory:");
+        await connection.OpenAsync();
+        var options = new DbContextOptionsBuilder<ApplicationDbContext>()
+            .UseSqlite(connection)
+            .Options;
+
+        await using var dbContext = new ApplicationDbContext(options);
+        await dbContext.Database.EnsureCreatedAsync();
+        var (firstModel, secondModel, filament) = await AddReferencesAsync(dbContext);
+        await SettingsSeeder.SeedAsync(dbContext);
+
+        var service = new ProductStockService(dbContext, new PrintPricingService(dbContext));
+        var soldStockId = await service.CreateProductStockAsync(new ProductStockCreateDto
+        {
+            ModelPrintId = firstModel.Id,
+            FilamentId = filament.Id,
+            QuantityInStock = 2
+        });
+        var neverSoldStockId = await service.CreateProductStockAsync(new ProductStockCreateDto
+        {
+            ModelPrintId = secondModel.Id,
+            FilamentId = filament.Id,
+            QuantityInStock = 2
+        });
+        var earlierSaleDate = new DateTime(2026, 1, 10, 12, 0, 0, DateTimeKind.Utc);
+        var latestSaleDate = new DateTime(2026, 2, 5, 9, 30, 0, DateTimeKind.Utc);
+
+        dbContext.Sales.AddRange(
+            new Sale
+            {
+                ProductStockId = soldStockId,
+                Quantity = 1,
+                SalePrice = 10m,
+                PaymentReceived = true,
+                SoldAtUtc = earlierSaleDate
+            },
+            new Sale
+            {
+                ProductStockId = soldStockId,
+                Quantity = 1,
+                SalePrice = 10m,
+                PaymentReceived = false,
+                SoldAtUtc = latestSaleDate
+            });
+        await dbContext.SaveChangesAsync();
+
+        var productStocks = (await service.GetAllProductStocksAsync())
+            .ToDictionary(stock => stock.Id);
+
+        Assert.Equal(latestSaleDate, productStocks[soldStockId].LastSaleDateUtc);
+        Assert.Null(productStocks[neverSoldStockId].LastSaleDateUtc);
+    }
+
+    [Fact]
     public async Task MarkPublishedToday_PersistsTheDateAndStockUpdatesLeaveItUnchanged()
     {
         await using var connection = new SqliteConnection("Filename=:memory:");
@@ -116,8 +172,8 @@ public class ProductStockServiceIntegrationTests
         var createdStock = (await service.GetAllProductStocksAsync()).Single();
         Assert.Null(createdStock.LastPublishedDate);
 
-        var today = DateOnly.FromDateTime(DateTime.UtcNow);
         var markedStock = await service.MarkPublishedTodayAsync(stockId);
+        var today = DateOnly.FromDateTime(DateTime.UtcNow);
         Assert.Equal(today, markedStock.LastPublishedDate);
 
         var editedStock = await service.UpdateProductStockAsync(new ProductStockUpdateDto

@@ -1,5 +1,5 @@
 # Etapa 1: Compilar la API
-FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
+FROM mcr.microsoft.com/dotnet/sdk:11.0 AS build
 WORKDIR /src
 COPY src/3DPrintingHub.Api/3DPrintingHub.Api.csproj ./3DPrintingHub.Api/
 COPY src/3DPrintingHub.Application/3DPrintingHub.Application.csproj ./3DPrintingHub.Application/
@@ -11,7 +11,7 @@ WORKDIR /src/3DPrintingHub.Api
 RUN dotnet publish ./3DPrintingHub.Api.csproj -c Release -o /app/publish
 
 # Etapa 2: Runtime ligero
-FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS final
+FROM mcr.microsoft.com/dotnet/aspnet:11.0 AS final
 WORKDIR /app
 
 COPY --from=build /app/publish .

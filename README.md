@@ -87,10 +87,12 @@ Everything in `scripts/` is PowerShell and resolves the repository root from its
 
 | Script | What it does | Port |
 |---|---|---|
-| `scripts/run-all.ps1` | Starts the API and the client, each in its own window (`-Wait` keeps the console attached). | API `5033`, client `4200` |
+| `scripts/run-all.ps1` | Starts the API (if the .NET SDK is installed) and the client, each in its own window (`-Wait` keeps the console attached). Without .NET, starts only the client; API-backed features require the API via .NET or Docker. | API `5033`, client `4200` |
 | `scripts/run-program.ps1` | Starts the .NET API only. | API `5033` |
 | `scripts/run-front.ps1` | Starts the Angular client only (`ng serve`). | client `4200` |
 | `scripts/update-db.ps1` | Applies the EF Core migrations to the local SQLite database (`src/3DPrintingHub.Api/printinghub.db`). | — |
+
+The local Angular scripts require Node.js and npm on `PATH`; run `npm ci` once in `src/3DPrintingHub.Client` if its dependencies are missing. If Node.js was just installed, reopen PowerShell or VS Code to refresh `PATH`.
 
 Local configuration starts from the tracked template: `Copy-Item .env.example .env`. The published containers use different ports — frontend `8081` on the host and the API on `8080` inside the compose network — see `docker-compose.yml`.
 
