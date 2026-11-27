@@ -12,7 +12,6 @@ import {
   output
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ListStateComponent } from '../list-state/list-state.component';
 import { TableActionsComponent } from '../table-actions/table-actions.component';
 
 /** Value a column exposes for the shared sorting and filtering. */
@@ -132,19 +131,19 @@ export class TableHeaderDirective {
 @Component({
   selector: 'app-table',
   standalone: true,
-  imports: [CommonModule, ListStateComponent, TableActionsComponent],
+  imports: [CommonModule, TableActionsComponent],
   template: `
-    <div class="filter-bar" *ngIf="filterVisible()">
-      <input
-        type="text"
-        class="filter-input"
-        [placeholder]="filterPlaceholder()"
-        [value]="filter()"
-        (input)="onFilterInput($any($event.target).value)"
-      />
-    </div>
-
-    <app-list-state [loading]="loading()" [hasData]="visibleRows().length > 0" [emptyText]="emptyMessage()">
+    <div *ngIf="loading()">Loading...</div>
+    <ng-container *ngIf="!loading()">
+      <div class="filter-bar" *ngIf="filterVisible()">
+        <input
+          type="text"
+          class="filter-input"
+          [placeholder]="filterPlaceholder()"
+          [value]="filter()"
+          (input)="onFilterInput($any($event.target).value)"
+        />
+      </div>
       <div class="table-scroll">
         <table>
           <thead>
@@ -175,10 +174,13 @@ export class TableHeaderDirective {
                 <app-table-actions (edit)="edit.emit(row)" (delete)="delete.emit(row)" />
               </td>
             </tr>
+            <tr *ngIf="visibleRows().length === 0" class="empty-row">
+              <td [attr.colspan]="columns().length + (showActions() ? 1 : 0)">{{ emptyMessage() }}</td>
+            </tr>
           </tbody>
         </table>
       </div>
-    </app-list-state>
+    </ng-container>
   `,
   styles: [`
     .filter-bar {

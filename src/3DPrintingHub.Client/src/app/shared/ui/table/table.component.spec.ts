@@ -172,14 +172,22 @@ describe('TableComponent', () => {
       expect(compiled.querySelector('table')).toBeNull();
     });
 
-    it('shows the empty message when there are no rows', () => {
+    it('renders the headers and an empty row when there are no rows', () => {
       host.rows = [];
       fixture.detectChanges();
 
       const compiled = fixture.nativeElement as HTMLElement;
+      const headers = Array.from(compiled.querySelectorAll('thead th') as NodeListOf<HTMLElement>).map(
+        header => header.textContent?.trim()
+      );
+      const rows = compiled.querySelectorAll('tbody tr');
+      const emptyCell = rows[0]?.querySelector('td') as HTMLTableCellElement;
 
       expect(compiled.textContent).toContain('No records found.');
-      expect(compiled.querySelector('table')).toBeNull();
+      expect(headers).toEqual(['Name', 'Quantity', 'Notes', 'Actions']);
+      expect(rows.length).toBe(1);
+      expect(emptyCell.textContent?.trim()).toBe('No records found.');
+      expect(emptyCell.colSpan).toBe(4);
     });
 
     it('emits edit and delete with the row that was clicked', () => {
@@ -231,7 +239,9 @@ describe('TableComponent', () => {
     const headerWithText = (text: string): HTMLTableCellElement =>
       headers().find(header => header.textContent?.trim().startsWith(text))!;
     const bodyRows = (): HTMLTableRowElement[] =>
-      Array.from((fixture.nativeElement as HTMLElement).querySelectorAll<HTMLTableRowElement>('tbody tr'));
+      Array.from(
+        (fixture.nativeElement as HTMLElement).querySelectorAll<HTMLTableRowElement>('tbody tr:not(.empty-row)')
+      );
     const firstColumn = (): string[] =>
       bodyRows().map(row => row.querySelector('td')?.textContent?.trim() ?? '');
     const filterInput = (): HTMLInputElement =>
@@ -283,7 +293,8 @@ describe('TableComponent', () => {
 
       expect(bodyRows().length).toBe(0);
       expect(compiled.textContent).toContain('No records match.');
-      expect(compiled.querySelector('table')).toBeNull();
+      expect(compiled.querySelector('table')).not.toBeNull();
+      expect(compiled.querySelector('tbody .empty-row td')?.textContent?.trim()).toBe('No records match.');
 
       type('');
 
