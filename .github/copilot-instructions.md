@@ -1,0 +1,1 @@
+Before implementing a new feature, check the current branch and working tree; create a feature/<short-name> branch before editing. Don’t switch branches or disturb uncommitted work without resolving the situation first.
