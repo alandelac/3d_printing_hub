@@ -9,9 +9,15 @@
 
       <div *ngIf="!loading() && error()" class="error">{{ error() }}</div>
 
-      <app-list-state [loading]="loading()" [hasData]="typeSlices().length > 0" emptyText="No filaments found.">
-        <app-pie-chart [data]="typeSlices()" [size]="280" unit="kg"></app-pie-chart>
-      </app-list-state>
+      <div *ngIf="loading(); else filamentChart">Loading...</div>
+      <ng-template #filamentChart>
+        <app-pie-chart
+          [data]="typeSlices()"
+          [size]="280"
+          unit="kg"
+          emptyText="No filament type available"
+        ></app-pie-chart>
+      </ng-template>
     </div>
 
     <!-- Dashboard 2: Models by category -->
@@ -19,9 +25,15 @@
       <h3>Models by category</h3>
       <p class="total">Total: <strong>{{ totalModels() }} models</strong></p>
 
-      <app-list-state [loading]="loading()" [hasData]="categorySlices().length > 0" emptyText="No models found.">
-        <app-pie-chart [data]="categorySlices()" [size]="280" unit="models"></app-pie-chart>
-      </app-list-state>
+      <div *ngIf="loading(); else modelChart">Loading...</div>
+      <ng-template #modelChart>
+        <app-pie-chart
+          [data]="categorySlices()"
+          [size]="280"
+          unit="models"
+          emptyText="No model available"
+        ></app-pie-chart>
+      </ng-template>
     </div>
 
     <!-- More dashboards can be added here as additional .dashboard-card blocks -->

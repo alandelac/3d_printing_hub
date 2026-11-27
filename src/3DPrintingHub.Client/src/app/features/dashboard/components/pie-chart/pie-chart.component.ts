@@ -41,6 +41,7 @@ export class PieChart {
   readonly data = input<PieSlice[]>([]);
   readonly size = input(300);
   readonly unit = input('');
+  readonly emptyText = input('No data available.');
 
   protected readonly segments = computed<PieSegment[]>(() => {
     const data = this.data();
@@ -67,7 +68,14 @@ export class PieChart {
       const x2 = cx + radius * Math.cos(endAngle);
       const y2 = cy + radius * Math.sin(endAngle);
 
-      const path = `M ${cx} ${cy} L ${x1} ${y1} A ${radius} ${radius} 0 ${largeArc} 1 ${x2} ${y2} Z`;
+      let path: string;
+      if (sweep === Math.PI * 2) {
+        const oppositeX = cx - radius * Math.cos(angle);
+        const oppositeY = cy - radius * Math.sin(angle);
+        path = `M ${cx} ${cy} L ${x1} ${y1} A ${radius} ${radius} 0 1 1 ${oppositeX} ${oppositeY} A ${radius} ${radius} 0 1 1 ${x1} ${y1} Z`;
+      } else {
+        path = `M ${cx} ${cy} L ${x1} ${y1} A ${radius} ${radius} 0 ${largeArc} 1 ${x2} ${y2} Z`;
+      }
 
       const midAngle = angle + sweep / 2;
       const labelRadius = radius * 0.6;

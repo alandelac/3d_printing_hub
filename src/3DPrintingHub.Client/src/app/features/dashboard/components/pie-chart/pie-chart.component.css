@@ -6,6 +6,13 @@
   justify-content: center;
 }
 
+.pie-empty-state {
+  display: grid;
+  place-items: center;
+  min-width: 100%;
+  text-align: center;
+}
+
 .pie-svg {
   flex: 0 0 auto;
 }

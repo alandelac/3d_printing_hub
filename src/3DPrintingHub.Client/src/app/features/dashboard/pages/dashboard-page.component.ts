@@ -6,12 +6,11 @@ import { ModelRepository } from '../../../data/repositories/model.repository';
 import { Filament } from '../../../domain/models/filament.model';
 import { ModelPrint } from '../../../domain/models/model-print.model';
 import { PieChart, PieSlice } from '../components/pie-chart/pie-chart.component';
-import { ListStateComponent } from '../../../shared/ui/list-state/list-state.component';
 
 @Component({
   selector: 'app-dashboard-page',
   standalone: true,
-  imports: [CommonModule, PieChart, ListStateComponent],
+  imports: [CommonModule, PieChart],
   templateUrl: './dashboard-page.component.html',
   styleUrls: ['./dashboard-page.component.css']
 })

@@ -38,3 +38,9 @@
     </li>
   </ul>
 </div>
+
+<div
+  *ngIf="!hasData()"
+  class="pie-empty-state"
+  [style.min-height.px]="size()"
+>{{ emptyText() }}</div>
